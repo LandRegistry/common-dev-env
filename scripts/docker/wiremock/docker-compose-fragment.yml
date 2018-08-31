@@ -1,0 +1,7 @@
+version: '2'
+services:
+  wiremock:
+    container_name: wiremock
+    build: /vagrant/scripts/guest/docker/wiremock/
+    ports:
+      - "5017:8080"

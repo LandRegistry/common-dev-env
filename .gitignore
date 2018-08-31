@@ -1,0 +1,16 @@
+.vagrant/
+.dev-env-context
+.update-check-context
+.quick-reload
+dev-env-config/
+.DS_Store
+apps/
+.docker-compose-file-list
+.postgres_init.sql
+.db2_init.sql
+.commodities.yml
+.custom_provision.yml
+mpapis.asc
+logs/
+.vscode/
+.idea/

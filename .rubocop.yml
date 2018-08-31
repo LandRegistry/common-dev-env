@@ -1,0 +1,31 @@
+AllCops:
+  TargetRubyVersion: 2.5
+
+  Exclude:
+    - 'apps/**/*'
+
+Metrics/LineLength:
+  Max: 120
+
+# The default is 10, which is low...
+Metrics/MethodLength:
+  Enabled: false
+
+# There are loads of calls to colorize which are fairly clear, but drive up AbcSize
+# Set to 21 for update_apps (ensures it won't grow)
+Metrics/AbcSize:
+  Max: 21
+
+Metrics/ParameterLists:
+  Max: 7
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# casecmp is harder to read ('a'.casecmp('A').zero?)
+Performance/Casecmp:
+  Enabled: false
+
+# Generating false positives
+Style/SafeNavigation:
+  Enabled: false

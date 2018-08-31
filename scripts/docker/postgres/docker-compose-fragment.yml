@@ -1,0 +1,7 @@
+version: '2'
+services:
+  postgres:
+    container_name: postgres
+    build: ${PWD}/scripts/docker/postgres/
+    ports:
+      - "5432:5432"

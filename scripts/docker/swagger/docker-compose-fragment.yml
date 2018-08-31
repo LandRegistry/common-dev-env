@@ -1,0 +1,7 @@
+version: '2'
+services:
+  swagger:
+    container_name: swagger
+    image: swaggerapi/swagger-ui
+    ports:
+      - 5101:8080

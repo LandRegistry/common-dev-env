@@ -1,0 +1,9 @@
+applications:
+
+  my-frontend:
+    repo: https://github.com/my/frontend.git
+    branch: develop
+  
+  my-backend:
+    repo: git@git.lr.net:my/backend.git
+    branch: master

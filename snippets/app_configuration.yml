@@ -1,0 +1,2 @@
+---
+commodities: ["postgres", "elasticsearch5", "rabbitmq", "db2"]
