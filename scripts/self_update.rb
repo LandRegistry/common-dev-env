@@ -9,7 +9,7 @@ def self_update(root_loc, this_version)
   latest_version = retrieve_version
 
   # If latest_version is nil, retrieve_version has already displayed an error
-  if !latest_version.nil? && Gem::Version.new(latest_version) > Gem::Version.new(this_version)
+  if !latest_version.nil? && Gem::Version.new(latest_version[0]) > Gem::Version.new(this_version)
     prompt_and_update(root_loc, latest_version)
   else
     puts colorize_green('This is the latest version.') unless latest_version.nil?
@@ -23,9 +23,9 @@ rescue StandardError => e
 end
 
 def prompt_and_update(root_loc, latest_version)
-  puts colorize_yellow("A new version is available - v#{latest_version}")
+  puts colorize_yellow("A new version is available - v#{latest_version[0]}")
   puts colorize_yellow('Changes:')
-  puts colorize_yellow(result['body'])
+  puts colorize_yellow(latest_version[1])
   puts ''
 
   # Have we already asked the user to update today?
@@ -39,7 +39,7 @@ end
 
 def refused_today?(root_loc)
   update_check_file = "#{root_loc}/.update-check-context"
-  return true unless File.exist?(update_check_file)
+  return false unless File.exist?(update_check_file)
   parsed_date = Date.strptime(File.read(update_check_file), '%Y-%m-%d')
   if Date.today == parsed_date
     puts colorize_yellow("You've already said you don't want to update today, so I won't ask again. To update" \
@@ -79,7 +79,7 @@ def run_update(root_loc)
   else
     puts colorize_yellow('Update successful.')
     puts colorize_yellow("Please rerun your command (source run.sh #{ARGV.join(' ')})")
-    exit 0
+    exit 1
   end
 end
 
@@ -93,7 +93,7 @@ def retrieve_version
 
   if response.code == '200'
     result = JSON.parse(response.body)
-    result['tag_name'].sub(/^v/, '') # Remove v if it starts with it
+    return result['tag_name'].sub(/^v/, ''), result['body'] # Remove v if it starts with it
   else
     puts colorize_yellow("There was an error retrieving the current dev-env version (HTTP code #{response.code})." \
                          " I'll just get on with starting the machine.")
