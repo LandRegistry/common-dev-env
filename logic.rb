@@ -59,7 +59,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.0.0'
+  this_version = '1.0.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -105,7 +105,7 @@ if ['prep'].include?(ARGV[0])
     puts ''
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
   else
-    print colorize_yellow('Please enter the url of your dev env repo (SSH): ')
+    print colorize_yellow('Please enter the (Git) url of your dev env configuration repository: ')
     app_grouping = STDIN.gets.chomp
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(app_grouping) }
   end
@@ -201,8 +201,6 @@ if ['start'].include?(ARGV[0])
     puts colorize_yellow('No containers to start.')
   end
 
-  puts colorize_green('All done, environment is ready for use')
-
   # Any custom scripts to run?
   provision_custom(root_loc)
 
@@ -237,4 +235,6 @@ if ['start'].include?(ARGV[0])
     puts colorize_lightblue('Running after-up script from dev-env-config')
     run_command("#{root_loc}/dev-env-config/after-up.sh")
   end
+
+  puts colorize_green('All done, environment is ready for use')
 end
