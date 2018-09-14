@@ -201,8 +201,6 @@ if ['start'].include?(ARGV[0])
     puts colorize_yellow('No containers to start.')
   end
 
-  puts colorize_green('All done, environment is ready for use')
-
   # Any custom scripts to run?
   provision_custom(root_loc)
 
@@ -237,4 +235,6 @@ if ['start'].include?(ARGV[0])
     puts colorize_lightblue('Running after-up script from dev-env-config')
     run_command("#{root_loc}/dev-env-config/after-up.sh")
   end
+
+  puts colorize_green('All done, environment is ready for use')
 end
