@@ -7,4 +7,6 @@ ENV LICENSE accept
 
 EXPOSE 50000
 
+VOLUME /home/db2inst1
+
 CMD ["db2start"]
