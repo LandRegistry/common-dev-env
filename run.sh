@@ -14,6 +14,7 @@ then
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb stop &&
+    source scripts/add-aliases.sh &&
     source scripts/remove-aliases.sh
 fi
 
@@ -37,6 +38,7 @@ then
     ruby logic.rb reset &&
     export COMPOSE_FILE= &&
     export COMPOSE_PROJECT_NAME= &&
+    source scripts/add-aliases.sh &&
     source scripts/remove-aliases.sh
 fi
 
