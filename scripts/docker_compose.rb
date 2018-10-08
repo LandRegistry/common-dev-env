@@ -16,7 +16,14 @@ def prepare_compose(root_loc, file_list_loc)
   end
 
   # Put the compose arguments into a file for later retrieval
-  File.open(file_list_loc, 'w') { |f| f.write(commodity_list.join(':')) }
+  # Note that Compose on Windows needs semicolons separating the fragments
+  File.open(file_list_loc, 'w') do |f|
+    if Gem.win_platform?
+      f.write(commodity_list.join(';'))
+    else
+      f.write(commodity_list.join(':'))
+    end
+  end
 end
 
 def get_apps(root_loc)
