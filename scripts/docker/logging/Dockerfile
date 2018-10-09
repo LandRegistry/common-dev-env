@@ -1,7 +1,13 @@
 FROM python:3.7.0
 ENV PYTHONUNBUFFERED yes
 
-ADD server.py .
+# Add Tini
+RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini > /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "-e", "143", "--"]
 
-# Run the app, copying all stdout to log.txt
-CMD python ./server.py | tee /log-dir/log.txt
+CMD ["/run.sh"]
+
+COPY server.py .
+COPY run.sh .
+RUN chmod +x run.sh
