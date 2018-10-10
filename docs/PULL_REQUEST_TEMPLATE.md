@@ -1,13 +1,16 @@
-* **What kind of change does this PR introduce?**
- _(Bug fix, feature, docs update, ...)_
+<!-- You can erase any questions or checklists in this template that are not applicable. -->
+
+* **What kind of change does this PR introduce (Bug fix, feature, docs update, ...)?**
+  _answer_
 
 * **What is the current behavior?**
-  _(You can also just link to an open issue here)_
+  _answer (You can also just link to an open issue here)_
 
 * **What is the new behavior (if this is a feature change)?**
+  _answer_
 
-* **Does this PR introduce a breaking change?**
-  _(What actions might users be forced to make due to this PR?)_
+* **Does this PR introduce a breaking change? If so, what actions will users need to take in order to regain compatibility?**
+  _answer_
 
 ## Checklists
 
