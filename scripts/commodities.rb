@@ -90,5 +90,6 @@ end
 def commodity_required?(root_loc, appname, commodity)
   dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
   return false if dependencies.nil?
+
   dependencies.key?('commodities') && dependencies['commodities'].include?(commodity)
 end

@@ -11,6 +11,7 @@ def provision_hosts(root_loc)
 
   # Now modify the host's file according to OS
   return if host_additions.empty?
+
   puts colorize_lightblue("Additions: #{host_additions}")
 
   file = File.read(hosts_filename)
@@ -40,6 +41,7 @@ def get_host_additions(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
 
   return unless config['applications']
+
   config['applications'].each do |appname, _appconfig|
     # Check adfs is required
     next unless File.exist?("#{root_loc}/apps/#{appname}/fragments/host-fragments.yml")

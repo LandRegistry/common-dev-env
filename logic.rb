@@ -26,7 +26,7 @@ require_relative 'scripts/provision_elasticsearch'
 require 'fileutils'
 require 'open3'
 require 'highline/import'
-require "rubygems"
+require 'rubygems'
 
 # Ensures stdout is never buffered
 STDOUT.sync = true
