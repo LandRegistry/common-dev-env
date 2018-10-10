@@ -77,15 +77,6 @@ def init_db2(root_loc)
   # Better not run anything until DB2 is ready to accept connections...
   run_command('echo Waiting for DB2 to finish initialising')
   run_command("#{root_loc}/scripts/docker/db2/wait-for-db2.sh")
-  # Setup the default database file. This can be added to in the individual fragment.sql files
-  puts colorize_lightblue('Setting up default LANDREG database')
-  File.open("#{root_loc}/.db2_init.sql", 'w') { |file| file.write('CREATE DATABASE LANDREG;') }
-  # Add the command to get the file into the container
-  run_command("docker cp #{root_loc}/.db2_init.sql db2:/db2-init.sql")
-  run_command("docker exec db2 bash -c 'chmod o+r /db2-init.sql'")
-  # Then a command to execute the file
-  run_command("docker exec -u db2inst1 db2 bash -c '~/sqllib/bin/db2 -tvf /db2-init.sql'")
-  run_command("docker exec -u db2inst1 db2 bash -c '~/sqllib/bin/db2 disconnect all'")
 
   puts 'Database setup complete. Looking for table data now.'
 end
