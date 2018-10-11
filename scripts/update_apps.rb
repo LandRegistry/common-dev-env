@@ -97,6 +97,7 @@ def update_app(appconfig, root_loc, appname)
   # Update all the remote branches (this will not change the local branch, we'll do that further down')
   output_lines << colorize_lightblue('Fetching from remote...')
   return output_lines unless run_command('git -C ' + "#{root_loc}/apps/#{appname} fetch origin", output_lines) != 0
+
   # If there is a git error we shouldn't continue
   output_lines << colorize_red("Error while updating #{appname}")
   output_lines << colorize_yellow('Continuing in 3 seconds...')

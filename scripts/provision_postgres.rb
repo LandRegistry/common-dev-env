@@ -45,15 +45,6 @@ def start_postgres(root_loc, appname, started)
     run_command('echo Waiting for postgres to finish initialising')
     run_command("#{root_loc}/scripts/docker/postgres/wait-for-it.sh localhost")
 
-    # DEPRECATED: Write the line we always need (for backwards compatibility with apps that don't use their own
-    # username yet)
-    File.open("#{root_loc}/.postgres_init.sql", 'w') do |file|
-      file.write("CREATE ROLE vagrant WITH LOGIN PASSWORD 'vagrant';")
-    end
-    # First, a command to get the file into the container
-    run_command("docker cp #{root_loc}/.postgres_init.sql postgres:/postgres_init.sql")
-    # Then a command to execute the file
-    run_command("docker exec postgres psql -q -f '/postgres_init.sql'")
     started = true
   end
   run_command("docker cp #{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql " \

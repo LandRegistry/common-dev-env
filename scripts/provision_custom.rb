@@ -72,6 +72,7 @@ end
 
 def run_always_custom_provision(root_loc, appname)
   return unless File.exist?("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
+
   puts colorize_pink("Found one (always) in #{appname}")
   run_command("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 end

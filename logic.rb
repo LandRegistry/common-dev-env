@@ -26,7 +26,7 @@ require_relative 'scripts/provision_elasticsearch'
 require 'fileutils'
 require 'open3'
 require 'highline/import'
-require "rubygems"
+require 'rubygems'
 
 # Ensures stdout is never buffered
 STDOUT.sync = true
@@ -60,7 +60,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.0.2'
+  this_version = '1.0.3'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)

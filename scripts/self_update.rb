@@ -40,6 +40,7 @@ end
 def refused_today?(root_loc)
   update_check_file = "#{root_loc}/.update-check-context"
   return false unless File.exist?(update_check_file)
+
   parsed_date = Date.strptime(File.read(update_check_file), '%Y-%m-%d')
   if Date.today == parsed_date
     puts colorize_yellow("You've already said you don't want to update today, so I won't ask again. To update" \
@@ -78,7 +79,7 @@ def run_update(root_loc)
     sleep(5)
   else
     puts colorize_yellow('Update successful.')
-    puts colorize_yellow("Please rerun your command (source run.sh #{ARGV.join(' ')})")
+    puts colorize_yellow('Please rerun your command (source run.sh up)')
     exit 1
   end
 end
