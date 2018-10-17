@@ -4,8 +4,17 @@ def prepare_compose(root_loc, file_list_loc)
   require 'yaml'
   root_loc = root_loc
 
+  commodity_list = []
+  # When using the COMPOSE_FILE env var, the first fragment in the list is used
+  # as the path that all relative paths in further fragments are based on.
+  # By making this consistently /apps, fragments do not need to rely on ${PWD}
+  # which can vary depending on where the user happens to be when they issue the
+  # command (e.g. status). We do this by making the first file an empty fragment
+  # that lives in /apps
+  commodity_list.push("#{root_loc}/apps/root-docker-compose-fragment.yml")
+
   # Put all the apps into an array, as their compose file argument
-  commodity_list = get_apps(root_loc)
+  get_apps(root_loc, commodity_list)
 
   # Load any commodities into the docker compose list
   commodities = YAML.load_file("#{root_loc}/.commodities.yml")
@@ -26,17 +35,15 @@ def prepare_compose(root_loc, file_list_loc)
   end
 end
 
-def get_apps(root_loc)
+def get_apps(root_loc, commodity_list)
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
-  commodity_list = []
-  if config['applications']
-    config['applications'].each do |appname, _appconfig|
-      # If this app is docker, add it's compose to the list
-      if File.exist?("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
-        commodity_list.push("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
-      end
+  return unless config['applications']
+
+  config['applications'].each do |appname, _appconfig|
+    # If this app is docker, add it's compose to the list
+    if File.exist?("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
+      commodity_list.push("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
     end
   end
-  commodity_list
 end

@@ -2,7 +2,7 @@ version: '2'
 services:
   elasticsearch:
     container_name: elasticsearch
-    build: ${PWD}/scripts/docker/elasticsearch/
+    build: ../scripts/docker/elasticsearch/
     ports:
       - "9200:9200"
       - "9300:9300"

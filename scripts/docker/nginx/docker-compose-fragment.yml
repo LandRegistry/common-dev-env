@@ -2,7 +2,7 @@ version: '2'
 services:
   nginx:
     container_name: nginx
-    build: ${PWD}/scripts/docker/nginx/
+    build: ../scripts/docker/nginx/
     ports:
       - "80:80"
       - "443:443"
