@@ -2,6 +2,6 @@ version: '2'
 services:
   redis:
     container_name: redis
-    build: ${PWD}/scripts/docker/redis/
+    build: ../scripts/docker/redis/
     ports:
       - 6379:6379
