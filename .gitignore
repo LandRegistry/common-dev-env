@@ -4,7 +4,7 @@
 .quick-reload
 dev-env-config/
 .DS_Store
-apps/
+apps/*/
 .docker-compose-file-list
 .postgres_init.sql
 .db2_init.sql

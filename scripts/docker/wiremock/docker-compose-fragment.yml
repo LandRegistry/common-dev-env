@@ -2,6 +2,6 @@ version: '2'
 services:
   wiremock:
     container_name: wiremock
-    build: ${PWD}/scripts/docker/wiremock/
+    build: ../scripts/docker/wiremock/
     ports:
       - "5017:8080"

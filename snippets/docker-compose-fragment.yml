@@ -3,7 +3,7 @@ services:
   # Notice how the service name, container name and repo directory (where the Dockerfile lives) all match.
   backend-api:
     container_name: backend-api
-    build: ${PWD}/apps/backend-api
+    build: ./backend-api
     restart: on-failure
     ports:
       # The application is running on port 8080 which other containers will use,
@@ -13,7 +13,7 @@ services:
       - "9998:8080"
     volumes:
       # Our convention is to always map the app files to /src within the container
-      - ${PWD}/apps/backend-api:/src
+      - ./backend-api:/src
     logging:
       driver: syslog
       options:
