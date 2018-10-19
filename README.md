@@ -94,6 +94,8 @@ This is used by the envvironment to construct the application container and then
 
 Although generally an application should only have itself in it's compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
 
+Note that when including directives such as a Dockerfile build location or host volume mapping for the source code, the Compose context root `.` is considered to be the dev-env's /apps/ folder, not the location of the fragment. Ensure relative paths are set accordingly.
+
 [Example](snippets/docker-compose-fragment.yml)
 
 ##### `/Dockerfile`
