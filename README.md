@@ -140,7 +140,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers. On the host, it is exposed on port 15432 to avoid conflicts with any existing Postgres service running.
+The default Postgres port 5432 will be available for connections from other containers and on the host.
 
 **`/manage.py`**
 
