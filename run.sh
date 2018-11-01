@@ -44,6 +44,7 @@ fi
 
 if [ "$command" = "repair" ]
 then
+    ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     source scripts/add-aliases.sh
 fi
