@@ -1,11 +1,7 @@
 require_relative 'utilities'
 
 def create_custom_provision(root_loc)
-  root_loc = root_loc
-  if File.exist?("#{root_loc}/.custom_provision.yml")
-    puts colorize_green('Found an existing .custom_provision file.')
-    return
-  end
+  return if File.exist?("#{root_loc}/.custom_provision.yml")
 
   # Create the base file structure
   puts colorize_green("Did not find a .custom_provision file. I'll create a new one.")
@@ -19,21 +15,17 @@ def create_custom_provision(root_loc)
 end
 
 def custom_provisioned?(root_loc, app_name)
-  is_provisioned = false # initialise
-  if File.exist?("#{root_loc}/.custom_provision.yml")
-    custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
-    custom_file['applications'].each do |provisioned_app_name|
-      if provisioned_app_name == app_name
-        is_provisioned = true
-        break
-      end
-    end
+  return false unless File.exist?("#{root_loc}/.custom_provision.yml")
+
+  custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
+  custom_file['applications'].each do |provisioned_app_name|
+    return true if provisioned_app_name == app_name
   end
-  is_provisioned
+  false
 end
 
 def set_custom_provisioned(root_loc, app_name)
-  return unless File.exist?("#{root_loc}/.custom_provision.yml")
+  create_custom_provision(root_loc)
 
   custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
   custom_file['applications'].push(app_name)

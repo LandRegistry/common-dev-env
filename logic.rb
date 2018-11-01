@@ -132,10 +132,6 @@ if ['prep'].include?(ARGV[0])
   puts colorize_lightblue('Creating list of commodities')
   create_commodities_list(root_loc)
 
-  # Create a file called .custom_provision.yml
-  puts colorize_lightblue('Creating custom provision script file')
-  create_custom_provision(root_loc)
-
 end
 
 if ['reset'].include?(ARGV[0])
