@@ -34,8 +34,15 @@ def build_nginx(root_loc, appname, already_started)
         run_command('docker-compose up -d --build --no-deps --force-recreate nginx')
         started = true
       end
-      run_command("docker cp #{root_loc}/apps/#{appname}/fragments/nginx-fragment.conf " \
-                  "nginx:/etc/nginx/configs/#{appname}-nginx-fragment.conf")
+      # Copy the app's conf into nginx (renaming it along the way).
+      # We don't just use docker cp with a plain file path as the source, to deal with the WSL + DockerForWindows
+      # combination.
+      # Therefore we pipe a tarball (tarball is docker cp requirement) into it instead, handy as tar runs in the
+      # same context as ruby and understands it's paths!
+      run_command("tar -c --transform 's|nginx-fragment.conf|#{appname}-nginx-fragment.conf|' " \
+                  "-C #{root_loc}/apps/#{appname}/fragments nginx-fragment.conf " \
+                  '| docker cp - nginx:/etc/nginx/configs/')
+
       # Update the .commodities.yml to indicate that NGINX has now been provisioned
       set_commodity_provision_status(root_loc, appname, 'nginx', true)
     end

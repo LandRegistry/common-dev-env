@@ -53,7 +53,13 @@ def process_db2_fragment(root_loc, appname, database_initialised)
 end
 
 def init_sql(root_loc, appname)
-  run_command("docker cp #{root_loc}/apps/#{appname}/fragments/db2-init-fragment.sql db2:/#{appname}-init.sql")
+  # Copy the app's init sql into db2 (renaming it along the way).
+  # We don't just use docker cp with a plain file path as the source, to deal with the WSL + DockerForWindows
+  # combination.
+  # Therefore we pipe a tarball (tarball is docker cp requirement) into it instead, handy as tar runs in the
+  # same context as ruby and understands it's paths!
+  run_command("tar -c --transform 's|db2-init-fragment.sql|#{appname}-init.sql|' " \
+              "-C #{root_loc}/apps/#{appname}/fragments db2-init-fragment.sql | docker cp - db2:/")
   run_command("docker exec db2 bash -c 'chmod o+r /#{appname}-init.sql'")
   exit_code = run_command("docker exec -u db2inst1 db2 bash -c '~/sqllib/bin/db2 -tvf /#{appname}-init.sql'")
   # Just in case a fragment hasn't disconnected from it's DB, let's do it now so the next fragment doesn't fail

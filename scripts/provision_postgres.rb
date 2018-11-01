@@ -47,8 +47,14 @@ def start_postgres(root_loc, appname, started)
 
     started = true
   end
-  run_command("docker cp #{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql " \
-              "postgres:/#{appname}-init.sql")
+  # Copy the app's init sql into postgres (renaming it along the way).
+  # We don't just use docker cp with a plain file path as the source, to deal with the WSL + DockerForWindows
+  # combination.
+  # Therefore we pipe a tarball (tarball is docker cp requirement) into it instead, handy as tar runs in the
+  # same context as ruby and understands it's paths!
+  run_command("tar -c --transform 's|postgres-init-fragment.sql|#{appname}-init.sql|' " \
+              "-C #{root_loc}/apps/#{appname}/fragments postgres-init-fragment.sql | docker cp - postgres:/")
+
   run_command("docker exec postgres psql -q -f '/#{appname}-init.sql'")
   # Update the .commodities.yml to indicate that postgres has now been provisioned
   set_commodity_provision_status(root_loc, appname, 'postgres', true)
