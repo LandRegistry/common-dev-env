@@ -20,9 +20,35 @@ end
 
 # Runs a command in the nicest way, outputting to the console. Using system sometimes causes the console to stop
 # outputting until a key is pressed.
-def run_command(cmd, output_lines = nil)
+def run_command(cmd, output_lines = nil, input_lines = nil)
   exitcode = -1
-  Open3.popen2e(cmd) do |_stdin, stdout_and_stderr, wait_thr|
+  Open3.popen2e(cmd) do |stdin, stdout_and_stderr, wait_thr|
+    # Anything to pipe in?
+    unless input_lines.nil?
+      stdin.puts(input_lines)
+      stdin.close
+    end
+    stdout_and_stderr.each_line do |line|
+      # Save the output lines for the caller if we have been given an array, else output immediately
+      if output_lines.nil?
+        puts line
+      else
+        output_lines << line
+      end
+    end
+    exitcode = wait_thr.value.exitstatus
+  end
+  exitcode
+end
+
+def run_command_noshell(cmd, output_lines = nil, input_lines = nil)
+  exitcode = -1
+  Open3.popen2e(*cmd) do |stdin, stdout_and_stderr, wait_thr|
+    # Anything to pipe in?
+    unless input_lines.nil?
+      stdin.puts(input_lines)
+      stdin.close
+    end
     stdout_and_stderr.each_line do |line|
       # Save the output lines for the caller if we have been given an array, else output immediately
       if output_lines.nil?
