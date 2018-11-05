@@ -31,7 +31,7 @@ require 'rubygems'
 # Ensures stdout is never buffered
 STDOUT.sync = true
 
-# Where is this file located?
+# Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
 
 # Used to keep track of which commodities the apps need and if their relevant fragments have been executed
