@@ -3,7 +3,6 @@ require_relative 'utilities'
 def provision_alembic(root_loc)
   puts colorize_lightblue('Searching for alembic code')
   require 'yaml'
-  root_loc = root_loc
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
 
@@ -21,19 +20,24 @@ def provision_alembic(root_loc)
     next unless File.exist?("#{root_loc}/apps/#{appname}/manage.py")
 
     unless started
-      start_postgres_for_alembic(root_loc)
+      start_postgres_for_alembic
       started = true
     end
     puts colorize_pink("Found some in #{appname}")
-    run_command("docker-compose run --rm #{appname} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && " \
-                "export SQL_PASSWORD=superroot && python3 manage.py db upgrade'")
+    run_command('docker-compose run --rm ' + appname + ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
+                'export SQL_PASSWORD=superroot && python3 manage.py db upgrade"')
   end
 end
 
-def start_postgres_for_alembic(root_loc)
-  run_command('docker-compose up --build -d --force-recreate postgres')
-  run_command('docker-compose up --build -d --force-recreate logstash')
+def start_postgres_for_alembic
+  run_command_noshell(['docker-compose', 'up', '--build', '-d', '--force-recreate', 'postgres'])
   # Better not run anything until postgres is ready to accept connections...
-  run_command('echo Waiting for postgres to finish initialising')
-  run_command("#{root_loc}/scripts/docker/postgres/wait-for-it.sh localhost")
+  puts colorize_lightblue('Waiting for Postgres to finish initialising')
+
+  while run_command_noshell(['docker', 'exec', 'postgres', 'pg_isready', '-h', 'localhost']) != 0
+    puts colorize_yellow('Postgres is unavailable - sleeping')
+    sleep(1)
+  end
+
+  puts colorize_green('Postgres is ready')
 end

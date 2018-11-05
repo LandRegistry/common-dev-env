@@ -6,6 +6,7 @@ then
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb start &&
+    source scripts/after-ups.sh &&
     source scripts/add-aliases.sh
 fi
 
@@ -28,6 +29,7 @@ then
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb start &&
+    source scripts/after-ups.sh &&
     source scripts/add-aliases.sh
 fi
 

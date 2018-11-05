@@ -201,37 +201,5 @@ if ['start'].include?(ARGV[0])
   # Any custom scripts to run?
   provision_custom(root_loc)
 
-  # And one that only ever runs once
-  if File.exist?(root_loc + '/dev-env-config/after-up-once.sh') && !File.exist?(AFTER_UP_ONCE_FILE)
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('**                     WARNING!                      **')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('The dev-env specific after-up-once script is deprecated and will be removed '\
-                         'in a future update.')
-    puts colorize_yellow('Please use an application-specific custom-provision.sh instead')
-
-    puts colorize_lightblue('Running after-up-once script from the dev-env config')
-    run_command("#{root_loc}/dev-env-config/after-up-once.sh")
-    File.open(AFTER_UP_ONCE_FILE, 'w+') { |file| file.write('done') }
-  end
-
-  # If the dev env configuration repo contains a script, run it here
-  # This should only be for temporary use during early app development - see the README for more info
-  if File.exist?("#{root_loc}/dev-env-config/after-up.sh")
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('**                     WARNING!                      **')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('The dev-env specific after-up script is deprecated and will be removed in a' \
-                         ' future update.')
-    puts colorize_yellow('Please use an application-specific custom-provision-always.sh instead')
-
-    puts colorize_lightblue('Running after-up script from dev-env-config')
-    run_command("#{root_loc}/dev-env-config/after-up.sh")
-  end
-
   puts colorize_green('All done, environment is ready for use')
 end
