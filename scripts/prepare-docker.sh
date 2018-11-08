@@ -1,7 +1,11 @@
 # In WSL, we need to make sure our environment variables are passed to Docker for Windows' executables
+# (If symlinks to the exe's are being used rather than native client --> TCP connection)
 if grep -q Microsoft /proc/version; then
-  echo -e "\e[36mWindows Subsystem for Linux detected; setting WSLENV environment variable\e[0m"
-  export WSLENV=COMPOSE_FILE/l:COMPOSE_PROJECT_NAME
+  if [ -z "${WSLENV_SET+x}" ]; then
+    echo -e "\e[36mWindows Subsystem for Linux detected; adding to WSLENV environment variable\e[0m"
+    export WSLENV="COMPOSE_FILE/l:COMPOSE_PROJECT_NAME${WSLENV:+:${WSLENV}}"
+    export WSLENV_SET=yes
+  fi
 fi
 
 # Got to use a constant project name to ensure that containers are properly tracked regardless of how fragments are added are removed. Otherwise you get duplicate errors on the build
