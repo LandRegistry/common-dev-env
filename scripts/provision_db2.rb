@@ -10,7 +10,6 @@ def provision_db2(root_loc)
   return unless config['applications']
 
   database_initialised = false
-  started = false
 
   config['applications'].each do |appname, _appconfig|
     # To help enforce the accuracy of the app's dependency file, only search for init sql
@@ -21,19 +20,14 @@ def provision_db2(root_loc)
     end
     next unless commodity_required?(root_loc, appname, 'db2')
 
-    unless started
-      run_command('docker-compose up -d --force-recreate db2')
-      started = true
-    end
-
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/db2-init-fragment.sql")
       database_initialised = process_db2_fragment(root_loc, appname, database_initialised)
+      puts colorize_lightblue("Completed #{appname} table sql fragment")
     else
       puts colorize_yellow("#{appname} says it uses DB2 but doesn't contain an init SQL file. Oh well, onwards we " \
                             'go!')
     end
-    puts colorize_lightblue("Completed #{appname} table sql fragment")
   end
 end
 
@@ -79,6 +73,9 @@ def init_sql(root_loc, appname)
 end
 
 def init_db2
+  # Start DB2
+  run_command('docker-compose up -d --force-recreate db2')
+
   # Better not run anything until DB2 is ready to accept connections...
   puts colorize_lightblue('Waiting for DB2 to finish initialising')
   command_output = []
