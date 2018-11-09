@@ -38,7 +38,7 @@ def provision_db2(root_loc)
 end
 
 def process_db2_fragment(root_loc, appname, database_initialised)
-  result = false
+  result = database_initialised
   puts colorize_pink("Found some in #{appname}")
   if commodity_provisioned?(root_loc, appname, 'db2')
     puts colorize_yellow("DB2 has previously been provisioned for #{appname}, skipping")
