@@ -22,7 +22,7 @@ def provision_db2(root_loc)
     next unless commodity_required?(root_loc, appname, 'db2')
 
     unless started
-      run_command('docker-compose up --build -d --force-recreate db2')
+      run_command('docker-compose up -d --force-recreate db2')
       started = true
     end
 

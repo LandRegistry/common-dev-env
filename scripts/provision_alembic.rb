@@ -30,7 +30,7 @@ def provision_alembic(root_loc)
 end
 
 def start_postgres_for_alembic
-  run_command_noshell(['docker-compose', 'up', '--build', '-d', '--force-recreate', 'postgres'])
+  run_command_noshell(['docker-compose', 'up', '-d', '--force-recreate', 'postgres'])
   # Better not run anything until postgres is ready to accept connections...
   puts colorize_lightblue('Waiting for Postgres to finish initialising')
 

@@ -35,7 +35,7 @@ def start_elasticsearch5(root_loc, appname, started)
     puts colorize_yellow("Elasticsearch5 has previously been provisioned for #{appname}, skipping")
   else
     unless started
-      run_command('docker-compose up --build -d --force-recreate elasticsearch5')
+      run_command('docker-compose up -d --force-recreate elasticsearch5')
       # Better not run anything until elasticsearch is ready to accept connections...
       run_command('echo Waiting for elasticsearch5 to finish initialising')
       run_command("#{root_loc}/scripts/docker/elasticsearch5/wait-for-it.sh http://localhost:9202")
