@@ -76,7 +76,7 @@ def init_db2(root_loc)
   root_loc = root_loc
   # Better not run anything until DB2 is ready to accept connections...
   run_command('echo Waiting for DB2 to finish initialising')
-  run_command("#{root_loc}/scripts/docker/db2/wait-for-db2.sh")
+  run_command("sh #{root_loc}/scripts/docker/db2/wait-for-db2.sh")
 
   puts 'Database setup complete. Looking for table data now.'
 end

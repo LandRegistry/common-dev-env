@@ -35,5 +35,5 @@ def start_postgres_for_alembic(root_loc)
   run_command('docker-compose up --build -d --force-recreate logstash')
   # Better not run anything until postgres is ready to accept connections...
   run_command('echo Waiting for postgres to finish initialising')
-  run_command("#{root_loc}/scripts/docker/postgres/wait-for-it.sh localhost")
+  run_command("sh #{root_loc}/scripts/docker/postgres/wait-for-it.sh localhost")
 end

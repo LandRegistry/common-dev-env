@@ -37,10 +37,10 @@ def start_elasticsearch(root_loc, appname, started)
       run_command('docker-compose up --build -d --force-recreate elasticsearch')
       # Better not run anything until elasticsearch is ready to accept connections...
       run_command('echo Waiting for elasticsearch to finish initialising')
-      run_command("#{root_loc}/scripts/docker/elasticsearch/wait-for-it.sh http://localhost:9200")
+      run_command("sh #{root_loc}/scripts/docker/elasticsearch/wait-for-it.sh http://localhost:9200")
       started = true
     end
-    run_command("#{root_loc}/apps/#{appname}/fragments/elasticsearch-fragment.sh http://localhost:9200")
+    run_command("sh #{root_loc}/apps/#{appname}/fragments/elasticsearch-fragment.sh http://localhost:9200")
     # Update the .commodities.yml to indicate that elasticsearch has now been provisioned
     set_commodity_provision_status(root_loc, appname, 'elasticsearch', true)
   end

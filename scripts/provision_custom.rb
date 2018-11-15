@@ -64,7 +64,7 @@ def run_onetime_custom_provision(root_loc, appname)
   if custom_provisioned?(root_loc, appname)
     puts colorize_yellow("Custom provision script has already been run for #{appname}, skipping")
   else
-    run_command("#{root_loc}/apps/#{appname}/fragments/custom-provision.sh")
+    run_command("sh #{root_loc}/apps/#{appname}/fragments/custom-provision.sh")
     # Update the .custom_provision.yml to indicate that the script has been run
     set_custom_provisioned(root_loc, appname)
   end
@@ -74,5 +74,5 @@ def run_always_custom_provision(root_loc, appname)
   return unless File.exist?("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 
   puts colorize_pink("Found one (always) in #{appname}")
-  run_command("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
+  run_command("sh #{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 end
