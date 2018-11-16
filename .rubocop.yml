@@ -29,3 +29,7 @@ Performance/Casecmp:
 # Generating false positives
 Style/SafeNavigation:
   Enabled: false
+
+# Generating false positives in elasticsearch shell scripts
+Style/FormatStringToken:
+  Enabled: false
