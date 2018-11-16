@@ -168,7 +168,7 @@ if ['prepare-compose-environment'].include?(ARGV[0])
 end
 
 if ['start'].include?(ARGV[0])
-  if File.size(DOCKER_COMPOSE_FILE_LIST) == 0
+  if File.size(DOCKER_COMPOSE_FILE_LIST).zero?
     puts colorize_red('Nothing to start!')
     exit
   end
