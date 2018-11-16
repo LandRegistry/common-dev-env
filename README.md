@@ -13,40 +13,15 @@ It provides several hooks for applications to take advantage of, including:
 
 * **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
   * [Docker For Mac](https://docs.docker.com/docker-for-mac/)
-  * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (untested)
+  * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.3+**
   * The `highline` gem must also be installed
-* **An appropriate shell**
-  All the instructions in this README and the scripts run by the dev-env itself assume that you will be using Linux or a Linux-like command line environment. For Windows, [Git For Windows](http://git-for-windows.github.io) or [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) will provide that.
 
 ### Git/SSH
 
-You must ensure the terminal you are starting the dev-env from can access all the necessary Git repositories (depending where your config repo and application repos are) via SSH. This usually means having all the appropriate keys in your SSH-agent.
-
-#### Generation
-
-To generate key(s) you can run `ssh-keygen -t rsa -b 4096 -C "your_email@example.com"`. You will then need to add them to your account's SSH Keys section on the relevent host ([GitLab](http://docs.gitlab.com/ce/gitlab-basics/create-your-ssh-keys.html)/[GitHub](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/)).
-
-#### Adding to agent
-
-##### Mac / Linux
-
-In your `.bashrc`/`.zshrc` or equivalent add the following lines:
-
-```shell
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_rsa
-```
-
-Repeat the `ssh-add` line for each key, changing the filename as appropriate.
-
-##### Windows
-
-Copy the contents of [this script snippet](snippets/windows_bash_profile_ssh_agent) into your `.bash_profile`/`.bashrc`/`.profile` or equivalent, this will ensure all your keys get loaded into the agent (and only one agent executable ever runs).
-
-Note that the script assumes that all the keys are placed in `~/.ssh` and all their names end in `_rsa`. If not, you will need to modify the script accordingly to load the right filenames.
+You must ensure the shell you are starting the dev-env from can access all the necessary Git repositories - namely the config repo and the application repos it specifies. If they are to be accessed via SSH, [this wiki page](https://github.com/LandRegistry/common-dev-env/wiki/Git---SSH-setup) has some proven techniques for generating keys and making them available to the shell.
 
 ### Controlling the dev-env
 
