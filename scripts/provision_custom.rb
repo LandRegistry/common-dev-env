@@ -1,11 +1,7 @@
 require_relative 'utilities'
 
 def create_custom_provision(root_loc)
-  root_loc = root_loc
-  if File.exist?("#{root_loc}/.custom_provision.yml")
-    puts colorize_green('Found an existing .custom_provision file.')
-    return
-  end
+  return if File.exist?("#{root_loc}/.custom_provision.yml")
 
   # Create the base file structure
   puts colorize_green("Did not find a .custom_provision file. I'll create a new one.")
@@ -19,21 +15,17 @@ def create_custom_provision(root_loc)
 end
 
 def custom_provisioned?(root_loc, app_name)
-  is_provisioned = false # initialise
-  if File.exist?("#{root_loc}/.custom_provision.yml")
-    custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
-    custom_file['applications'].each do |provisioned_app_name|
-      if provisioned_app_name == app_name
-        is_provisioned = true
-        break
-      end
-    end
+  return false unless File.exist?("#{root_loc}/.custom_provision.yml")
+
+  custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
+  custom_file['applications'].each do |provisioned_app_name|
+    return true if provisioned_app_name == app_name
   end
-  is_provisioned
+  false
 end
 
 def set_custom_provisioned(root_loc, app_name)
-  return unless File.exist?("#{root_loc}/.custom_provision.yml")
+  create_custom_provision(root_loc)
 
   custom_file = YAML.load_file("#{root_loc}/.custom_provision.yml")
   custom_file['applications'].push(app_name)
@@ -64,7 +56,7 @@ def run_onetime_custom_provision(root_loc, appname)
   if custom_provisioned?(root_loc, appname)
     puts colorize_yellow("Custom provision script has already been run for #{appname}, skipping")
   else
-    run_command("#{root_loc}/apps/#{appname}/fragments/custom-provision.sh")
+    run_command("sh #{root_loc}/apps/#{appname}/fragments/custom-provision.sh")
     # Update the .custom_provision.yml to indicate that the script has been run
     set_custom_provisioned(root_loc, appname)
   end
@@ -74,5 +66,5 @@ def run_always_custom_provision(root_loc, appname)
   return unless File.exist?("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 
   puts colorize_pink("Found one (always) in #{appname}")
-  run_command("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
+  run_command("sh #{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 end

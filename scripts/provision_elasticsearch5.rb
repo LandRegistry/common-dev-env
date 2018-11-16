@@ -19,11 +19,11 @@ def provision_elasticsearch5(root_loc)
     end
     next unless commodity_required?(root_loc, appname, 'elasticsearch5')
 
-    # Load any SQL contained in the apps into the docker commands list
+    # Run any script contained in the app
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/elasticsearch5-fragment.sh")
       started = start_elasticsearch5(root_loc, appname, started)
     else
-      puts colorize_yellow("#{appname} says it uses Elasticsearch5 but doesn't contain an init script. Oh well, " \
+      puts colorize_yellow("#{appname} says it uses Elasticsearch 5 but doesn't contain an init script. Oh well, " \
                             'onwards we go!')
     end
   end
@@ -35,13 +35,23 @@ def start_elasticsearch5(root_loc, appname, started)
     puts colorize_yellow("Elasticsearch5 has previously been provisioned for #{appname}, skipping")
   else
     unless started
-      run_command('docker-compose up --build -d --force-recreate elasticsearch5')
+      run_command('docker-compose up -d --force-recreate elasticsearch5')
       # Better not run anything until elasticsearch is ready to accept connections...
-      run_command('echo Waiting for elasticsearch5 to finish initialising')
-      run_command("#{root_loc}/scripts/docker/elasticsearch5/wait-for-it.sh http://localhost:9202")
+      puts colorize_lightblue('Waiting for Elasticsearch 5 to finish initialising')
+
+      loop do
+        cmd_output = []
+        run_command('curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:9202', cmd_output)
+        break if cmd_output.include? '200'
+
+        puts colorize_yellow('Elasticsearch 5 is unavailable - sleeping')
+        sleep(3)
+      end
+
+      puts colorize_green('Elasticsearch 5 is ready')
       started = true
     end
-    run_command("#{root_loc}/apps/#{appname}/fragments/elasticsearch5-fragment.sh http://localhost:9202")
+    run_command("sh #{root_loc}/apps/#{appname}/fragments/elasticsearch5-fragment.sh http://localhost:9202")
     # Update the .commodities.yml to indicate that elasticsearch5 has now been provisioned
     set_commodity_provision_status(root_loc, appname, 'elasticsearch5', true)
   end

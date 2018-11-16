@@ -34,13 +34,23 @@ def start_elasticsearch(root_loc, appname, started)
     puts colorize_yellow("Elasticsearch has previously been provisioned for #{appname}, skipping")
   else
     unless started
-      run_command('docker-compose up --build -d --force-recreate elasticsearch')
+      run_command('docker-compose up -d --force-recreate elasticsearch')
       # Better not run anything until elasticsearch is ready to accept connections...
-      run_command('echo Waiting for elasticsearch to finish initialising')
-      run_command("#{root_loc}/scripts/docker/elasticsearch/wait-for-it.sh http://localhost:9200")
+      puts colorize_lightblue('Waiting for Elasticsearch to finish initialising')
+
+      loop do
+        cmd_output = []
+        run_command('curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:9200', cmd_output)
+        break if cmd_output.include? '200'
+
+        puts colorize_yellow('Elasticsearch is unavailable - sleeping')
+        sleep(3)
+      end
+
+      puts colorize_green('Elasticsearch is ready')
       started = true
     end
-    run_command("#{root_loc}/apps/#{appname}/fragments/elasticsearch-fragment.sh http://localhost:9200")
+    run_command("sh #{root_loc}/apps/#{appname}/fragments/elasticsearch-fragment.sh http://localhost:9200")
     # Update the .commodities.yml to indicate that elasticsearch has now been provisioned
     set_commodity_provision_status(root_loc, appname, 'elasticsearch', true)
   end

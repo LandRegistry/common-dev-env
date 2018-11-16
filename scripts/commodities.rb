@@ -63,10 +63,10 @@ end
 def get_commodity_file(root_loc)
   if File.exist?("#{root_loc}/.commodities.yml")
     commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
-    puts colorize_green('Found an existing .commodities file.')
+    puts colorize_pink('Found an existing .commodities file.')
   else
     # Create the base file structure
-    puts colorize_green("Did not find any .commodities file. I'll create a new one.")
+    puts colorize_lightblue('Did not find any .commodities file. Creating a new one.')
     commodity_file = {
       'version' => '2',
       'commodities' => [],

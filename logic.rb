@@ -31,7 +31,7 @@ require 'rubygems'
 # Ensures stdout is never buffered
 STDOUT.sync = true
 
-# Where is this file located?
+# Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
 
 # Used to keep track of which commodities the apps need and if their relevant fragments have been executed
@@ -60,7 +60,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.0.4'
+  this_version = '1.0.5'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -132,10 +132,6 @@ if ['prep'].include?(ARGV[0])
   puts colorize_lightblue('Creating list of commodities')
   create_commodities_list(root_loc)
 
-  # Create a file called .custom_provision.yml
-  puts colorize_lightblue('Creating custom provision script file')
-  create_custom_provision(root_loc)
-
 end
 
 if ['reset'].include?(ARGV[0])
@@ -172,6 +168,20 @@ if ['prepare-compose-environment'].include?(ARGV[0])
 end
 
 if ['start'].include?(ARGV[0])
+  if File.size(DOCKER_COMPOSE_FILE_LIST).zero?
+    puts colorize_red('Nothing to start!')
+    exit
+  end
+
+  puts colorize_lightblue('Building images...')
+  if run_command('docker-compose build --parallel') != 0
+    puts colorize_yellow('Build command failed. Trying without --parallel')
+    # Might not be running a version of compose that supports --parallel, try one more time
+    if run_command('docker-compose build') != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
+    end
+  end
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
@@ -191,51 +201,15 @@ if ['start'].include?(ARGV[0])
   provision_elasticsearch5(root_loc)
 
   # Now that commodities are all provisioned, we can start the containers
-  if File.size(DOCKER_COMPOSE_FILE_LIST) != 0
-    puts colorize_lightblue('Starting containers...')
-    up_exit_code = run_command('docker-compose up --remove-orphans --build -d --force-recreate')
-    if up_exit_code != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-      exit
-    end
-  else
-    puts colorize_yellow('No containers to start.')
+  puts colorize_lightblue('Starting containers...')
+  up_exit_code = run_command('docker-compose up --remove-orphans -d --force-recreate')
+  if up_exit_code != 0
+    puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+    exit
   end
 
   # Any custom scripts to run?
   provision_custom(root_loc)
-
-  # And one that only ever runs once
-  if File.exist?(root_loc + '/dev-env-config/after-up-once.sh') && !File.exist?(AFTER_UP_ONCE_FILE)
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('**                     WARNING!                      **')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('The dev-env specific after-up-once script is deprecated and will be removed '\
-                         'in a future update.')
-    puts colorize_yellow('Please use an application-specific custom-provision.sh instead')
-
-    puts colorize_lightblue('Running after-up-once script from the dev-env config')
-    run_command("#{root_loc}/dev-env-config/after-up-once.sh")
-    File.open(AFTER_UP_ONCE_FILE, 'w+') { |file| file.write('done') }
-  end
-
-  # If the dev env configuration repo contains a script, run it here
-  # This should only be for temporary use during early app development - see the README for more info
-  if File.exist?("#{root_loc}/dev-env-config/after-up.sh")
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('**                     WARNING!                      **')
-    puts colorize_yellow('**                                                   **')
-    puts colorize_yellow('*******************************************************')
-    puts colorize_yellow('The dev-env specific after-up script is deprecated and will be removed in a' \
-                         ' future update.')
-    puts colorize_yellow('Please use an application-specific custom-provision-always.sh instead')
-
-    puts colorize_lightblue('Running after-up script from dev-env-config')
-    run_command("#{root_loc}/dev-env-config/after-up.sh")
-  end
 
   puts colorize_green('All done, environment is ready for use')
 end

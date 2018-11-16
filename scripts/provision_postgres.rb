@@ -40,16 +40,29 @@ end
 
 def start_postgres(root_loc, appname, started)
   unless started
-    run_command('docker-compose up --build -d --force-recreate postgres')
+    run_command_noshell(['docker-compose', 'up', '-d', '--force-recreate', 'postgres'])
     # Better not run anything until postgres is ready to accept connections...
-    run_command('echo Waiting for postgres to finish initialising')
-    run_command("#{root_loc}/scripts/docker/postgres/wait-for-it.sh localhost")
+    puts colorize_lightblue('Waiting for Postgres to finish initialising')
 
+    while run_command_noshell(['docker', 'exec', 'postgres', 'pg_isready', '-h', 'localhost']) != 0
+      puts colorize_yellow('Postgres is unavailable - sleeping')
+      sleep(1)
+    end
+
+    puts colorize_green('Postgres is ready')
     started = true
   end
-  run_command("docker cp #{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql " \
-              "postgres:/#{appname}-init.sql")
-  run_command("docker exec postgres psql -q -f '/#{appname}-init.sql'")
+  # Copy the app's init sql into postgres (renaming it along the way) then execute it with psql.
+  # We don't just use docker cp with a plain file path as the source, to deal with WSL,
+  # where LinuxRuby passes a path to WindowsDocker that it can't parse.
+  # Therefore we create and pipe a tar file into docker cp instead, handy as tar runs in the
+  # shell and understands Ruby's paths in both WSL and Git Bash!
+  run_command('tar -c --transform "s|postgres-init-fragment.sql|' + appname + '-init.sql|"' + # GitBash needs " not '
+              " -C #{root_loc}/apps/#{appname}/fragments" + # This is the context, so tar will not contain file path
+              ' postgres-init-fragment.sql' + # The file to add to the tar
+              ' | docker cp - postgres:/') # Pipe it into docker cp, which will extract it for us
+  run_command_noshell(['docker', 'exec', 'postgres', 'psql', '-q', '-f', "#{appname}-init.sql"])
+
   # Update the .commodities.yml to indicate that postgres has now been provisioned
   set_commodity_provision_status(root_loc, appname, 'postgres', true)
   started

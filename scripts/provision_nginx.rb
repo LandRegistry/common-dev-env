@@ -31,11 +31,15 @@ def build_nginx(root_loc, appname, already_started)
       puts colorize_yellow("NGINX has previously been provisioned for #{appname}, skipping")
     else
       unless started
-        run_command('docker-compose up -d --build --no-deps --force-recreate nginx')
+        run_command('docker-compose up -d --no-deps --force-recreate nginx')
         started = true
       end
-      run_command("docker cp #{root_loc}/apps/#{appname}/fragments/nginx-fragment.conf " \
-                  "nginx:/etc/nginx/configs/#{appname}-nginx-fragment.conf")
+      # See comments in provision_postgres.rb for why we are doing it this way
+      run_command('tar -c --transform "s|nginx-fragment.conf|' + appname + '-nginx-fragment.conf|"' \
+                  " -C #{root_loc}/apps/#{appname}/fragments" \
+                  ' nginx-fragment.conf' \
+                  ' | docker cp - nginx:/etc/nginx/configs/')
+
       # Update the .commodities.yml to indicate that NGINX has now been provisioned
       set_commodity_provision_status(root_loc, appname, 'nginx', true)
     end
