@@ -1,3 +1,8 @@
+# Export the current user such that it can be used inside docker compose fragments
+# When creating files inside the docker container, this prevents the files being created
+# as the root user on linux hosts
+export CURRENT_USER=$(id -u):$(id -g)
+
 # In WSL, we need to make sure our environment variables are passed to Docker for Windows' executables
 # (If symlinks to the exe's are being used rather than native client --> TCP connection)
 if grep -q Microsoft /proc/version; then
