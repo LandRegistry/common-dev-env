@@ -52,16 +52,16 @@ def start_postgres(root_loc, appname, started)
     puts colorize_green('Postgres is ready')
     started = true
   end
-  # Copy the app's init sql into postgres (renaming it along the way) then execute it with psql.
+  # Copy the app's init sql into postgres then execute it with psql.
   # We don't just use docker cp with a plain file path as the source, to deal with WSL,
   # where LinuxRuby passes a path to WindowsDocker that it can't parse.
   # Therefore we create and pipe a tar file into docker cp instead, handy as tar runs in the
   # shell and understands Ruby's paths in both WSL and Git Bash!
-  run_command('tar -c --transform "s|postgres-init-fragment.sql|' + appname + '-init.sql|"' + # GitBash needs " not '
+  run_command('tar -c ' \
               " -C #{root_loc}/apps/#{appname}/fragments" + # This is the context, so tar will not contain file path
               ' postgres-init-fragment.sql' + # The file to add to the tar
               ' | docker cp - postgres:/') # Pipe it into docker cp, which will extract it for us
-  run_command_noshell(['docker', 'exec', 'postgres', 'psql', '-q', '-f', "#{appname}-init.sql"])
+  run_command_noshell(['docker', 'exec', 'postgres', 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
 
   # Update the .commodities.yml to indicate that postgres has now been provisioned
   set_commodity_provision_status(root_loc, appname, 'postgres', true)
