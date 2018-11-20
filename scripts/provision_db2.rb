@@ -48,14 +48,14 @@ end
 
 def init_sql(root_loc, appname)
   # See comments in provision_postgres.rb for why we are doing it this way
-  run_command('tar -c --transform "s|db2-init-fragment.sql|' + appname + '-init.sql|"' \
+  run_command('tar -c' \
               " -C #{root_loc}/apps/#{appname}/fragments" \
               ' db2-init-fragment.sql' \
               ' | docker cp - db2:/')
 
-  run_command('docker exec db2 bash -c "chmod o+r /' + appname + '-init.sql"')
+  run_command('docker exec db2 bash -c "chmod o+r /db2-init-fragment.sql"')
 
-  exit_code = run_command('docker exec -u db2inst1 db2 bash -c "~/sqllib/bin/db2 -tvf /' + appname + '-init.sql"')
+  exit_code = run_command('docker exec -u db2inst1 db2 bash -c "~/sqllib/bin/db2 -tvf /db2-init-fragment.sql"')
   # Just in case a fragment hasn't disconnected from it's DB, let's do it now so the next fragment doesn't fail
   # when doing it's CONNECT TO
   run_command('docker exec -u db2inst1 db2 bash -c "~/sqllib/bin/db2 disconnect all"')
@@ -79,7 +79,7 @@ def init_db2
   # Better not run anything until DB2 is ready to accept connections...
   puts colorize_lightblue('Waiting for DB2 to finish initialising')
   command_output = []
-  until command_output.grep(/^1/).any?
+  until command_output.grep(/1/).any?
     command_output.clear
     run_command('docker exec -u db2inst1 db2 ps -eaf|grep -i db2sysc | wc -l', command_output)
     puts colorize_yellow('DB2 is unavailable - sleeping')
