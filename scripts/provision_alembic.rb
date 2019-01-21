@@ -39,5 +39,8 @@ def start_postgres_for_alembic
     sleep(1)
   end
 
+  # Sleep 3 more seconds to allow the root user to be set up if needed
+  sleep(3)
+
   puts colorize_green('Postgres is ready')
 end
