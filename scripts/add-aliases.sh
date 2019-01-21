@@ -36,7 +36,7 @@ function unit-test(){
     done
 
     # Would like to disconnect network during unit tests but Gradle needs it for test library downloads
-    # docker network disconnect dv_default $app_name 
+    # docker network disconnect dv_default $app_name
 
     # If the report flag is set generate report output otherwise just run the tests
     if [ "$reportflag" = on ] ; then
@@ -45,7 +45,7 @@ function unit-test(){
        docker-compose exec $app_name make unittest
     fi
 
-    # docker network connect dv_default $app_name 
+    # docker network connect dv_default $app_name
 }
 
 function integration-test(){
@@ -74,7 +74,13 @@ function manage(){
 function fullreset(){
     docker-compose stop ${1}
     docker-compose rm -v -f ${1}
-    docker-compose up --build -d ${1}
+    ruby ./scripts/commodities.rb ${1}
+    if [ $? -eq 99 ]; then
+        echo "You've reset a commodity container, and at least one application needs to re-provison. Please reload the dev-env."
+    else
+        docker-compose up --build -d ${1}
+    fi
+
 }
 
 function alembic(){
