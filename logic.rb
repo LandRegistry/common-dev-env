@@ -178,10 +178,18 @@ if ['start'].include?(ARGV[0])
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
     if run_command('docker-compose build') != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
   end
+
+  # Let's force a recreation of the containers here so we know they're using up-to-date images
+  puts colorize_lightblue('Creating containers...')
+  if run_command('docker-compose up --remove-orphans --force-recreate --no-start') != 0
+    puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
+    exit
+  end
+
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
@@ -202,7 +210,7 @@ if ['start'].include?(ARGV[0])
 
   # Now that commodities are all provisioned, we can start the containers
   puts colorize_lightblue('Starting containers...')
-  up_exit_code = run_command('docker-compose up --remove-orphans -d --force-recreate')
+  up_exit_code = run_command('docker-compose up --remove-orphans -d')
   if up_exit_code != 0
     puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
     exit

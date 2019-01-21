@@ -74,7 +74,7 @@ end
 
 def init_db2
   # Start DB2
-  run_command('docker-compose up -d --force-recreate db2')
+  run_command('docker-compose up -d db2')
 
   # Better not run anything until DB2 is ready to accept connections...
   puts colorize_lightblue('Waiting for DB2 to finish initialising')

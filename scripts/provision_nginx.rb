@@ -31,7 +31,7 @@ def build_nginx(root_loc, appname, already_started)
       puts colorize_yellow("NGINX has previously been provisioned for #{appname}, skipping")
     else
       unless started
-        run_command('docker-compose up -d --no-deps --force-recreate nginx')
+        run_command('docker-compose up -d --no-deps nginx')
         started = true
       end
       # See comments in provision_postgres.rb for why we are doing it this way

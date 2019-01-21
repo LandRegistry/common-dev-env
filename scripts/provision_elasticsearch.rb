@@ -34,7 +34,7 @@ def start_elasticsearch(root_loc, appname, started)
     puts colorize_yellow("Elasticsearch has previously been provisioned for #{appname}, skipping")
   else
     unless started
-      run_command('docker-compose up -d --force-recreate elasticsearch')
+      run_command('docker-compose up -d elasticsearch')
       # Better not run anything until elasticsearch is ready to accept connections...
       puts colorize_lightblue('Waiting for Elasticsearch to finish initialising')
 
