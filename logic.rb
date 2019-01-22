@@ -260,10 +260,13 @@ if ['start'].include?(ARGV[0])
     # If there's room in the in progress list, move as many as we can into it from the
     # todo list and start them up.
     expensive_todo.delete_if do |service|
-      false if expensive_inprogress.length >= 3
-      run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
-      expensive_inprogress << service
-      true
+      if expensive_inprogress.length >= 3
+        false
+      else
+        run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+        expensive_inprogress << service
+        true
+      end
     end
 
     # Wait for a bit before the next round of checks
