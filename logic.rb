@@ -209,7 +209,69 @@ if ['start'].include?(ARGV[0])
   provision_elasticsearch5(root_loc)
 
   # Now that commodities are all provisioned, we can start the containers
-  puts colorize_lightblue('Starting containers...')
+
+  # Load configuration.yml into a Hash
+  config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
+
+  # The list of expensive services we have yet to start
+  expensive_todo = []
+  # The list of expensive services currently starting
+  expensive_inprogress = []
+
+  # Check if any services have declared themselves as having a resource-intensive startup procedure
+  # and add them to the todo list if so.
+  config['applications'].each do |appname, _appconfig|
+    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
+
+    dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
+    next if dependencies.nil?
+    next unless dependencies.key?('expensive_startup')
+
+    dependencies['expensive_startup'].each do |service|
+      puts colorize_pink("Found expensive to start service #{service['compose_service']}")
+      expensive_todo << service
+    end
+  end
+
+  # Until we have no more left to start AND we have no more in progress...
+  while expensive_todo.length.positive? || expensive_inprogress.length.positive?
+    # Remove any from the in progress list that are now healthy as per their declared cmd
+    expensive_inprogress.delete_if do |service|
+      service_healthy = false
+      if service['healthcheck_cmd'] == 'docker'
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)")
+        output_lines = []
+        outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{service['compose_service']}",
+                              output_lines)
+        service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+      else
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml")
+        service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
+                                      []).zero?
+      end
+      if service_healthy
+        puts colorize_green('It is!')
+      else
+        puts colorize_yellow('Not yet')
+      end
+      service_healthy
+    end
+
+    # If there's room in the in progress list, move as many as we can into it from the
+    # todo list and start them up.
+    expensive_todo.delete_if do |service|
+      false if expensive_inprogress.length >= 3
+      run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+      expensive_inprogress << service
+      true
+    end
+
+    # Wait for a bit before the next round of checks
+    sleep(3)
+  end
+
+  # Now we can start the rest, which should be quick and easy as they are not expensive
+  puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
   up_exit_code = run_command('docker-compose up --remove-orphans -d')
   if up_exit_code != 0
     puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')

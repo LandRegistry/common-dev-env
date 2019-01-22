@@ -87,7 +87,7 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use.
 
-The list of allowable values is:
+The list of allowable commodity values is:
 
 * postgres
 * db2
@@ -100,6 +100,8 @@ The list of allowable values is:
 * wiremock
 
 Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
+
+The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
 
 [Example](snippets/app_configuration.yml)
 
