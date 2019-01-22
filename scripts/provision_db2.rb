@@ -23,7 +23,6 @@ def provision_db2(root_loc)
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/db2-init-fragment.sql")
       database_initialised = process_db2_fragment(root_loc, appname, database_initialised)
-      puts colorize_lightblue("Completed #{appname} table sql fragment")
     else
       puts colorize_yellow("#{appname} says it uses DB2 but doesn't contain an init SQL file. Oh well, onwards we " \
                             'go!')
@@ -59,6 +58,8 @@ def init_sql(root_loc, appname)
   # Just in case a fragment hasn't disconnected from it's DB, let's do it now so the next fragment doesn't fail
   # when doing it's CONNECT TO
   run_command('docker exec -u db2inst1 db2 bash -c "~/sqllib/bin/db2 disconnect all"')
+
+  puts colorize_lightblue("Completed #{appname} table sql fragment")
 
   if ![0, 2, 4, 6].include?(exit_code)
     # if exit_code != 6 && exit_code != 0 && exit_code != 2 && exit_code != 4
