@@ -11,6 +11,11 @@ fi
 # Got to use a constant project name to ensure that containers are properly tracked regardless of how fragments are added are removed. Otherwise you get duplicate errors on the build
 export COMPOSE_PROJECT_NAME=dv
 
+# Set environment variables for compose files to send to Dockerfiles as arguments,
+# should the Dockerfile wish to create a matching user to run the container as
+export OUTSIDE_UID=$(id -u)
+export OUTSIDE_GID=$(id -g)
+
 # Load all the docker compose file references that were saved earlier
 dockerfilelist=$(<./.docker-compose-file-list)
 export COMPOSE_FILE=$dockerfilelist
