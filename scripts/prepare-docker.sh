@@ -3,7 +3,7 @@
 if grep -q Microsoft /proc/version; then
   if [ -z "${WSLENV_SET+x}" ]; then
     echo -e "\e[36mWindows Subsystem for Linux detected; adding to WSLENV environment variable\e[0m"
-    export WSLENV="COMPOSE_FILE/l:COMPOSE_PROJECT_NAME${WSLENV:+:${WSLENV}}"
+    export WSLENV="OUTSIDE_UID:OUTSIDE_GID:COMPOSE_FILE/l:COMPOSE_PROJECT_NAME${WSLENV:+:${WSLENV}}"
     export WSLENV_SET=yes
   fi
 fi
