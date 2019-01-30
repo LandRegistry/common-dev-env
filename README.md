@@ -66,6 +66,7 @@ This is used by the envvironment to construct the application container and then
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
 * A `volumes` entry should map the path of the app folder to wherever the image expects source files to be (if they are to be accessed dynamically, and not copied in at image build time)
 * If the provided log collator is to be used, then a syslog logging driver needs to be present, forwarding to logstash:25826.
+* If you wish to run the container as the host user so you have full access to any files created by the container (this is only a problem on Linux and Windows), environment variables `OUTSIDE_UID` and `OUTSIDE_GID` are provided for use in the fragment as build args (which can then be used in the `Dockerfile` to create a matching user and set them as the container-executor).
 
 Although generally an application should only have itself in it's compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
 
