@@ -86,7 +86,7 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 ##### `/configuration.yml` (Mandatory)
 
-This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use.
+This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
@@ -99,6 +99,7 @@ The list of allowable commodity values is:
 * redis
 * swagger
 * wiremock
+* squid
 
 Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
@@ -168,6 +169,10 @@ bashin redis
 redis-cli monitor
 ```
 
+##### Squid
+
+There are no fragments needed when using this. An HTTP proxy will be made available to all containers at runtime, at hostname `squid` and port 3128.
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
@@ -193,6 +198,8 @@ This file can be used to override the default settings for a docker container su
 Any messages that get forwarded to the logstash\* container on TCP port 25826 will be output both in the logstash container's own stdout (so `livelogs logstash` can be used to monitor all apps) and in ./logs/log.txt.
 
 \* Note that it is not really logstash, but we kept the container name that for backwards compatibility purposes.
+
+If you want to make use of this functionality, ensure that `logstash` is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 ## Hints and Tips
 
