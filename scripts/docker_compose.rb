@@ -64,7 +64,7 @@ def choose_compose_version(root_loc)
 
   fail_if_no_consensus(compose_2_count, compose_3_count, config['applications'].length)
 
-  if compose_3_count == app_count
+  if compose_3_count == config['applications'].length
     puts colorize_lightblue('All applications have v3 docker compose files.')
     return 3
   end
