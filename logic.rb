@@ -245,7 +245,7 @@ if ['start'].include?(ARGV[0])
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml)")
         service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
                                       []).zero?
       end
@@ -270,6 +270,7 @@ if ['start'].include?(ARGV[0])
     end
 
     # Wait for a bit before the next round of checks
+    puts ''
     sleep(3)
   end
 
