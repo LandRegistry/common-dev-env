@@ -33,7 +33,7 @@ def run_command(cmd, output_lines = nil, input_lines = nil)
       if output_lines.nil?
         puts line
       else
-        output_lines << line
+        output_lines << line.chomp
       end
     end
     exitcode = wait_thr.value.exitstatus

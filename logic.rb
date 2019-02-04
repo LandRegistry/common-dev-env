@@ -213,14 +213,32 @@ if ['start'].include?(ARGV[0])
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
 
+  # The list of all Compose services to start (which may be trimmed down in the following sections)
+  services_to_start = []
+  run_command('docker-compose config --services', services_to_start)
+
   # The list of expensive services we have yet to start
   expensive_todo = []
   # The list of expensive services currently starting
   expensive_inprogress = []
 
-  # Check if any services have declared themselves as having a resource-intensive startup procedure
-  # and add them to the todo list if so.
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each do |appname, appconfig|
+    # First, special options check (in the dev-env-config)
+    # for any settings that should override what the app wants to do
+    options = appconfig.fetch('options', [])
+    options.each do |option|
+      service_name = option['compose-service-name']
+      auto_start = option.fetch('auto-start', true)
+      next if auto_start
+
+      # We will not start this at all (unless depended upon by another service we are
+      # starting - Compose will enforce that!)
+      puts colorize_pink("Dev-env-config option found - service #{service_name} autostart is FALSE")
+      services_to_start.delete(service_name)
+    end
+
+    # Check if any services have declared themselves as having a resource-intensive startup procedure
+    # and move them to the separate todo list if so.
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
 
     dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
@@ -228,8 +246,13 @@ if ['start'].include?(ARGV[0])
     next unless dependencies.key?('expensive_startup')
 
     dependencies['expensive_startup'].each do |service|
+      # If we have already decided not to start it, don't bother going further
+      next unless services_to_start.include?(service['compose_service'])
+
       puts colorize_pink("Found expensive to start service #{service['compose_service']}")
+      # We will start it apart from our main list
       expensive_todo << service
+      services_to_start.delete(service)
     end
   end
 
@@ -276,7 +299,7 @@ if ['start'].include?(ARGV[0])
 
   # Now we can start the rest, which should be quick and easy as they are not expensive
   puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
-  up_exit_code = run_command('docker-compose up --remove-orphans -d')
+  up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
   if up_exit_code != 0
     puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
     exit
