@@ -246,13 +246,14 @@ if ['start'].include?(ARGV[0])
     next unless dependencies.key?('expensive_startup')
 
     dependencies['expensive_startup'].each do |service|
+      service_name = service['compose_service']
       # If we have already decided not to start it, don't bother going further
-      next unless services_to_start.include?(service['compose_service'])
+      next unless services_to_start.include?(service_name)
 
-      puts colorize_pink("Found expensive to start service #{service['compose_service']}")
+      puts colorize_pink("Found expensive to start service #{service_name}")
       # We will start it apart from our main list
       expensive_todo << service
-      services_to_start.delete(service)
+      services_to_start.delete(service_name)
     end
   end
 
