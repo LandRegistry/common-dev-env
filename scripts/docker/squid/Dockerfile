@@ -1,4 +1,3 @@
-# Using this image as common-dev-env users will already have it thanks to the logger
 FROM hmlandregistry/squid:4.5
 # We have this as a Dockerfile rather than just specifying the image in the
 # compose fragment, to prevent it being deleted in a destroy, so it doesn't
