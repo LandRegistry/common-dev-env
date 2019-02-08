@@ -5,5 +5,3 @@ services:
     build: ../scripts/docker/squid/
     ports:
       - 30128:3128
-    volumes:
-     - ../scripts/docker/squid/squid.conf:/etc/squid/squid.conf
