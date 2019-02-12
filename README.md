@@ -44,7 +44,7 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository along with which branch/tag should be initially checked out. The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+`configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
 [Example](snippets/configuration.yml)
 
