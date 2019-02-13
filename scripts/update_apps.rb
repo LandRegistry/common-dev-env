@@ -49,6 +49,11 @@ def populate_queue(config, queue)
   end
 end
 
+def required_ref(appconfig)
+  # Ref is the key we check first, but then branch for backwards compatibility
+  appconfig.fetch('ref', appconfig['branch'])
+end
+
 def update_or_clone(appconfig, root_loc, appname)
   output = if Dir.exist?("#{root_loc}/apps/#{appname}")
              update_app(appconfig, root_loc, appname)
@@ -57,7 +62,7 @@ def update_or_clone(appconfig, root_loc, appname)
            end
 
   # Attempt to merge our remote branch into our local branch, if it's straightforward
-  output += merge(root_loc, appname, appconfig['branch'])
+  output += merge(root_loc, appname, required_ref(appconfig))
   output
 end
 
@@ -70,6 +75,8 @@ def current_branch(root_loc, appname)
 end
 
 def merge(root_loc, appname, required_branch)
+  return [] if current_branch(root_loc, appname) == 'detached'
+
   output_lines = [colorize_lightblue("Bringing #{required_branch} up to date")]
   if run_command("git -C #{root_loc}/apps/#{appname} merge --ff-only", output_lines) != 0
     output_lines << colorize_yellow("The local branch couldn't be fast forwarded (a merge is probably " \
@@ -86,11 +93,17 @@ def update_app(appconfig, root_loc, appname)
 
   current_branch = current_branch(root_loc, appname)
 
-  # If the user is working in another branch, leave them be
-  required_branch = appconfig['branch']
-  unless current_branch.eql? required_branch
+  # If the configuration specifies a fixed commit leave them be
+  if current_branch == 'detached'
+    output_lines << colorize_yellow('Detached head detected, nothing to update')
+    return output_lines
+  end
+
+  # Or the user is not working in the branch originally checked out...
+  required_reference = required_ref(appconfig)
+  unless current_branch.eql? required_reference
     output_lines << colorize_yellow("The current branch (#{current_branch}) differs from the devenv " \
-                                    "configuration (#{required_branch}) so I'm not going to update anything")
+                                    "configuration (#{required_reference}) so I'm not going to update anything")
     return output_lines
   end
 
@@ -116,14 +129,13 @@ def clone_app(appconfig, root_loc, appname)
     sleep(3)
   end
   # What branch are we working on?
-  current_branch = `git -C #{root_loc}/apps/#{appname} rev-parse --abbrev-ref HEAD`.strip
+  current_branch = current_branch(root_loc, appname)
 
-  # If we have to, create a new tracked local branch that matches the one specified in the config and switch
-  # to it
-  required_branch = appconfig['branch']
-  if !current_branch.eql? required_branch
-    output_lines << colorize_lightblue("Switching branch to #{required_branch}")
-    run_command("git -C #{root_loc}/apps/#{appname} checkout --track origin/#{required_branch}", output_lines)
+  # If we have to, check out the branch/tag/commit that the config wants us to use
+  required_reference = required_ref(appconfig)
+  if !current_branch.eql? required_reference
+    output_lines << colorize_lightblue("Switching to #{required_reference}")
+    run_command("git -C #{root_loc}/apps/#{appname} checkout #{required_reference}", output_lines)
   else
     output_lines << colorize_lightblue("Current branch is already #{current_branch}")
   end
