@@ -298,12 +298,14 @@ if ['start'].include?(ARGV[0])
     sleep(3)
   end
 
-  # Now we can start the rest, which should be quick and easy as they are not expensive
-  puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
-  up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
-  if up_exit_code != 0
-    puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-    exit
+  # Now we can start the rest (if any), which should be quick and easy as they are not expensive
+  if services_to_start.any?
+    puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
+    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    if up_exit_code != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
+    end
   end
 
   # Any custom scripts to run?
