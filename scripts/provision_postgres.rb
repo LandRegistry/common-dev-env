@@ -40,7 +40,7 @@ end
 
 def start_postgres(root_loc, appname, started)
   unless started
-    run_command_noshell(['docker-compose', 'up', '-d', '--force-recreate', 'postgres'])
+    run_command_noshell(['docker-compose', 'up', '-d', 'postgres'])
     # Better not run anything until postgres is ready to accept connections...
     puts colorize_lightblue('Waiting for Postgres to finish initialising')
 
@@ -48,6 +48,9 @@ def start_postgres(root_loc, appname, started)
       puts colorize_yellow('Postgres is unavailable - sleeping')
       sleep(1)
     end
+
+    # Sleep 3 more seconds to allow the root user to be set up if needed
+    sleep(3)
 
     puts colorize_green('Postgres is ready')
     started = true

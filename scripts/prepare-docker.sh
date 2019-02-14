@@ -3,13 +3,18 @@
 if grep -q Microsoft /proc/version; then
   if [ -z "${WSLENV_SET+x}" ]; then
     echo -e "\e[36mWindows Subsystem for Linux detected; adding to WSLENV environment variable\e[0m"
-    export WSLENV="COMPOSE_FILE/l:COMPOSE_PROJECT_NAME${WSLENV:+:${WSLENV}}"
+    export WSLENV="OUTSIDE_UID:OUTSIDE_GID:COMPOSE_FILE/l:COMPOSE_PROJECT_NAME${WSLENV:+:${WSLENV}}"
     export WSLENV_SET=yes
   fi
 fi
 
 # Got to use a constant project name to ensure that containers are properly tracked regardless of how fragments are added are removed. Otherwise you get duplicate errors on the build
 export COMPOSE_PROJECT_NAME=dv
+
+# Set environment variables for compose files to send to Dockerfiles as arguments,
+# should the Dockerfile wish to create a matching user to run the container as
+export OUTSIDE_UID=$(id -u)
+export OUTSIDE_GID=$(id -g)
 
 # Load all the docker compose file references that were saved earlier
 dockerfilelist=$(<./.docker-compose-file-list)

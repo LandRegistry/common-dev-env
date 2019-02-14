@@ -60,7 +60,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.0.6'
+  this_version = '1.1.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -178,10 +178,18 @@ if ['start'].include?(ARGV[0])
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
     if run_command('docker-compose build') != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
   end
+
+  # Let's force a recreation of the containers here so we know they're using up-to-date images
+  puts colorize_lightblue('Creating containers...')
+  if run_command('docker-compose up --remove-orphans --force-recreate --no-start') != 0
+    puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
+    exit
+  end
+
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
@@ -201,11 +209,103 @@ if ['start'].include?(ARGV[0])
   provision_elasticsearch5(root_loc)
 
   # Now that commodities are all provisioned, we can start the containers
-  puts colorize_lightblue('Starting containers...')
-  up_exit_code = run_command('docker-compose up --remove-orphans -d --force-recreate')
-  if up_exit_code != 0
-    puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-    exit
+
+  # Load configuration.yml into a Hash
+  config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
+
+  # The list of all Compose services to start (which may be trimmed down in the following sections)
+  services_to_start = []
+  run_command('docker-compose config --services', services_to_start)
+
+  # The list of expensive services we have yet to start
+  expensive_todo = []
+  # The list of expensive services currently starting
+  expensive_inprogress = []
+
+  config['applications'].each do |appname, appconfig|
+    # First, special options check (in the dev-env-config)
+    # for any settings that should override what the app wants to do
+    options = appconfig.fetch('options', [])
+    options.each do |option|
+      service_name = option['compose-service-name']
+      auto_start = option.fetch('auto-start', true)
+      next if auto_start
+
+      # We will not start this at all (unless depended upon by another service we are
+      # starting - Compose will enforce that!)
+      puts colorize_pink("Dev-env-config option found - service #{service_name} autostart is FALSE")
+      services_to_start.delete(service_name)
+    end
+
+    # Check if any services have declared themselves as having a resource-intensive startup procedure
+    # and move them to the separate todo list if so.
+    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
+
+    dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
+    next if dependencies.nil?
+    next unless dependencies.key?('expensive_startup')
+
+    dependencies['expensive_startup'].each do |service|
+      service_name = service['compose_service']
+      # If we have already decided not to start it, don't bother going further
+      next unless services_to_start.include?(service_name)
+
+      puts colorize_pink("Found expensive to start service #{service_name}")
+      # We will start it apart from our main list
+      expensive_todo << service
+      services_to_start.delete(service_name)
+    end
+  end
+
+  # Until we have no more left to start AND we have no more in progress...
+  while expensive_todo.length.positive? || expensive_inprogress.length.positive?
+    # Remove any from the in progress list that are now healthy as per their declared cmd
+    expensive_inprogress.delete_if do |service|
+      service_healthy = false
+      if service['healthcheck_cmd'] == 'docker'
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)")
+        output_lines = []
+        outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{service['compose_service']}",
+                              output_lines)
+        service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+      else
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml)")
+        service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
+                                      []).zero?
+      end
+      if service_healthy
+        puts colorize_green('It is!')
+      else
+        puts colorize_yellow('Not yet')
+      end
+      service_healthy
+    end
+
+    # If there's room in the in progress list, move as many as we can into it from the
+    # todo list and start them up.
+    expensive_todo.delete_if do |service|
+      if expensive_inprogress.length >= 3
+        false
+      else
+        run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+        expensive_inprogress << service
+        true
+      end
+    end
+
+    # Wait for a bit before the next round of checks
+    puts ''
+    sleep(3)
+  end
+
+  # Now we can start the rest (if any), which should be quick and easy as they are not expensive
+  if services_to_start.any?
+    puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
+    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    if up_exit_code != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
+    end
   end
 
   # Any custom scripts to run?

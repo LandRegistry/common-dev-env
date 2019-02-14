@@ -1,4 +1,5 @@
 require_relative 'utilities'
+require 'fileutils'
 require 'yaml'
 
 def create_commodities_list(root_loc)
@@ -92,4 +93,39 @@ def commodity_required?(root_loc, appname, commodity)
   return false if dependencies.nil?
 
   dependencies.key?('commodities') && dependencies['commodities'].include?(commodity)
+end
+
+def commodity?(root_loc, commodity)
+  is_commodity = false # initialise
+  return false unless File.exist?("#{root_loc}/.commodities.yml")
+
+  commodities = YAML.load_file("#{root_loc}/.commodities.yml")
+
+  commodities['commodities'].each do |commodity_name|
+    if commodity == commodity_name
+      is_commodity = true
+      break
+    end
+  end
+
+  is_commodity
+end
+
+if $PROGRAM_NAME == __FILE__
+  root_loc = File.expand_path('..', File.dirname(__FILE__))
+  exit unless File.exist?("#{root_loc}/.commodities.yml")
+
+  done_one = false
+  # Is a commodity container being reset
+  if commodity?(root_loc, ARGV[0])
+    commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
+    commodity_file['applications'].each do |app_name, _commodity|
+      # If this app has provisioned this commodity, change to false as it hasn't any more!
+      if commodity_provisioned?(root_loc, app_name, ARGV[0])
+        set_commodity_provision_status(root_loc, app_name, ARGV[0], false)
+        done_one = true
+      end
+    end
+  end
+  exit 99 if done_one
 end

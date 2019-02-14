@@ -1,2 +1,5 @@
 ---
 commodities: ["postgres", "elasticsearch5", "rabbitmq", "db2"]
+expensive_startup:
+  - compose_service: name-of-service-from-compose-fragment
+    healthcheck_cmd: docker-or-a-shell-command-that-returns-0-exit-code-if-healthy
