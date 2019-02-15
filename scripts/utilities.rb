@@ -69,6 +69,9 @@ def fail_and_exit(new_project)
   if new_project
     File.delete(DEV_ENV_CONTEXT_FILE)
     FileUtils.rm_r DEV_ENV_CONFIG_DIR if Dir.exist?(DEV_ENV_CONFIG_DIR)
+    exit 1
+  else
+    puts colorize_yellow('Continuing in 3 seconds...')
+    sleep(3)
   end
-  exit 1
 end
