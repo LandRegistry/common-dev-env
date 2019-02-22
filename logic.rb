@@ -16,7 +16,9 @@ require_relative 'scripts/docker_compose'
 require_relative 'scripts/commodities'
 require_relative 'scripts/provision_custom'
 require_relative 'scripts/provision_postgres'
+require_relative 'scripts/provision_postgres-9.6'
 require_relative 'scripts/provision_alembic'
+require_relative 'scripts/provision_alembic-9.6'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
 require_relative 'scripts/provision_nginx'
@@ -60,7 +62,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.1.0'
+  this_version = '1.1.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -193,10 +195,12 @@ if ['start'].include?(ARGV[0])
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
-  # Do a reset, or just ssh in and do docker-compose rm -v -f postgres
+  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-9.6 etc)
   provision_postgres(root_loc)
+  provision_postgres96(root_loc)
   # Alembic
   provision_alembic(root_loc)
+  provision_alembic96(root_loc)
   # Hosts File
   provision_hosts(root_loc)
   # Run app DB2 SQL statements

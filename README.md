@@ -91,6 +91,7 @@ This file lives in the root of the application and specifies which commodities t
 The list of allowable commodity values is:
 
 * postgres
+* postgres-9.6
 * db2
 * elasticsearch
 * elasticsearch5
@@ -119,7 +120,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers and on the host.
+The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433.
 
 **`/manage.py`**
 
