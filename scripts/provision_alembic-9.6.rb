@@ -20,7 +20,7 @@ def provision_alembic96(root_loc)
     next unless File.exist?("#{root_loc}/apps/#{appname}/manage.py")
 
     unless started
-      start_postgres_for_alembic
+      start_postgres96_for_alembic
       started = true
     end
     puts colorize_pink("Found some in #{appname}")
@@ -29,7 +29,7 @@ def provision_alembic96(root_loc)
   end
 end
 
-def start_postgres_for_alembic
+def start_postgres96_for_alembic
   run_command_noshell(['docker-compose', 'up', '-d', 'postgres-96'])
   # Better not run anything until postgres is ready to accept connections...
   puts colorize_lightblue('Waiting for Postgres 9.6 to finish initialising')

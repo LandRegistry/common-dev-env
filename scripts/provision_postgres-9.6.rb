@@ -20,7 +20,7 @@ def provision_postgres96(root_loc)
 
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql")
-      started = start_postgres_maybe(root_loc, appname, started)
+      started = start_postgres96_maybe(root_loc, appname, started)
     else
       puts colorize_yellow("#{appname} says it uses Postgres 9.6 but doesn't contain an init SQL file. " \
                            'Oh well, onwards we go!')
@@ -28,17 +28,17 @@ def provision_postgres96(root_loc)
   end
 end
 
-def start_postgres_maybe(root_loc, appname, started)
+def start_postgres96_maybe(root_loc, appname, started)
   puts colorize_pink("Found some in #{appname}")
   if commodity_provisioned?(root_loc, appname, 'postgres-9.6')
     puts colorize_yellow("Postgres 9.6 has previously been provisioned for #{appname}, skipping")
   else
-    started = start_postgres(root_loc, appname, started)
+    started = start_postgres96(root_loc, appname, started)
   end
   started
 end
 
-def start_postgres(root_loc, appname, started)
+def start_postgres96(root_loc, appname, started)
   unless started
     run_command_noshell(['docker-compose', 'up', '-d', 'postgres-96'])
     # Better not run anything until postgres is ready to accept connections...
