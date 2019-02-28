@@ -109,18 +109,26 @@ if ['prep'].include?(ARGV[0])
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
   else
     print colorize_yellow('Please enter the (Git) url of your dev env configuration repository: ')
-    app_grouping = STDIN.gets.chomp
-    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(app_grouping) }
+    config_repo = STDIN.gets.chomp
+    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   puts colorize_lightblue('Retrieving custom configuration repo files:')
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
-    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
     new_project = false
+    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
   else
-    command_successful = run_command("git clone #{File.read(DEV_ENV_CONTEXT_FILE)} #{root_loc}/dev-env-config")
     new_project = true
+    config_repo = File.read(DEV_ENV_CONTEXT_FILE)
+    parsed_repo, delimiter, ref = config_repo.rpartition('#')
+    # If they didn't specify a #ref, rpartition returns "", "", wholestring
+    parsed_repo = ref if delimiter.empty?
+    command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
+    if command_successful.zero? && !delimiter.empty?
+      puts colorize_lightblue("Checking out configuration repo ref: #{ref}")
+      command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
+    end
   end
 
   # Error if git clone or pulling failed

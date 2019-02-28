@@ -30,7 +30,9 @@ To begin:
 1. Start Docker.
 1. Using Git, clone this repository into a directory of your choice.
 1. Open a terminal in that directory, and run `source run.sh up`
-1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository. Paste it in and press enter.
+1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
+
+**TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
 Other `run.sh` parameters are:
 
