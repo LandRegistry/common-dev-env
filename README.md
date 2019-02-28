@@ -84,7 +84,7 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 #### Commodities
 
-##### `/configuration.yml` (Mandatory)
+##### `/configuration.yml`
 
 This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 

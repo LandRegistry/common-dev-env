@@ -12,10 +12,7 @@ def provision_alembic96(root_loc)
   config['applications'].each do |appname, _appconfig|
     # To help enforce the accuracy of the app's dependency file, only search for alembic code
     # if the app specifically specifies postgres in it's commodity list
-    unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-      puts colorize_red("No configuration.yml found for #{appname}")
-      next
-    end
+    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'postgres-9.6')
     next unless File.exist?("#{root_loc}/apps/#{appname}/manage.py")
 
