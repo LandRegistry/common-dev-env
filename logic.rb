@@ -269,7 +269,18 @@ if ['start'].include?(ARGV[0])
     end
   end
 
+  # Now we can start inexpensive apps, which should be quick and easy
+  if services_to_start.any?
+    puts colorize_lightblue('Starting inexpensive services...')
+    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    if up_exit_code != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
+    end
+  end
+
   # Until we have no more left to start AND we have no more in progress...
+  puts colorize_lightblue('Starting expensive services...')
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Remove any from the in progress list that are now healthy as per their declared cmd
     expensive_inprogress.delete_if do |service|
@@ -308,16 +319,6 @@ if ['start'].include?(ARGV[0])
     # Wait for a bit before the next round of checks
     puts ''
     sleep(3)
-  end
-
-  # Now we can start the rest (if any), which should be quick and easy as they are not expensive
-  if services_to_start.any?
-    puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
-    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
-    if up_exit_code != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-      exit
-    end
   end
 
   # Any custom scripts to run?
