@@ -136,6 +136,12 @@ This file contains any one-off SQL to run in DB2 - at the minimum it will normal
 
 [Example](snippets/db2-init-fragment.sql)
 
+#### DB2 Developer C
+
+**`/fragments/db2-devc-init-fragment.sql`**
+
+This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
+
 ##### ElasticSearch
 
 **`/fragments/elasticsearch-fragment.sh`**
