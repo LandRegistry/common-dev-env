@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 services:
   # Back-compat: So apps compose files dont need to care if its logstash or not, call this container logstash as well
   logstash:

@@ -42,7 +42,7 @@ def get_apps(root_loc, commodity_list, compose_version)
   return unless config['applications']
 
   config['applications'].each do |appname, _appconfig|
-    # If this app is docker, add it's compose to the list
+    # If this app is docker, add its compose to the list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
       commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
     end
@@ -55,29 +55,46 @@ def choose_compose_version(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
-  compose_2_count = 0
-  compose_3_count = 0
+  compose_counts = {
+    '2' => 0,
+    '3.7' => 0
+  }
+
   config['applications'].each do |appname, _appconfig|
-    compose_2_count += 1 if File.exist?("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
-    compose_3_count += 1 if File.exist?("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.3.yml")
+    compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment*.yml"]
+    compose_fragments.each do |fragment|
+      basename = File.basename(fragment)
+      if basename == 'docker-compose-fragment.yml'
+        compose_counts['2'] += 1
+      elsif basename == 'docker-compose-fragment.3.7.yml'
+        compose_counts['3.7'] += 1
+      else
+        puts colorize_yellow("Unsupported fragment: #{basename}")
+      end
+    end
   end
 
-  fail_if_no_consensus(compose_2_count, compose_3_count, config['applications'].length)
-
-  if compose_3_count == config['applications'].length
-    puts colorize_lightblue('All applications have v3 docker compose files.')
-    return 3
-  end
-
-  puts colorize_lightblue('All applications have v2 docker compose files.')
-  2
+  compose_version = get_consensus(compose_counts, config['applications'].length)
+  puts colorize_lightblue("Selecting compose version #{compose_version}")
+  compose_version
 end
 
-def fail_if_no_consensus(compose_2_count, compose_3_count, app_count)
-  return if (compose_2_count == app_count) || (compose_3_count == app_count)
+def get_consensus(compose_counts, app_count)
+  preference = nil
+  compose_counts.each do |version, count|
+    preference = highest_version(preference, version) if count == app_count
+  end
 
-  puts colorize_red('Applications have a mix of v2 and v3 docker compose fragments. Unable to proceed.')
+  return preference unless preference.nil?
+
+  puts colorize_red('Applications have a mix of docker compose fragments versions. Unable to proceed.')
   exit 1
+end
+
+def highest_version(version_a, version_b)
+  return version_a if version_a.to_f > version_b.to_f
+
+  version_b
 end
 
 def fragment_filename(compose_version)
