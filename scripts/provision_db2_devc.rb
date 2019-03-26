@@ -37,12 +37,12 @@ def process_db2_devc_fragment(root_loc, appname, database_initialised)
       init_db2_devc
       result = true
     end
-    init_sql(root_loc, appname)
+    init_db2_devc_sql(root_loc, appname)
   end
   result
 end
 
-def init_sql(root_loc, appname)
+def init_db2_devc_sql(root_loc, appname)
   # See comments in provision_postgres.rb for why we are doing it this way
   run_command('tar -c' \
               " -C #{root_loc}/apps/#{appname}/fragments" \
