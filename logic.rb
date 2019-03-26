@@ -16,11 +16,12 @@ require_relative 'scripts/docker_compose'
 require_relative 'scripts/commodities'
 require_relative 'scripts/provision_custom'
 require_relative 'scripts/provision_postgres'
-require_relative 'scripts/provision_postgres-9.6'
+require_relative 'scripts/provision_postgres_9.6'
 require_relative 'scripts/provision_alembic'
-require_relative 'scripts/provision_alembic-9.6'
+require_relative 'scripts/provision_alembic_9.6'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
+require_relative 'scripts/provision_db2_devc'
 require_relative 'scripts/provision_nginx'
 require_relative 'scripts/provision_elasticsearch5'
 require_relative 'scripts/provision_elasticsearch'
@@ -62,7 +63,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.1.2'
+  this_version = '1.2.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -109,18 +110,26 @@ if ['prep'].include?(ARGV[0])
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
   else
     print colorize_yellow('Please enter the (Git) url of your dev env configuration repository: ')
-    app_grouping = STDIN.gets.chomp
-    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(app_grouping) }
+    config_repo = STDIN.gets.chomp
+    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   puts colorize_lightblue('Retrieving custom configuration repo files:')
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
-    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
     new_project = false
+    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
   else
-    command_successful = run_command("git clone #{File.read(DEV_ENV_CONTEXT_FILE)} #{root_loc}/dev-env-config")
     new_project = true
+    config_repo = File.read(DEV_ENV_CONTEXT_FILE)
+    parsed_repo, delimiter, ref = config_repo.rpartition('#')
+    # If they didn't specify a #ref, rpartition returns "", "", wholestring
+    parsed_repo = ref if delimiter.empty?
+    command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
+    if command_successful.zero? && !delimiter.empty?
+      puts colorize_lightblue("Checking out configuration repo ref: #{ref}")
+      command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
+    end
   end
 
   # Error if git clone or pulling failed
@@ -205,6 +214,7 @@ if ['start'].include?(ARGV[0])
   provision_hosts(root_loc)
   # Run app DB2 SQL statements
   provision_db2(root_loc)
+  provision_db2_devc(root_loc)
   # Nginx
   provision_nginx(root_loc)
   # Elasticsearch
@@ -261,7 +271,18 @@ if ['start'].include?(ARGV[0])
     end
   end
 
+  # Now we can start inexpensive apps, which should be quick and easy
+  if services_to_start.any?
+    puts colorize_lightblue('Starting inexpensive services...')
+    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    if up_exit_code != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
+    end
+  end
+
   # Until we have no more left to start AND we have no more in progress...
+  puts colorize_lightblue('Starting expensive services...')
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Remove any from the in progress list that are now healthy as per their declared cmd
     expensive_inprogress.delete_if do |service|
@@ -300,16 +321,6 @@ if ['start'].include?(ARGV[0])
     # Wait for a bit before the next round of checks
     puts ''
     sleep(3)
-  end
-
-  # Now we can start the rest (if any), which should be quick and easy as they are not expensive
-  if services_to_start.any?
-    puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
-    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
-    if up_exit_code != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-      exit
-    end
   end
 
   # Any custom scripts to run?

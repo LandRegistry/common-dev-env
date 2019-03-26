@@ -30,7 +30,9 @@ To begin:
 1. Start Docker.
 1. Using Git, clone this repository into a directory of your choice.
 1. Open a terminal in that directory, and run `source run.sh up`
-1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository. Paste it in and press enter.
+1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
+
+**TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
 Other `run.sh` parameters are:
 
@@ -58,9 +60,9 @@ For an application repository to leverage the full power of the dev-env...
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
-##### `/fragments/docker-compose-fragment.yml` (Mandatory)
+##### `/fragments/docker-compose-fragment.yml`
 
-This is used by the envvironment to construct the application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2, if any commodities are used) - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
@@ -76,7 +78,7 @@ Note that when including directives such as a Dockerfile build location or host 
 
 ##### `/Dockerfile`
 
-This is a file that defines the application's Docker image. The Compose fragment should point to this file. Extend an existing image and install/set whatever is needed to ensure that containers created from the image will run. See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/) for more information.
+This is a file that defines the application's Docker image. The Compose fragment may point to this file. Extend an existing image and install/set whatever is needed to ensure that containers created from the image will run. See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/) for more information.
 
 [Example - Python/Flask](snippets/flask_Dockerfile)
 
@@ -84,7 +86,7 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 #### Commodities
 
-##### `/configuration.yml` (Mandatory)
+##### `/configuration.yml`
 
 This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
@@ -93,6 +95,7 @@ The list of allowable commodity values is:
 * postgres
 * postgres-9.6
 * db2
+* db2_devc
 * elasticsearch
 * elasticsearch5
 * nginx
@@ -133,6 +136,16 @@ This is a standard Alembic management file - if it exists, then a database migra
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
 [Example](snippets/db2-init-fragment.sql)
+
+#### DB2 Developer C
+
+**`/fragments/db2-devc-init-fragment.sql`**
+
+This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
+
+DB2 Developer C runs on port 50001 and ports 55001 to avoid port clashes with DB2 Express.
+
+[Example](snippets/db2-devc-init-fragment.sql)
 
 ##### ElasticSearch
 
