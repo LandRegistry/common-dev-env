@@ -95,6 +95,7 @@ The list of allowable commodity values is:
 * postgres
 * postgres-9.6
 * db2
+* db2_devc
 * elasticsearch
 * elasticsearch5
 * nginx
@@ -135,6 +136,16 @@ This is a standard Alembic management file - if it exists, then a database migra
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
 [Example](snippets/db2-init-fragment.sql)
+
+#### DB2 Developer C
+
+**`/fragments/db2-devc-init-fragment.sql`**
+
+This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
+
+DB2 Developer C runs on port 50001 and ports 55001 to avoid port clashes with DB2 Express.
+
+[Example](snippets/db2-devc-init-fragment.sql)
 
 ##### ElasticSearch
 

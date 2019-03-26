@@ -21,6 +21,7 @@ require_relative 'scripts/provision_alembic'
 require_relative 'scripts/provision_alembic_9.6'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
+require_relative 'scripts/provision_db2_devc'
 require_relative 'scripts/provision_nginx'
 require_relative 'scripts/provision_elasticsearch5'
 require_relative 'scripts/provision_elasticsearch'
@@ -213,6 +214,7 @@ if ['start'].include?(ARGV[0])
   provision_hosts(root_loc)
   # Run app DB2 SQL statements
   provision_db2(root_loc)
+  provision_db2_devc(root_loc)
   # Nginx
   provision_nginx(root_loc)
   # Elasticsearch
