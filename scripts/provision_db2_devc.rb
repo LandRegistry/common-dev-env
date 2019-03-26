@@ -21,8 +21,8 @@ def provision_db2_devc(root_loc)
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/db2-devc-init-fragment.sql")
       database_initialised = process_db2_devc_fragment(root_loc, appname, database_initialised)
     else
-      puts colorize_yellow("#{appname} says it uses DB2 Developer C but doesn't contain an init SQL file. Oh well, onwards we " \
-                            'go!')
+      puts colorize_yellow("#{appname} says it uses DB2 Developer C but doesn't contain an init SQL file.
+          Oh well, onwards we go!")
     end
   end
 end
@@ -51,7 +51,8 @@ def init_sql(root_loc, appname)
 
   run_command('docker exec db2_devc bash -c "chmod o+r /db2-devc-init-fragment.sql"')
 
-  exit_code = run_command('docker exec -u db2inst1 db2_devc bash -c "~/sqllib/bin/db2 -tvf /db2-devc-init-fragment.sql"')
+  cmd = 'docker exec -u db2inst1 db2_devc bash -c "~/sqllib/bin/db2 -tvf /db2-devc-init-fragment.sql"'
+  exit_code = run_command(cmd)
   # Just in case a fragment hasn't disconnected from it's DB, let's do it now so the next fragment doesn't fail
   # when doing it's CONNECT TO
   run_command('docker exec -u db2inst1 db2_devc bash -c "~/sqllib/bin/db2 disconnect all"')
