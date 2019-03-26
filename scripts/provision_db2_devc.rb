@@ -76,7 +76,7 @@ def init_db2_devc
   run_command('docker-compose up -d db2_devc')
 
   # Better not run anything until DB2 is ready to accept connections...
-  puts colorize_lightblue('Waiting for DB2 Developer C to finish initialising')
+  puts colorize_lightblue('Waiting for DB2 Developer C to finish initialising (this will take a few minutes)')
   command_output = []
   until command_output.grep(/1/).any?
     command_output.clear
