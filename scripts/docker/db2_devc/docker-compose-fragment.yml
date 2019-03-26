@@ -9,7 +9,3 @@ services:
     env_file:
       - ../scripts/docker/db2_devc/.env_list
     privileged: true
-    volumes:
-      - db2:/database
-volumes:
-  db2:
