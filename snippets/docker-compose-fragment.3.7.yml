@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  # Notice how the service name, container name and repo directory (where the Dockerfile lives) all match.
+  backend-api:
+    container_name: backend-api
+    build: ./backend-api
+    restart: on-failure
+    ports:
+      # The application is running on port 8080 which other containers will use,
+      # we expose it here and map it to a unique port that it will be exposed on the host with.
+      # If you don't want it available to the host at all, leave this line out but ensure your
+      # Dockerfile EXPOSEs it for the other containers.
+      - "9998:8080"
+    volumes:
+      # Our convention is to always map the app files to /src within the container
+      - ./backend-api:/src
+    logging:
+      driver: syslog
+      options:
+        syslog-format: "rfc5424"
+        syslog-address: "tcp://localhost:25826"
+        tag: "{{.Name}}"
+    depends_on:
+      - logstash
+  # THE BELOW SECTION IS ONLY IF THE APP IS USING NGINX AS A COMMODITY
+  # Ensures the app is started before nginx so it can resolve the hostname and not error out
+  nginx:
+    depends_on:
+      - backend-api
