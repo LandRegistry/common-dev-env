@@ -62,7 +62,7 @@ Docker containers are used to run all apps. So some files are needed to support 
 
 ##### `/fragments/docker-compose-fragment.yml`
 
-This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2, if any commodities are used) - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2) - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
@@ -79,6 +79,8 @@ Note that when including directives such as a Dockerfile build location or host 
 ##### `/fragments/docker-compose-fragment.3.7.yml`
 
 An optional variant of `docker-compose-fragment.yml` with a version of `3.7`. The development environment will select the highest compose file version supplied by all applications in the environment. If all applications supply a `docker-compose-fragment.3.7.yml`, then the environment will use the `3.7` files, otherwise it falls back to the version `2` compose files.
+
+Compose 3.7 support requires Docker engine version 18.06.0 or later.
 
 If the environment cannot identify a universal compose file version, then provisioning will fail.
 

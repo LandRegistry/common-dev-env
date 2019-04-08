@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+  db2_devc:
+    container_name: db2_devc
+    build: ../scripts/docker/db2_devc/
+    ports:
+      - "50001:50000"
+      - "55001:55000"
+    env_file:
+      - ../scripts/docker/db2_devc/.env_list
+    privileged: true
