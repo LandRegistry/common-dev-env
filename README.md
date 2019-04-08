@@ -30,7 +30,9 @@ To begin:
 1. Start Docker.
 1. Using Git, clone this repository into a directory of your choice.
 1. Open a terminal in that directory, and run `source run.sh up`
-1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository. Paste it in and press enter.
+1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
+
+**TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
 Other `run.sh` parameters are:
 
@@ -44,7 +46,7 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository along with which branch/tag should be initially checked out. The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+`configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
 [Example](snippets/configuration.yml)
 
@@ -58,9 +60,9 @@ For an application repository to leverage the full power of the dev-env...
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
-##### `/fragments/docker-compose-fragment.yml` (Mandatory)
+##### `/fragments/docker-compose-fragment.yml`
 
-This is used by the envvironment to construct the application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the Compose file version `2` - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2, if any commodities are used) - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
@@ -84,7 +86,7 @@ If the environment cannot identify a universal compose file version, then provis
 
 ##### `/Dockerfile`
 
-This is a file that defines the application's Docker image. The Compose fragment should point to this file. Extend an existing image and install/set whatever is needed to ensure that containers created from the image will run. See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/) for more information.
+This is a file that defines the application's Docker image. The Compose fragment may point to this file. Extend an existing image and install/set whatever is needed to ensure that containers created from the image will run. See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/) for more information.
 
 [Example - Python/Flask](snippets/flask_Dockerfile)
 
@@ -92,14 +94,16 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 #### Commodities
 
-##### `/configuration.yml` (Mandatory)
+##### `/configuration.yml`
 
-This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use.
+This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
 * postgres
+* postgres-9.6
 * db2
+* db2_devc
 * elasticsearch
 * elasticsearch5
 * nginx
@@ -107,6 +111,7 @@ The list of allowable commodity values is:
 * redis
 * swagger
 * wiremock
+* squid
 
 Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
@@ -126,7 +131,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers and on the host.
+The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433.
 
 **`/manage.py`**
 
@@ -139,6 +144,16 @@ This is a standard Alembic management file - if it exists, then a database migra
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
 [Example](snippets/db2-init-fragment.sql)
+
+#### DB2 Developer C
+
+**`/fragments/db2-devc-init-fragment.sql`**
+
+This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
+
+DB2 Developer C runs on port 50001 and ports 55001 to avoid port clashes with DB2 Express.
+
+[Example](snippets/db2-devc-init-fragment.sql)
 
 ##### ElasticSearch
 
@@ -176,6 +191,12 @@ bashin redis
 redis-cli monitor
 ```
 
+##### Squid
+
+There are no fragments needed when using this. An HTTP proxy will be made available to all containers at runtime, at hostname `squid` and port 3128. It will be available on the host on port 30128.
+
+It also supports HTTPS, however you will need to ensure the self signed [root CA](https://github.com/LandRegistry/docker-base-images/blob/master/squid/devenv-squid-rootca.der?raw=true) is loaded into wherever it needs to go, depending on what is using the proxy (Java cacerts etc). This is best to do in your Dockerfile, alongside setting any variables needed to point to use the proxy itself.
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
@@ -201,6 +222,8 @@ This file can be used to override the default settings for a docker container su
 Any messages that get forwarded to the logstash\* container on TCP port 25826 will be output both in the logstash container's own stdout (so `livelogs logstash` can be used to monitor all apps) and in ./logs/log.txt.
 
 \* Note that it is not really logstash, but we kept the container name that for backwards compatibility purposes.
+
+If you want to make use of this functionality, ensure that `logstash` is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 ## Hints and Tips
 

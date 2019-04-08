@@ -2,8 +2,11 @@ applications:
 
   my-frontend:
     repo: https://github.com/my/frontend.git
-    branch: develop
-  
+    ref: develop
+
   my-backend:
     repo: git@git.lr.net:my/backend.git
-    branch: master
+    ref: master
+    options:
+      - compose-service-name: my-backend-compose-service
+        auto-start: false

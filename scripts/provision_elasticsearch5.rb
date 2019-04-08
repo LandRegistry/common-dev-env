@@ -13,10 +13,7 @@ def provision_elasticsearch5(root_loc)
   config['applications'].each do |appname, _appconfig|
     # To help enforce the accuracy of the app's dependency file, only search for init scripts
     # if the app specifically specifies elasticsearch in it's commodity list
-    unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-      puts colorize_red("No configuration.yml found for #{appname}")
-      next
-    end
+    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'elasticsearch5')
 
     # Run any script contained in the app

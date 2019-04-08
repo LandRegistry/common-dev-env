@@ -16,9 +16,12 @@ require_relative 'scripts/docker_compose'
 require_relative 'scripts/commodities'
 require_relative 'scripts/provision_custom'
 require_relative 'scripts/provision_postgres'
+require_relative 'scripts/provision_postgres_9.6'
 require_relative 'scripts/provision_alembic'
+require_relative 'scripts/provision_alembic_9.6'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
+require_relative 'scripts/provision_db2_devc'
 require_relative 'scripts/provision_nginx'
 require_relative 'scripts/provision_elasticsearch5'
 require_relative 'scripts/provision_elasticsearch'
@@ -60,7 +63,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.0.6'
+  this_version = '1.2.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -107,18 +110,26 @@ if ['prep'].include?(ARGV[0])
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
   else
     print colorize_yellow('Please enter the (Git) url of your dev env configuration repository: ')
-    app_grouping = STDIN.gets.chomp
-    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(app_grouping) }
+    config_repo = STDIN.gets.chomp
+    File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   puts colorize_lightblue('Retrieving custom configuration repo files:')
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
-    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
     new_project = false
+    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
   else
-    command_successful = run_command("git clone #{File.read(DEV_ENV_CONTEXT_FILE)} #{root_loc}/dev-env-config")
     new_project = true
+    config_repo = File.read(DEV_ENV_CONTEXT_FILE)
+    parsed_repo, delimiter, ref = config_repo.rpartition('#')
+    # If they didn't specify a #ref, rpartition returns "", "", wholestring
+    parsed_repo = ref if delimiter.empty?
+    command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
+    if command_successful.zero? && !delimiter.empty?
+      puts colorize_lightblue("Checking out configuration repo ref: #{ref}")
+      command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
+    end
   end
 
   # Error if git clone or pulling failed
@@ -193,14 +204,17 @@ if ['start'].include?(ARGV[0])
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
-  # Do a reset, or just ssh in and do docker-compose rm -v -f postgres
+  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-9.6 etc)
   provision_postgres(root_loc)
+  provision_postgres96(root_loc)
   # Alembic
   provision_alembic(root_loc)
+  provision_alembic96(root_loc)
   # Hosts File
   provision_hosts(root_loc)
   # Run app DB2 SQL statements
   provision_db2(root_loc)
+  provision_db2_devc(root_loc)
   # Nginx
   provision_nginx(root_loc)
   # Elasticsearch
@@ -213,14 +227,32 @@ if ['start'].include?(ARGV[0])
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
 
+  # The list of all Compose services to start (which may be trimmed down in the following sections)
+  services_to_start = []
+  run_command('docker-compose config --services', services_to_start)
+
   # The list of expensive services we have yet to start
   expensive_todo = []
   # The list of expensive services currently starting
   expensive_inprogress = []
 
-  # Check if any services have declared themselves as having a resource-intensive startup procedure
-  # and add them to the todo list if so.
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each do |appname, appconfig|
+    # First, special options check (in the dev-env-config)
+    # for any settings that should override what the app wants to do
+    options = appconfig.fetch('options', [])
+    options.each do |option|
+      service_name = option['compose-service-name']
+      auto_start = option.fetch('auto-start', true)
+      next if auto_start
+
+      # We will not start this at all (unless depended upon by another service we are
+      # starting - Compose will enforce that!)
+      puts colorize_pink("Dev-env-config option found - service #{service_name} autostart is FALSE")
+      services_to_start.delete(service_name)
+    end
+
+    # Check if any services have declared themselves as having a resource-intensive startup procedure
+    # and move them to the separate todo list if so.
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
 
     dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
@@ -228,12 +260,29 @@ if ['start'].include?(ARGV[0])
     next unless dependencies.key?('expensive_startup')
 
     dependencies['expensive_startup'].each do |service|
-      puts colorize_pink("Found expensive to start service #{service['compose_service']}")
+      service_name = service['compose_service']
+      # If we have already decided not to start it, don't bother going further
+      next unless services_to_start.include?(service_name)
+
+      puts colorize_pink("Found expensive to start service #{service_name}")
+      # We will start it apart from our main list
       expensive_todo << service
+      services_to_start.delete(service_name)
+    end
+  end
+
+  # Now we can start inexpensive apps, which should be quick and easy
+  if services_to_start.any?
+    puts colorize_lightblue('Starting inexpensive services...')
+    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    if up_exit_code != 0
+      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      exit
     end
   end
 
   # Until we have no more left to start AND we have no more in progress...
+  puts colorize_lightblue('Starting expensive services...')
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Remove any from the in progress list that are now healthy as per their declared cmd
     expensive_inprogress.delete_if do |service|
@@ -245,7 +294,7 @@ if ['start'].include?(ARGV[0])
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml)")
         service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
                                       []).zero?
       end
@@ -270,15 +319,8 @@ if ['start'].include?(ARGV[0])
     end
 
     # Wait for a bit before the next round of checks
+    puts ''
     sleep(3)
-  end
-
-  # Now we can start the rest, which should be quick and easy as they are not expensive
-  puts colorize_lightblue('All expensive services are running. Starting remaining containers...')
-  up_exit_code = run_command('docker-compose up --remove-orphans -d')
-  if up_exit_code != 0
-    puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
-    exit
   end
 
   # Any custom scripts to run?

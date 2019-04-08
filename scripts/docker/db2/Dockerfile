@@ -10,8 +10,8 @@ EXPOSE 50000
 VOLUME /home/db2inst1
 
 # Add Tini
-RUN curl -L --tlsv1.2 https://github.com/krallin/tini/releases/download/v0.18.0/tini > /tini
-RUN chmod +x /tini
+COPY tini .
+RUN chmod +x tini
 # Prepend tini to original entrypoint
 ENTRYPOINT ["/tini", "-e", "143", "--", "/entrypoint.sh"]
 

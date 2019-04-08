@@ -33,7 +33,7 @@ def run_command(cmd, output_lines = nil, input_lines = nil)
       if output_lines.nil?
         puts line
       else
-        output_lines << line
+        output_lines << line.chomp
       end
     end
     exitcode = wait_thr.value.exitstatus
@@ -69,6 +69,9 @@ def fail_and_exit(new_project)
   if new_project
     File.delete(DEV_ENV_CONTEXT_FILE)
     FileUtils.rm_r DEV_ENV_CONFIG_DIR if Dir.exist?(DEV_ENV_CONFIG_DIR)
+    exit 1
+  else
+    puts colorize_yellow('Continuing in 3 seconds...')
+    sleep(3)
   end
-  exit 1
 end
