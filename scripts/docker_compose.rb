@@ -98,8 +98,8 @@ def highest_version(version_a, version_b)
 end
 
 def fragment_filename(compose_version)
-  if compose_version == 3
-    'docker-compose-fragment.3.yml'
+  if compose_version == '3.7'
+    'docker-compose-fragment.3.7.yml'
   else
     'docker-compose-fragment.yml'
   end
