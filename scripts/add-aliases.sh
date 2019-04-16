@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 # Aliases for common commands
+
+# detect if running in a gitbash window and overwrite docker and docker-compose alias
+# this allows tty commands like bashin to work
+if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+  alias docker="winpty docker"
+  alias docker-compose="winpty docker-compose"
+fi
+
 alias dc="docker-compose"
 alias stop="docker-compose stop"
 alias start="docker-compose start"
