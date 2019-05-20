@@ -1,5 +1,9 @@
 FROM postgres:9.4
 
+# For some reason some people get hash mismatch issues. This tries to resolve that.
+# See https://askubuntu.com/questions/1121093/hash-sum-mismatches-in-18-04-on-laptop-and-in-docker
+RUN printf "Acquire::http::Pipeline-Depth 0;\nAcquire::http::No-Cache true;\nAcquire::BrokenProxy true;" > /etc/apt/apt.conf.d/99fixbadproxy
+
 # Install the PostGIS extension
 RUN apt-get update && \
 	apt-get install -y postgresql-9.4-postgis-2.3 && \
