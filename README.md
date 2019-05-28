@@ -243,10 +243,10 @@ unit-test <name of container>                    -     run the unit tests for an
 integration-test <name of container>             -     run the integration tests for an application (this expects there to a be a Makefile with a integrationtest command).
 acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
           <name of container> <cucumber args>
-acceptance-lint | acclint                     -     run the acceptance tests run_linting.sh script inside the given container.
+acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
           <name of container>
-psql <name of database>                          -     run psql in the postgres container
-db2                                              -     run db2 command line in the db2 container
+psql[96] <name of database>                      -     run psql in the postgres/posrgres-96 container
+db2[c]                                           -     run db2 command line in the db2/db2_devc container
 manage <name of container> <command>             -     run manage.py commands in a container
 alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
 add-to-docker-compose
