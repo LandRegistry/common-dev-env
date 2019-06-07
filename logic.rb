@@ -162,7 +162,6 @@ if ['reset'].include?(ARGV[0])
   File.delete(AFTER_UP_ONCE_FILE) if File.exist?(AFTER_UP_ONCE_FILE)
   File.delete(root_loc + '/.db2_init.sql') if File.exist?(root_loc + '/.db2_init.sql')
   File.delete(root_loc + '/.postgres_init.sql') if File.exist?(root_loc + '/.postgres_init.sql')
-  FileUtils.rm_r "#{root_loc}/supporting-files" if Dir.exist?("#{root_loc}/supporting-files")
 
   # Docker
   run_command('docker-compose down --rmi all --volumes --remove-orphans')
