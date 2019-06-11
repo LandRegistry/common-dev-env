@@ -21,6 +21,10 @@ echo 'cd /vagrant; # switch to workspace' >> ${HOME}/.bash_profile
 sed -i -e 's/.*set git into path//' ${HOME}/.bash_profile
 echo 'export PATH=/usr/local/git/bin:$PATH ; # set git into path' >> ${HOME}/.bash_profile
 
+# Get the aliases working by reparsing the config and setting up Compose
+sed -i -e 's/.*repair env//' ${HOME}/.bash_profile
+echo 'source run.sh repair ; # repair env' >> ${HOME}/.bash_profile
+
 yum -q -y clean metadata
 yum -q -y clean expire-cache
 
