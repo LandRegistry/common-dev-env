@@ -115,7 +115,7 @@ Vagrant.configure("2") do |config|
       vm_cpus = 4
     end
     # Set a random name to avoid a folder-already-exists error after a destroy/up (virtualbox often leaves the folder lying around)
-    vb.name = "landregistry-development #{Time.now.to_f}"
+    vb.name = "common-dev-env #{Time.now.to_f}"
     # Set the resources to be used by the VM
     vb.customize ['modifyvm', :id, '--memory', vm_memory]
     vb.customize ["modifyvm", :id, "--cpus", vm_cpus]
