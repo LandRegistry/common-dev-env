@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     config.vagrant.plugins = required_plugins
   end
 
-  config.vm.post_up_message = colorize_green('All done, environment is ready for use. Now "vagrant ssh" and use the dev-env as normal, i.e. "source run.sh up". If setting up a brand new dev-env, you\'ll then need a further "vagrant reload" afterwards to ensure hosts file changes and exposed ports are propagated out.')
+  config.vm.post_up_message = colorize_green('All done, environment is ready for use. Now "vagrant ssh" and use the dev-env as normal, i.e. "source run.sh up/reload/halt/destroy" and all the other usual aliases. If setting up a brand new dev-env, you\'ll then need a further "vagrant reload" afterwards to ensure hosts file changes and exposed ports are propagated out.')
 
   # Forward ssh agent so tools running in dev-env (e.g. and in
   # particular git) can use keys from host.
