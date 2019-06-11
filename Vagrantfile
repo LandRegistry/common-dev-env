@@ -50,13 +50,20 @@ Vagrant.configure("2") do |config|
     create_port_forwards(root_loc, config)
   end
 
-  # In the event of user requesting a vagrant destroy
-  # Remove files that no longer apply as the docker containers are all gone
   if Vagrant.has_plugin?("vagrant-triggers")
+    config.trigger.after [:up, :reload] do
+      # Hosts File - need to alter it on the "true" host as the common-dev-env will have modified the vagrant box
+      provision_hosts(root_loc)
+    end
     config.trigger.after [:destroy] do
       delete_files(root_loc)
     end
   else
+    config.trigger.after [:up, :reload] do |trigger|
+      trigger.ruby do |env, machine|
+        provision_hosts(root_loc)
+      end
+    end
     config.trigger.after [:destroy] do |trigger|
       trigger.ruby do |env, machine|
         delete_files(root_loc)
@@ -80,19 +87,6 @@ Vagrant.configure("2") do |config|
 
   # Install docker and docker-compose
   config.vm.provision :shell, :inline => "source /vagrant/scripts/vagrant/install-docker.sh"
-
-  # Hosts File - need to alter it on the "true" host as the common-dev-env will have modified the vagrant box
-  if Vagrant.has_plugin?("vagrant-triggers")
-    config.trigger.after [:up, :reload] do
-      provision_hosts(root_loc)
-    end
-  else
-    config.trigger.after [:up, :reload] do |trigger|
-      trigger.ruby do |env, machine|
-        provision_hosts(root_loc)
-      end
-    end
-  end
 
   config.vm.provider "virtualbox" do |vb|
     if ENV.has_key?('VM_MEMORY')
