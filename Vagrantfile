@@ -56,7 +56,12 @@ Vagrant.configure("2") do |config|
       provision_hosts(root_loc)
     end
     config.trigger.after [:destroy] do
+      # Remove files that no longer apply as the docker containers are all gone
       delete_files(root_loc)
+    end
+    config.trigger.before [:halt, :reload] do
+      # Stop any running containers cleanly
+      run_command("vagrant ssh -c \"source run.sh halt\"")
     end
   else
     config.trigger.after [:up, :reload] do |trigger|
@@ -67,6 +72,11 @@ Vagrant.configure("2") do |config|
     config.trigger.after [:destroy] do |trigger|
       trigger.ruby do |env, machine|
         delete_files(root_loc)
+      end
+    end
+    config.trigger.before [:halt, :reload] do |trigger|
+      trigger.ruby do |env, machine|
+        run_command("vagrant ssh -c \"source run.sh halt\"")
       end
     end
   end
