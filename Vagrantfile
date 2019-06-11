@@ -22,7 +22,7 @@ if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new("2.1.3")
   required_plugins.each do |plugin|
     if !Vagrant.has_plugin?(plugin)
       needs_installs = true
-      puts colorise_red("Plugin '#{plugin}' not found. Please install it using 'vagrant plugin install #{plugin}'")
+      puts colorize_red("Plugin '#{plugin}' not found. Please install it using 'vagrant plugin install #{plugin}'")
     end
   end
   if needs_installs
