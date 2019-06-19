@@ -14,8 +14,8 @@ STDOUT.sync = true
 root_loc = __dir__
 
 required_plugins = ['vagrant-vbguest', 'vagrant-triggers']
-# We only need the triggers plugin if we're running a version that does not support them
-required_plugins = ['vagrant-vbguest'] if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new("2.1.0")
+# We only need the triggers plugin if we're running a version that does not support them (and the ruby block)
+required_plugins = ['vagrant-vbguest'] if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new("2.2.0")
 
 if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new("2.1.3")
   needs_installs = false
