@@ -1,5 +1,5 @@
 echo "- - - Installing Git - - -"
-GIT_VERSION="2.21.0"
+GIT_VERSION="2.22.0"
 yum install -y -q openssl-devel autoconf libcurl-devel expat-devel gcc gettext-devel kernel-headers openssl-devel perl-devel zlib-devel
 curl -O -L https://github.com/git/git/archive/v${GIT_VERSION}.tar.gz
 tar -zxvf v${GIT_VERSION}.tar.gz
