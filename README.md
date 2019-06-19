@@ -17,7 +17,6 @@ It provides several hooks for applications to take advantage of, including:
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.3+**
-  * The `highline` gem must also be installed
 
 ### Git/SSH
 

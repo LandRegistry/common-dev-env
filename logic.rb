@@ -28,7 +28,6 @@ require_relative 'scripts/provision_elasticsearch'
 
 require 'fileutils'
 require 'open3'
-require 'highline/import'
 require 'rubygems'
 
 # Ensures stdout is never buffered
@@ -148,8 +147,11 @@ end
 if ['reset'].include?(ARGV[0])
   # remove DEV_ENV_CONTEXT_FILE created on provisioning
   confirm = nil
-  until %w[Y y N n].include?(confirm)
-    confirm = ask colorize_yellow('Would you like to KEEP your dev-env configuration files? (y/n) ')
+  print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
+  confirm = STDIN.gets.chomp
+  until confirm.upcase.start_with?('Y', 'N')
+    print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
+    confirm = STDIN.gets.chomp
   end
   if confirm.upcase.start_with?('N')
     File.delete(DEV_ENV_CONTEXT_FILE) if File.exist?(DEV_ENV_CONTEXT_FILE)
