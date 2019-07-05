@@ -1,5 +1,4 @@
 require_relative 'utilities'
-require 'highline/import'
 require 'json'
 require 'net/http'
 require 'rubygems'
@@ -56,7 +55,12 @@ end
 
 def confirm_and_update(root_loc)
   confirm = nil
-  confirm = ask colorize_yellow('Would you like to update now? (y/n) ') until %w[Y y N n].include?(confirm)
+  print colorize_yellow("Would you like to update now? (y/n) ")
+  confirm = STDIN.gets.chomp
+  until confirm.upcase.start_with?('Y', 'N')
+    print colorize_yellow("Would you like to update now? (y/n) ")
+    confirm = STDIN.gets.chomp
+  end
   if confirm.upcase.start_with?('Y')
     # (try to) run the update
     run_update(root_loc)

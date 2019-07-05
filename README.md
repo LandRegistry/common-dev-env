@@ -11,13 +11,21 @@ It provides several hooks for applications to take advantage of, including:
 
 ### Prerequisites
 
+#### Recommended setup
+
 * **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
   * [Docker For Mac](https://docs.docker.com/docker-for-mac/)
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.3+**
-  * The `highline` gem must also be installed
+
+#### Alternative setup
+
+* **Vagrant** (v1.9.5+)
+* **VirtualBox** (v5.1+)
+
+A Vagrantfile is provided so `vagrant up` will result in a virtual machine containing all the prerequisites from the Recommended setup above. From there, just `vagrant ssh` in and use the dev-env as you would natively.
 
 ### Git/SSH
 
@@ -28,9 +36,9 @@ You must ensure the shell you are starting the dev-env from can access all the n
 To begin:
 
 1. Start Docker.
-1. Using Git, clone this repository into a directory of your choice.
-1. Open a terminal in that directory, and run `source run.sh up`
-1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
+2. Using Git, clone this repository into a directory of your choice.
+3. Open a terminal in that directory, and run `source run.sh up`
+4. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
 
 **TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
