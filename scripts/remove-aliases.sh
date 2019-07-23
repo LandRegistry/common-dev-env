@@ -12,6 +12,8 @@ unalias status
 unalias run
 unalias psql
 unalias db2
+unalias psql96
+unalias db2c
 
 unset -f bashin
 unset -f unit-test

@@ -18,10 +18,12 @@ def prepare_compose(root_loc, file_list_loc)
   get_apps(root_loc, commodity_list, compose_version)
 
   # Load any commodities into the docker compose list
-  commodities = YAML.load_file("#{root_loc}/.commodities.yml")
-  if commodities.key?('commodities')
-    commodities['commodities'].each do |commodity_info|
-      commodity_list.push("#{root_loc}/scripts/docker/#{commodity_info}/#{fragment_filename(compose_version)}")
+  if File.exist?("#{root_loc}/.commodities.yml")
+    commodities = YAML.load_file("#{root_loc}/.commodities.yml")
+    if commodities.key?('commodities')
+      commodities['commodities'].each do |commodity_info|
+        commodity_list.push("#{root_loc}/scripts/docker/#{commodity_info}/#{fragment_filename(compose_version)}")
+      end
     end
   end
 
@@ -37,6 +39,11 @@ def prepare_compose(root_loc, file_list_loc)
 end
 
 def get_apps(root_loc, commodity_list, compose_version)
+  if !File.exist?("#{root_loc}/dev-env-config/configuration.yml")
+    puts colorize_yellow("No dev-env-config found. Maybe this is a fresh box... if so, you need to do \"source run.sh up\"")
+    return
+  end
+
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']

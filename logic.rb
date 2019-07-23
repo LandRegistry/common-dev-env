@@ -28,7 +28,6 @@ require_relative 'scripts/provision_elasticsearch'
 
 require 'fileutils'
 require 'open3'
-require 'highline/import'
 require 'rubygems'
 
 # Ensures stdout is never buffered
@@ -63,7 +62,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.2.0'
+  this_version = '1.2.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -148,8 +147,11 @@ end
 if ['reset'].include?(ARGV[0])
   # remove DEV_ENV_CONTEXT_FILE created on provisioning
   confirm = nil
-  until %w[Y y N n].include?(confirm)
-    confirm = ask colorize_yellow('Would you like to KEEP your dev-env configuration files? (y/n) ')
+  print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
+  confirm = STDIN.gets.chomp
+  until confirm.upcase.start_with?('Y', 'N')
+    print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
+    confirm = STDIN.gets.chomp
   end
   if confirm.upcase.start_with?('N')
     File.delete(DEV_ENV_CONTEXT_FILE) if File.exist?(DEV_ENV_CONTEXT_FILE)
@@ -162,7 +164,6 @@ if ['reset'].include?(ARGV[0])
   File.delete(AFTER_UP_ONCE_FILE) if File.exist?(AFTER_UP_ONCE_FILE)
   File.delete(root_loc + '/.db2_init.sql') if File.exist?(root_loc + '/.db2_init.sql')
   File.delete(root_loc + '/.postgres_init.sql') if File.exist?(root_loc + '/.postgres_init.sql')
-  FileUtils.rm_r "#{root_loc}/supporting-files" if Dir.exist?("#{root_loc}/supporting-files")
 
   # Docker
   run_command('docker-compose down --rmi all --volumes --remove-orphans')
