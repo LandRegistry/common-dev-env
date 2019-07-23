@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  db2:
+    container_name: db2
+    build: ../scripts/docker/db2/
+    ports:
+      - "50000:50000"
