@@ -1,0 +1,11 @@
+version: '2'
+services:
+  db2_community:
+    container_name: db2_community
+    build: ../scripts/docker/db2_community/
+    ports:
+      - "50002:50000"
+      - "55002:55000"
+    env_file:
+      - ../scripts/docker/db2_community/.env_list
+    privileged: true

@@ -112,8 +112,9 @@ The list of allowable commodity values is:
 
 * postgres
 * postgres-9.6
-* db2
-* db2_devc
+* db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
+* db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+* db2_community
 * elasticsearch
 * elasticsearch5
 * nginx
@@ -149,21 +150,17 @@ This is a standard Alembic management file - if it exists, then a database migra
 
 ##### DB2
 
+`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0) or `db2` (DB2 Express 10.5)
+
+Note that DB2 Developer C is exposed on the host ports 50001/55001 and DB2 Community on 50002/55002 to avoid port clashes.
+
 **`/fragments/db2-init-fragment.sql`**
+**`/fragments/db2-devc-init-fragment.sql`**
+**`/fragments/db2-community-init-fragment.sql`**
 
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
-[Example](snippets/db2-init-fragment.sql)
-
-#### DB2 Developer C
-
-**`/fragments/db2-devc-init-fragment.sql`**
-
-This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
-
-DB2 Developer C runs on port 50001 and ports 55001 to avoid port clashes with DB2 Express.
-
-[Example](snippets/db2-devc-init-fragment.sql)
+[Example](snippets/db2-community-init-fragment.sql)
 
 ##### ElasticSearch
 
