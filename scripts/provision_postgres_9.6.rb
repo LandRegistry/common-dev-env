@@ -41,9 +41,13 @@ def start_postgres96(root_loc, appname, started)
     # Better not run anything until postgres is ready to accept connections...
     puts colorize_lightblue('Waiting for Postgres 9.6 to finish initialising')
 
-    while run_command_noshell(['docker', 'exec', 'postgres-96', 'pg_isready', '-h', 'localhost']) != 0
+    command_output = []
+    command_outcode = 1
+    until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
+      command_output.clear
+      command_outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' postgres-96", command_output)
       puts colorize_yellow('Postgres 9.6 is unavailable - sleeping')
-      sleep(1)
+      sleep(3)
     end
 
     # Sleep 3 more seconds to allow the root user to be set up if needed

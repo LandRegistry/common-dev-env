@@ -78,11 +78,14 @@ def init_db2_devc
   # Better not run anything until DB2 is ready to accept connections...
   puts colorize_lightblue('Waiting for DB2 Developer C to finish initialising (this will take a few minutes)')
   command_output = []
-  until command_output.grep(/1/).any?
+  command_outcode = 1
+  until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
     command_output.clear
-    run_command('docker exec -u db2inst1 db2_devc ps -eaf|grep -i db2fmcd | wc -l', command_output)
+    command_outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' db2_devc", command_output)
     puts colorize_yellow('DB2 Developer C is unavailable - sleeping')
-    sleep(1)
+    sleep(5)
   end
   puts colorize_green('DB2 Developer C is ready')
+  # One more sleep to ensure user gets set up
+  sleep(7)
 end
