@@ -139,10 +139,6 @@ if ['prep'].include?(ARGV[0])
   puts colorize_lightblue('Updating apps:')
   update_apps(root_loc)
 
-  # Create a file called .commodities.yml with the list of commodities in it
-  puts colorize_lightblue('Creating list of commodities')
-  create_commodities_list(root_loc)
-
 end
 
 if ['reset'].include?(ARGV[0])
@@ -175,6 +171,10 @@ end
 # Run script to configure environment
 # TODO bash autocompletion of container names
 if ['prepare-compose-environment'].include?(ARGV[0])
+  # Create a file called .commodities.yml with the list of commodities in it
+  puts colorize_lightblue('Creating list of commodities')
+  create_commodities_list(root_loc)
+
   # Call the ruby function to create the docker compose file containing the apps and their commodities
   puts colorize_lightblue('Creating docker-compose file list')
   prepare_compose(root_loc, DOCKER_COMPOSE_FILE_LIST)
