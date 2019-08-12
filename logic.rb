@@ -196,6 +196,10 @@ if ['start'].include?(ARGV[0])
     end
   end
 
+  # Before creating any containers, let's see what already exists (in case we need to override provision status)
+  existing_containers = []
+  run_command('docker-compose ps --services --filter "status=stopped" && docker-compose ps --services --filter "status=running"', existing_containers)
+
   # Let's force a recreation of the containers here so we know they're using up-to-date images
   puts colorize_lightblue('Creating containers...')
   if run_command('docker-compose up --remove-orphans --force-recreate --no-start') != 0
@@ -203,12 +207,17 @@ if ['start'].include?(ARGV[0])
     exit
   end
 
+  # Now we identify exactly which containers we've created in the above command
+  existing_containers2 = []
+  run_command('docker-compose ps --services --filter "status=stopped" && docker-compose ps --services --filter "status=running"', existing_containers2)
+  new_containers = existing_containers2 - existing_containers
+
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
   # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-9.6 etc)
-  provision_postgres(root_loc)
-  provision_postgres96(root_loc)
+  provision_postgres(root_loc, new_containers)
+  provision_postgres96(root_loc, new_containers)
   # Alembic
   provision_alembic(root_loc)
   provision_alembic96(root_loc)
@@ -216,8 +225,8 @@ if ['start'].include?(ARGV[0])
   provision_hosts(root_loc)
   # Run app DB2 SQL statements
   provision_db2(root_loc)
-  provision_db2_devc(root_loc)
-  provision_db2_community(root_loc)
+  provision_db2_devc(root_loc, new_containers)
+  provision_db2_community(root_loc, new_containers)
   # Nginx
   provision_nginx(root_loc)
   # Elasticsearch

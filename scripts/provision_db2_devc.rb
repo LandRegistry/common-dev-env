@@ -2,12 +2,20 @@ require_relative 'utilities'
 require_relative 'commodities'
 require 'yaml'
 
-def provision_db2_devc(root_loc)
+def provision_db2_devc(root_loc, new_containers)
   puts colorize_lightblue('Searching for db2_devc initialisation SQL in the apps')
 
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
+
+  # Did the container previously exist, if not then we MUST provision regardless of .commodities value
+  if new_containers.include?('db2_devc')
+    new_db_container = true
+    puts colorize_yellow('The DB2 Developer C container has been newly created - provision status in .commodities will be ignored')
+  else
+    new_db_container = false
+  end
 
   database_initialised = false
 
@@ -19,7 +27,7 @@ def provision_db2_devc(root_loc)
 
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/db2-devc-init-fragment.sql")
-      database_initialised = process_db2_devc_fragment(root_loc, appname, database_initialised)
+      database_initialised = process_db2_devc_fragment(root_loc, appname, database_initialised, new_db_container)
     else
       puts colorize_yellow("#{appname} says it uses DB2 Developer C but doesn't contain an init SQL file.
           Oh well, onwards we go!")
@@ -27,10 +35,10 @@ def provision_db2_devc(root_loc)
   end
 end
 
-def process_db2_devc_fragment(root_loc, appname, database_initialised)
+def process_db2_devc_fragment(root_loc, appname, database_initialised, new_db_container)
   result = database_initialised
   puts colorize_pink("Found some in #{appname}")
-  if commodity_provisioned?(root_loc, appname, 'db2_devc')
+  if commodity_provisioned?(root_loc, appname, 'db2_devc') && !new_db_container
     puts colorize_yellow("DB2 Developer C has previously been provisioned for #{appname}, skipping")
   else
     unless database_initialised
