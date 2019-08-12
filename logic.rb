@@ -324,9 +324,36 @@ if ['start'].include?(ARGV[0])
       if expensive_inprogress.length >= 3
         false
       else
-        run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
-        expensive_inprogress << service
-        true
+        # Would this service like others to be healthy prior to starting?
+        if service.key?('wait_until_healthy')
+          puts colorize_lightblue("#{service['compose_service']} has dependencies it would like to be healthy before starting:")
+          dependency_healthy = true
+          service['wait_until_healthy'].each do |dependency|
+            if dependency['healthcheck_cmd'] == 'docker'
+              puts colorize_lightblue("Checking if #{dependency['compose_service']} is healthy (using Docker healthcheck)")
+              output_lines = []
+              outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{dependency['compose_service']}",
+                                    output_lines)
+              dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+            else
+              puts colorize_lightblue("Checking if #{dependency['compose_service']} is healthy (using cmd in configuration.yml)")
+              dependency_healthy = run_command("docker exec #{dependency['compose_service']} #{dependency['healthcheck_cmd']}",
+                                            []).zero?
+            end
+            if dependency_healthy
+              puts colorize_green('It is!')
+            else
+              puts colorize_yellow("#{dependency['compose_service']} is not healthy, so #{service['compose_service']} will not be started yet")
+              break
+            end
+          end
+        end
+
+        if dependency_healthy
+          run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+          expensive_inprogress << service
+        end
+        dependency_healthy
       end
     end
 
