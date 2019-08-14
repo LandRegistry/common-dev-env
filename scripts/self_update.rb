@@ -54,11 +54,9 @@ def refused_today?(root_loc)
 end
 
 def confirm_and_update(root_loc)
-  confirm = nil
-  print colorize_yellow("Would you like to update now? (y/n) ")
-  confirm = STDIN.gets.chomp
+  confirm = ''
   until confirm.upcase.start_with?('Y', 'N')
-    print colorize_yellow("Would you like to update now? (y/n) ")
+    print colorize_yellow('Would you like to update now? (y/n) ')
     confirm = STDIN.gets.chomp
   end
   if confirm.upcase.start_with?('Y')
@@ -66,7 +64,7 @@ def confirm_and_update(root_loc)
     run_update(root_loc)
   else
     puts ''
-    puts colorize_yellow("Okay. I'll ask again tomorrow. If you want to update in the meantime, simply " \
+    puts colorize_yellow('Okay. I\'ll ask again tomorrow. If you want to update in the meantime, simply ' \
                           'run git pull yourself.')
     puts colorize_yellow('Continuing in 5 seconds...')
     puts ''
