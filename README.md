@@ -64,8 +64,6 @@ The local application repositories will be pulled and updated on each `up` or `r
 
 For an application repository to leverage the full power of the dev-env...
 
-#### Docker
-
 Docker containers are used to run all apps. So some files are needed to support that.
 
 ##### `/fragments/docker-compose-fragment.yml`
@@ -102,33 +100,34 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 [Example - Java](snippets/java_Dockerfile)
 
-#### Commodities
-
 ##### `/configuration.yml`
 
-This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
+This file specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
-* postgres
-* postgres-9.6
-* db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
-* db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-* db2_community
-* elasticsearch
-* elasticsearch5
-* nginx
-* rabbitmq
-* redis
-* swagger
-* wiremock
-* squid
+1. postgres
+2. postgres-9.6
+3. db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
+4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+5. db2_community
+6. elasticsearch
+7. elasticsearch5
+8. nginx
+9. rabbitmq
+10. redis
+11. swagger
+12. wiremock
+13. squid
 
-Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
-
-The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+* The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+  * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
+
+#### Commodities
+
+Individual commodities may require further files in order to set them up correctly even after being specified in the application's `configuration.yml`, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
 ##### PostgreSQL
 
