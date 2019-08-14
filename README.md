@@ -261,7 +261,7 @@ acceptance-test | acctest                        -     run the acceptance tests 
 acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
           <name of container>
 psql[96] <name of database>                      -     run psql in the postgres/posrgres-96 container
-db2[c]                                           -     run db2 command line in the db2/db2_devc container
+db2[c][co]                                       -     run db2 command line in the db2/db2_devc/db2_community container
 manage <name of container> <command>             -     run manage.py commands in a container
 alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
 add-to-docker-compose
