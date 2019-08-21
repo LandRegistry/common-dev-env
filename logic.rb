@@ -9,6 +9,7 @@
 # apps are loaded into the Docker Compose environment variable. Just in
 # case people have multiple copies of this dev-env using different configs.
 
+require_relative 'scripts/delete_env_files'
 require_relative 'scripts/utilities'
 require_relative 'scripts/update_apps'
 require_relative 'scripts/self_update'
@@ -36,15 +37,6 @@ STDOUT.sync = true
 
 # Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
-
-# Used to keep track of which commodities the apps need and if their relevant fragments have been executed
-COMMODITIES_FILE = root_loc + '/.commodities.yml'
-
-# Used to keep track if apps custom provision scripts have been executed
-CUSTOM_PROVISION_FILE = root_loc + '/.custom_provision.yml'
-
-# Used to keep track if the once-only after-up script has been executed
-AFTER_UP_ONCE_FILE = root_loc + '/.after-up-once'
 
 # Define the DEV_ENV_CONTEXT_FILE file name to store the users app_grouping choice
 # As vagrant up can be run from any subdirectory, we must make sure it is stored alongside the Vagrantfile
@@ -143,24 +135,18 @@ end
 
 if ['reset'].include?(ARGV[0])
   # remove DEV_ENV_CONTEXT_FILE created on provisioning
-  confirm = nil
-  print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
-  confirm = STDIN.gets.chomp
+  confirm = ''
   until confirm.upcase.start_with?('Y', 'N')
-    print colorize_yellow("Would you like to KEEP your dev-env configuration files? (y/n) ")
+    print colorize_yellow('Would you like to KEEP your dev-env configuration files? (y/n) ')
     confirm = STDIN.gets.chomp
   end
   if confirm.upcase.start_with?('N')
-    File.delete(DEV_ENV_CONTEXT_FILE) if File.exist?(DEV_ENV_CONTEXT_FILE)
-    FileUtils.rm_r DEV_ENV_CONFIG_DIR if Dir.exist?(DEV_ENV_CONFIG_DIR)
+    FileUtils.rm_f DEV_ENV_CONTEXT_FILE
+    FileUtils.rm_rf DEV_ENV_CONFIG_DIR
   end
+
   # remove files created on provisioning
-  File.delete(COMMODITIES_FILE) if File.exist?(COMMODITIES_FILE)
-  File.delete(CUSTOM_PROVISION_FILE) if File.exist?(CUSTOM_PROVISION_FILE)
-  File.delete(DOCKER_COMPOSE_FILE_LIST) if File.exist?(DOCKER_COMPOSE_FILE_LIST)
-  File.delete(AFTER_UP_ONCE_FILE) if File.exist?(AFTER_UP_ONCE_FILE)
-  File.delete(root_loc + '/.db2_init.sql') if File.exist?(root_loc + '/.db2_init.sql')
-  File.delete(root_loc + '/.postgres_init.sql') if File.exist?(root_loc + '/.postgres_init.sql')
+  delete_files(root_loc)
 
   # Docker
   run_command('docker-compose down --rmi all --volumes --remove-orphans')
@@ -198,7 +184,9 @@ if ['start'].include?(ARGV[0])
 
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
-  run_command('docker-compose ps --services --filter "status=stopped" && docker-compose ps --services --filter "status=running"', existing_containers)
+  run_command('docker-compose ps --services --filter "status=stopped" && '\
+              'docker-compose ps --services --filter "status=running"',
+              existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
   puts colorize_lightblue('Creating containers...')
@@ -209,7 +197,9 @@ if ['start'].include?(ARGV[0])
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
-  run_command('docker-compose ps --services --filter "status=stopped" && docker-compose ps --services --filter "status=running"', existing_containers2)
+  run_command('docker-compose ps --services --filter "status=stopped" && '\
+              'docker-compose ps --services --filter "status=running"',
+              existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
@@ -296,6 +286,10 @@ if ['start'].include?(ARGV[0])
   # Until we have no more left to start AND we have no more in progress...
   puts colorize_lightblue('Starting expensive services...')
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
+    # Wait for a bit before the next round of checks
+    puts ''
+    sleep(3)
+
     # Remove any from the in progress list that are now healthy as per their declared cmd
     expensive_inprogress.delete_if do |service|
       service_healthy = false
@@ -318,21 +312,46 @@ if ['start'].include?(ARGV[0])
       service_healthy
     end
 
-    # If there's room in the in progress list, move as many as we can into it from the
+    # If no room in in-progress, skip trying
+    next if expensive_inprogress.length >= 3
+
+    # Move as many as we can into in-progress
     # todo list and start them up.
     expensive_todo.delete_if do |service|
-      if expensive_inprogress.length >= 3
-        false
-      else
+      dependency_healthy = true
+      # Would this service like others to be healthy prior to starting?
+      wait_until_healthy_list = service.fetch('wait_until_healthy', {})
+      if wait_until_healthy_list.length.positive?
+        puts colorize_lightblue("#{service['compose_service']} has dependencies it would like to be healthy "\
+                                'before starting:')
+      end
+      wait_until_healthy_list.each do |dep|
+        if dep['healthcheck_cmd'] == 'docker'
+          puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using Docker healthcheck)")
+          output_lines = []
+          outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{dep['compose_service']}",
+                                output_lines)
+          dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+        else
+          puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using cmd in configuration.yml)")
+          dependency_healthy = run_command("docker exec #{dep['compose_service']} #{dep['healthcheck_cmd']}",
+                                           []).zero?
+        end
+        if dependency_healthy
+          puts colorize_green('It is!')
+        else
+          puts colorize_yellow("#{dep['compose_service']} is not healthy, so #{service['compose_service']}"\
+                               ' will not be started yet')
+          break
+        end
+      end
+
+      if dependency_healthy
         run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
         expensive_inprogress << service
-        true
       end
+      dependency_healthy
     end
-
-    # Wait for a bit before the next round of checks
-    puts ''
-    sleep(3)
   end
 
   # Any custom scripts to run?

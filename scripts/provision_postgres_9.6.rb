@@ -9,11 +9,11 @@ def provision_postgres96(root_loc, new_containers)
   return unless config['applications']
 
   # Did the container previously exist, if not then we MUST provision regardless of .commodities value
+  new_db_container = false
   if new_containers.include?('postgres-96')
     new_db_container = true
-    puts colorize_yellow('The Postgres 9.6 container has been newly created - provision status in .commodities will be ignored')
-  else
-    new_db_container = false
+    puts colorize_yellow('The Postgres 9.6 container has been newly created - '\
+                         'provision status in .commodities will be ignored')
   end
 
   started = false
@@ -53,7 +53,8 @@ def start_postgres96(root_loc, appname, started)
     command_outcode = 1
     until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
       command_output.clear
-      command_outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' postgres-96", command_output)
+      command_outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' postgres-96",
+                                    command_output)
       puts colorize_yellow('Postgres 9.6 is unavailable - sleeping')
       sleep(3)
     end

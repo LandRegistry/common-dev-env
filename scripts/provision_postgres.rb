@@ -9,11 +9,11 @@ def provision_postgres(root_loc, new_containers)
   return unless config['applications']
 
   # Did the container previously exist, if not then we MUST provision regardless of .commodities value
+  new_db_container = false
   if new_containers.include?('postgres')
     new_db_container = true
-    puts colorize_yellow('The Postgres container has been newly created - provision status in .commodities will be ignored')
-  else
-    new_db_container = false
+    puts colorize_yellow('The Postgres container has been newly created - '\
+                         'provision status in .commodities will be ignored')
   end
 
   started = false

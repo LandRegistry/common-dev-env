@@ -39,8 +39,9 @@ def prepare_compose(root_loc, file_list_loc)
 end
 
 def get_apps(root_loc, commodity_list, compose_version)
-  if !File.exist?("#{root_loc}/dev-env-config/configuration.yml")
-    puts colorize_yellow("No dev-env-config found. Maybe this is a fresh box... if so, you need to do \"source run.sh up\"")
+  unless File.exist?("#{root_loc}/dev-env-config/configuration.yml")
+    puts colorize_yellow('No dev-env-config found. Maybe this is a fresh box... '\
+                         'if so, you need to do "source run.sh up"')
     return
   end
 

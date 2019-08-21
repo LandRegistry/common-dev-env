@@ -3,8 +3,9 @@ require 'fileutils'
 require 'yaml'
 
 def create_commodities_list(root_loc)
-  if !File.exist?("#{root_loc}/dev-env-config/configuration.yml")
-    puts colorize_yellow("No dev-env-config found. Maybe this is a fresh box... if so, you need to do \"source run.sh up\"")
+  unless File.exist?("#{root_loc}/dev-env-config/configuration.yml")
+    puts colorize_yellow('No dev-env-config found. Maybe this is a fresh box... '\
+                         'if so, you need to do "source run.sh up"')
     return
   end
 

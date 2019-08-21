@@ -56,15 +56,15 @@ Other `run.sh` parameters are:
 This is a Git repository that must contain a single file  -
 `configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
-[Example](snippets/configuration.yml)
+The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
-The local application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
+If you are creating a new app that doesn't have a remote Git repository to clone from yet, you can manually put a directory into `/apps/` and add it to the configuration with the `repo` key set to `none` and no `branch` key.
+
+[Example](snippets/configuration.yml)
 
 ### Application support
 
 For an application repository to leverage the full power of the dev-env...
-
-#### Docker
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
@@ -102,33 +102,34 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 [Example - Java](snippets/java_Dockerfile)
 
-#### Commodities
-
 ##### `/configuration.yml`
 
-This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
+This file specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
-* postgres
-* postgres-9.6
-* db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
-* db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-* db2_community
-* elasticsearch
-* elasticsearch5
-* nginx
-* rabbitmq
-* redis
-* swagger
-* wiremock
-* squid
+1. postgres
+2. postgres-9.6
+3. db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
+4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+5. db2_community
+6. elasticsearch
+7. elasticsearch5
+8. nginx
+9. rabbitmq
+10. redis
+11. swagger
+12. wiremock
+13. squid
 
-Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
-
-The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+* The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+  * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
+
+#### Commodities
+
+Individual commodities may require further files in order to set them up correctly even after being specified in the application's `configuration.yml`, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
 ##### PostgreSQL
 
@@ -261,7 +262,7 @@ acceptance-test | acctest                        -     run the acceptance tests 
 acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
           <name of container>
 psql[96] <name of database>                      -     run psql in the postgres/posrgres-96 container
-db2[c]                                           -     run db2 command line in the db2/db2_devc container
+db2[c][co]                                       -     run db2 command line in the db2/db2_devc/db2_community container
 manage <name of container> <command>             -     run manage.py commands in a container
 alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
 add-to-docker-compose
