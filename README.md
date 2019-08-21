@@ -56,9 +56,11 @@ Other `run.sh` parameters are:
 This is a Git repository that must contain a single file  -
 `configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
-[Example](snippets/configuration.yml)
+The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
-The local application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
+If you are creating a new app that doesn't have a remote Git repository to clone from yet, you can manually put a directory into `/apps/` and add it to the configuration with the `repo` key set to `none` and no `branch` key.
+
+[Example](snippets/configuration.yml)
 
 ### Application support
 
