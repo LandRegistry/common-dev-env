@@ -98,17 +98,32 @@ def add_app_ports(root_loc)
 
       compose_file = YAML.load_file("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.yml")
 
-      compose_file['services'].each do |_composeappname, composeappconfig|
-        # If the compose file has a port section
-        next unless composeappconfig.key?('ports')
+      add_service_ports(compose_file, port_list)
+    end
 
-        # Expose each port in the list
-        composeappconfig['ports'].each do |port|
-          app_host_port = port.split(':')[0]
-          port_list.push("#{app_host_port}:#{app_host_port}")
-        end
-      end
+    # Do it again for Compose 3.7 files, as we don't know which will be used at this point
+    config['applications'].each do |appname, _appconfig|
+      # If this app is docker, add it's compose to the list
+      next unless File.exist?("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.3.7.yml")
+
+      compose_file = YAML.load_file("#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment.3.7.yml")
+
+      add_service_ports(compose_file, port_list)
     end
   end
+
   port_list
+end
+
+def add_service_ports(compose_file, port_list)
+  compose_file['services'].each do |_composeappname, composeappconfig|
+    # If the compose file has a port section
+    next unless composeappconfig.key?('ports')
+
+    # Expose each port in the list
+    composeappconfig['ports'].each do |port|
+      app_host_port = port.split(':')[0]
+      port_list.push("#{app_host_port}:#{app_host_port}")
+    end
+  end
 end
