@@ -55,6 +55,8 @@ def required_ref(appconfig)
 end
 
 def update_or_clone(appconfig, root_loc, appname)
+  return [colorize_lightblue('This app is local-only, so I won\'t try to update it')] if appconfig['repo'] == 'none'
+
   output = if Dir.exist?("#{root_loc}/apps/#{appname}")
              update_app(appconfig, root_loc, appname)
            else

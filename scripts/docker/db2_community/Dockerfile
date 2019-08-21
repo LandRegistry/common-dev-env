@@ -1,4 +1,4 @@
-FROM hmlandregistry/db2_developer_c:11.1.4.4-x86_64
+FROM ibmcom/db2:11.5.0.0a
 
 EXPOSE 50000 55000
 

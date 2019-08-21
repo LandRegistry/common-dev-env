@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  squid:
+    container_name: squid
+    build: ../scripts/docker/squid/
+    ports:
+      - 30128:3128

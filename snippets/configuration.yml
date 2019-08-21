@@ -10,3 +10,6 @@ applications:
     options:
       - compose-service-name: my-backend-compose-service
         auto-start: false
+
+  my-new-app:
+    repo: none

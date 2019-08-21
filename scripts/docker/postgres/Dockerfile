@@ -16,3 +16,7 @@ ENV POSTGRES_USER=root \
  POSTGRES_PASSWORD=superroot \
  PGUSER=root \
  PGPASSWORD=superroot
+
+HEALTHCHECK --interval=10s --retries=20  \
+  CMD pg_isready -h localhost || exit 1
+

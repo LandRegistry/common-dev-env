@@ -11,13 +11,21 @@ It provides several hooks for applications to take advantage of, including:
 
 ### Prerequisites
 
+#### Recommended setup
+
 * **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
   * [Docker For Mac](https://docs.docker.com/docker-for-mac/)
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.3+**
-  * The `highline` gem must also be installed
+
+#### Alternative setup
+
+* **Vagrant** (v1.9.5+)
+* **VirtualBox** (v5.1+)
+
+A Vagrantfile is provided so `vagrant up` will result in a virtual machine containing all the prerequisites from the Recommended setup above. From there, just `vagrant ssh` in and use the dev-env as you would natively.
 
 ### Git/SSH
 
@@ -28,9 +36,9 @@ You must ensure the shell you are starting the dev-env from can access all the n
 To begin:
 
 1. Start Docker.
-1. Using Git, clone this repository into a directory of your choice.
-1. Open a terminal in that directory, and run `source run.sh up`
-1. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
+2. Using Git, clone this repository into a directory of your choice.
+3. Open a terminal in that directory, and run `source run.sh up`
+4. If this is the first time you are launching the machine you will be prompted for the url of a configuration repository (both SSH or HTTP(S) Git formats will work). Paste it in and press enter.
 
 **TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
@@ -48,21 +56,21 @@ Other `run.sh` parameters are:
 This is a Git repository that must contain a single file  -
 `configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
-[Example](snippets/configuration.yml)
+The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
-The local application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
+If you are creating a new app that doesn't have a remote Git repository to clone from yet, you can manually put a directory into `/apps/` and add it to the configuration with the `repo` key set to `none` and no `ref` key.
+
+[Example](snippets/configuration.yml)
 
 ### Application support
 
 For an application repository to leverage the full power of the dev-env...
 
-#### Docker
-
 Docker containers are used to run all apps. So some files are needed to support that.
 
 ##### `/fragments/docker-compose-fragment.yml`
 
-This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2, if any commodities are used) - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2) - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
@@ -76,6 +84,16 @@ Note that when including directives such as a Dockerfile build location or host 
 
 [Example](snippets/docker-compose-fragment.yml)
 
+##### `/fragments/docker-compose-fragment.3.7.yml`
+
+An optional variant of `docker-compose-fragment.yml` with a version of `3.7`. The development environment will select the highest compose file version supplied by all applications in the environment. If all applications supply a `docker-compose-fragment.3.7.yml`, then the environment will use the `3.7` files, otherwise it falls back to the version `2` compose files.
+
+Compose 3.7 support requires Docker engine version 18.06.0 or later.
+
+If the environment cannot identify a universal compose file version, then provisioning will fail.
+
+[Example](snippets/docker-compose-fragment.3.7.yml)
+
 ##### `/Dockerfile`
 
 This is a file that defines the application's Docker image. The Compose fragment may point to this file. Extend an existing image and install/set whatever is needed to ensure that containers created from the image will run. See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/) for more information.
@@ -84,32 +102,34 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 [Example - Java](snippets/java_Dockerfile)
 
-#### Commodities
-
 ##### `/configuration.yml`
 
-This file lives in the root of the application and specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
+This file specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
-* postgres
-* postgres-9.6
-* db2
-* db2_devc
-* elasticsearch
-* elasticsearch5
-* nginx
-* rabbitmq
-* redis
-* swagger
-* wiremock
-* squid
+1. postgres
+2. postgres-9.6
+3. db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
+4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+5. db2_community
+6. elasticsearch
+7. elasticsearch5
+8. nginx
+9. rabbitmq
+10. redis
+11. swagger
+12. wiremock
+13. squid
 
-Individual commodities may require further files in order to set them up correctly, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
-
-The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+* The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+  * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
+
+#### Commodities
+
+Individual commodities may require further files in order to set them up correctly even after being specified in the application's `configuration.yml`, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
 ##### PostgreSQL
 
@@ -131,21 +151,17 @@ This is a standard Alembic management file - if it exists, then a database migra
 
 ##### DB2
 
+`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0) or `db2` (DB2 Express 10.5)
+
+Note that DB2 Developer C is exposed on the host ports 50001/55001 and DB2 Community on 50002/55002 to avoid port clashes.
+
 **`/fragments/db2-init-fragment.sql`**
+**`/fragments/db2-devc-init-fragment.sql`**
+**`/fragments/db2-community-init-fragment.sql`**
 
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
-[Example](snippets/db2-init-fragment.sql)
-
-#### DB2 Developer C
-
-**`/fragments/db2-devc-init-fragment.sql`**
-
-This file contains any one-off SQL to run in DB2 Developer C - at the minimum it will normally be creating a database.
-
-DB2 Developer C runs on port 50001 and ports 55001 to avoid port clashes with DB2 Express.
-
-[Example](snippets/db2-devc-init-fragment.sql)
+[Example](snippets/db2-community-init-fragment.sql)
 
 ##### ElasticSearch
 
@@ -243,10 +259,10 @@ unit-test <name of container>                    -     run the unit tests for an
 integration-test <name of container>             -     run the integration tests for an application (this expects there to a be a Makefile with a integrationtest command).
 acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
           <name of container> <cucumber args>
-acceptance-lint | acclint                     -     run the acceptance tests run_linting.sh script inside the given container.
+acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
           <name of container>
-psql <name of database>                          -     run psql in the postgres container
-db2                                              -     run db2 command line in the db2 container
+psql[96] <name of database>                      -     run psql in the postgres/posrgres-96 container
+db2[c][co]                                       -     run db2 command line in the db2/db2_devc/db2_community container
 manage <name of container> <command>             -     run manage.py commands in a container
 alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
 add-to-docker-compose

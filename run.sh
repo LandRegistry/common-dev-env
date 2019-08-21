@@ -1,6 +1,7 @@
 command="$1"
 if [ "$command" = "up" ]
 then
+    echo -e "\e[36mBeginning UP\e[0m"
     ruby logic.rb check-for-update &&
     ruby logic.rb prep &&
     ruby logic.rb prepare-compose-environment &&
@@ -12,6 +13,7 @@ fi
 
 if [ "$command" = "halt" ]
 then
+    echo -e "\e[36mBeginning HALT\e[0m"
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb stop &&
@@ -21,6 +23,7 @@ fi
 
 if [ "$command" = "reload" ]
 then
+    echo -e "\e[36mBeginning RELOAD\e[0m"
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb stop &&
@@ -35,6 +38,7 @@ fi
 
 if [ "$command" = "destroy" ]
 then
+    echo -e "\e[36mBeginning DESTROY\e[0m"
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     ruby logic.rb reset &&
@@ -46,6 +50,7 @@ fi
 
 if [ "$command" = "repair" ]
 then
+    echo -e "\e[36mBeginning REPAIR\e[0m"
     ruby logic.rb prepare-compose-environment &&
     source scripts/prepare-docker.sh &&
     source scripts/add-aliases.sh

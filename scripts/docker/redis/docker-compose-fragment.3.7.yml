@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  redis:
+    container_name: redis
+    build: ../scripts/docker/redis/
+    ports:
+      - 6379:6379
