@@ -19,7 +19,7 @@ def provision_hosts(root_loc)
     if file.include? s
       puts colorize_yellow("Host already has entry: #{s}")
     else
-      File.write(hosts_file, "\n" + s, mode: 'a')
+      File.write(hosts_filename, "\n" + s, mode: 'a')
     end
   end
 end
