@@ -20,6 +20,7 @@ require_relative 'scripts/provision_postgres'
 require_relative 'scripts/provision_postgres_9.6'
 require_relative 'scripts/provision_alembic'
 require_relative 'scripts/provision_alembic_9.6'
+require_relative 'scripts/provision_auth'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
 require_relative 'scripts/provision_db2_devc'
@@ -223,6 +224,8 @@ if ['start'].include?(ARGV[0])
   provision_elasticsearch(root_loc)
   # Elasticsearch5
   provision_elasticsearch5(root_loc)
+  # Auth
+  provision_auth(root_loc)
 
   # Now that commodities are all provisioned, we can start the containers
 

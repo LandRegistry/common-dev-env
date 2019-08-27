@@ -1,0 +1,48 @@
+version: 1
+
+### Sample entry for a user
+dn: cn=super,dc=dev,dc=domain
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+# The user's login name; must match the cn part of the dn field above
+cn: super
+# First name
+givenName: Super
+# Email name
+mailNickname: super.user
+# Office
+physicalDeliveryOfficeName: Plymouth
+# Surname
+sn: User With All Roles
+# User ID (must be unique)
+uid: 1000
+# SHA-hashed password (= super)
+userPassword:: e1NIQX1oRkc2aWhUWGwxUFRUTE03VWJwR3RMQWw2NEU9
+
+### Another user
+dn: cn=another,dc=dev,dc=domain
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: another
+givenName: Another
+mailNickname: another.user
+physicalDeliveryOfficeName: Coventry
+sn: Other-Surname
+uid: 1001
+# SHA-hashed password (= another)
+userPassword:: e1NIQX10OGovdVB2R2ZCY1RLT0RvOWtOcFRvNWhzelU9
+
+### Sample entry for a group
+dn: cn=my_application_users,dc=dev,dc=domain
+objectClass: groupOfNames
+objectClass: top
+# Group name; must match cn part of dn field above
+cn: my_application_users
+# DNs of member users
+member: cn=super,dc=dev,dc=domain
+member: cn=another,dc=dev,dc=domain
+

@@ -1,0 +1,9 @@
+dn: dc=dev,dc=domain
+objectclass: dcObject
+objectclass: organization
+o: Development
+dc: dev
+
+dn: cn=admin,dc=dev,dc=domain
+objectclass: organizationalRole
+cn: admin
