@@ -1,0 +1,9 @@
+dn: dc=dev,dc=lr,dc=net
+objectclass: dcObject
+objectclass: organization
+o: Land Registry Development
+dc: dev
+
+dn: cn=admin,dc=dev,dc=lr,dc=net
+objectclass: organizationalRole
+cn: admin
