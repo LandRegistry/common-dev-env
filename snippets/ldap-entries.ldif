@@ -1,5 +1,3 @@
-version: 1
-
 ### Sample entry for a user
 dn: cn=super,dc=dev,dc=domain
 objectClass: inetOrgPerson
