@@ -39,6 +39,8 @@ def get_port_list(root_loc)
 
   add_es_ports(root_loc, port_list)
 
+  add_auth_ports(root_loc, port_list)
+
   # If rabbitmq is being used then expose the rabbitmq admin port
   if commodity?(root_loc, 'rabbitmq')
     port_list.push('35672:5672')
@@ -81,6 +83,12 @@ def add_db_ports(root_loc, port_list)
   port_list.push('15432:5432') if commodity?(root_loc, 'postgres')
 
   port_list.push('15433:5433') if commodity?(root_loc, 'postgres-9.6')
+
+end
+
+def add_auth_ports(root_loc, port_list)
+  port_list.push('1389:1389') if commodity?(root_loc, 'auth') # LDAP
+  port_list.push('8180:8180') if commodity?(root_loc, 'auth') # Keycloak
 end
 
 def add_app_ports(root_loc)
