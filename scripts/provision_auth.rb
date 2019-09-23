@@ -41,6 +41,8 @@ def build_auth(root_loc, appname, already_started)
     puts colorize_pink("Found #{File.basename(file)} in #{appname}")
     unless started
       run_command('docker-compose up -d --no-deps openldap')
+      # Ensure connections are possible before loading any fragments
+      sleep(5)
       started = true
     end
     run_command("docker exec -i openldap ldapadd -D cn=admin,dc=dev,dc=domain -w admin < #{file}")
