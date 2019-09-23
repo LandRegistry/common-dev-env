@@ -174,10 +174,10 @@ if ['start'].include?(ARGV[0])
   end
 
   puts colorize_lightblue('Building images...')
-  if run_command('docker-compose build --parallel') != 0
+  if run_command('docker-compose build --parallel --pull') != 0
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command('docker-compose build') != 0
+    if run_command('docker-compose build --pull') != 0
       puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
