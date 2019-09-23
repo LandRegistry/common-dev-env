@@ -225,7 +225,7 @@ if ['start'].include?(ARGV[0])
   # Elasticsearch5
   provision_elasticsearch5(root_loc)
   # Auth
-  provision_auth(root_loc)
+  provision_auth(root_loc, new_containers)
 
   # Now that commodities are all provisioned, we can start the containers
 

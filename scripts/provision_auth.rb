@@ -1,12 +1,20 @@
 require_relative 'utilities'
 require 'yaml'
 
-def provision_auth(root_loc)
+def provision_auth(root_loc, new_containers)
   puts colorize_lightblue('Searching for LDIF files in the apps')
 
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
+
+  # Did the container previously exist, if not then we MUST provision regardless of .commodities value
+  new_ldap_container = false
+  if new_containers.include?('openldap')
+    new_ldap_container = true
+    puts colorize_yellow('The OpenLDAP container has been newly created - '\
+                         'provision status in .commodities will be ignored')
+  end
 
   started = false
   config['applications'].each do |appname, _appconfig|
@@ -15,7 +23,7 @@ def provision_auth(root_loc)
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'auth')
 
-    if commodity_provisioned?(root_loc, appname, 'auth')
+    if commodity_provisioned?(root_loc, appname, 'auth') && !new_ldap_container
       puts colorize_yellow("LDIF files have already been loaded for #{appname}, skipping")
     else
       started = build_auth(root_loc, appname, started)
