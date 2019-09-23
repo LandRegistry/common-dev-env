@@ -279,7 +279,7 @@ if ['start'].include?(ARGV[0])
   # Now we can start inexpensive apps, which should be quick and easy
   if services_to_start.any?
     puts colorize_lightblue('Starting inexpensive services...')
-    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    up_exit_code = run_command('docker-compose up --no-deps --remove-orphans -d ' + services_to_start.join(' '))
     if up_exit_code != 0
       puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
       exit
@@ -350,7 +350,7 @@ if ['start'].include?(ARGV[0])
       end
 
       if dependency_healthy
-        run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+        run_command("docker-compose up --no-deps --remove-orphans -d #{service['compose_service']}")
         expensive_inprogress << service
       end
       dependency_healthy
