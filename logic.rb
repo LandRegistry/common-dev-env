@@ -299,7 +299,7 @@ if ['start'].include?(ARGV[0])
       if service['healthcheck_cmd'] == 'docker'
         puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)")
         output_lines = []
-        outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{service['compose_service']}",
+        outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
@@ -332,7 +332,7 @@ if ['start'].include?(ARGV[0])
         if dep['healthcheck_cmd'] == 'docker'
           puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using Docker healthcheck)")
           output_lines = []
-          outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{dep['compose_service']}",
+          outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{dep['compose_service']}",
                                 output_lines)
           dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
         else

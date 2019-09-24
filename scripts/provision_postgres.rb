@@ -53,7 +53,7 @@ def start_postgres(root_loc, appname, started)
     command_outcode = 1
     until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
       command_output.clear
-      command_outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' postgres", command_output)
+      command_outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" postgres", command_output)
       puts colorize_yellow('Postgres is unavailable - sleeping')
       sleep(3)
     end
