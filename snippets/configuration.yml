@@ -13,3 +13,5 @@ applications:
 
   my-new-app:
     repo: none
+
+post-up-message: Optional further instructions go here. You can delete this whole line if you want!

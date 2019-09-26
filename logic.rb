@@ -361,4 +361,11 @@ if ['start'].include?(ARGV[0])
   provision_custom(root_loc)
 
   puts colorize_green('All done, environment is ready for use')
+
+  post_up_message = config.fetch('post-up-message', nil)
+  if post_up_message
+    puts ''
+    puts colorize_yellow('Special message from your dev-env-config:')
+    puts colorize_pink(post_up_message)
+  end
 end
