@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'yaml'
 
 def commodity?(root_loc, commodity)
@@ -83,7 +81,6 @@ def add_db_ports(root_loc, port_list)
   port_list.push('15432:5432') if commodity?(root_loc, 'postgres')
 
   port_list.push('15433:5433') if commodity?(root_loc, 'postgres-9.6')
-
 end
 
 def add_auth_ports(root_loc, port_list)
