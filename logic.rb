@@ -20,6 +20,7 @@ require_relative 'scripts/provision_postgres'
 require_relative 'scripts/provision_postgres_9.6'
 require_relative 'scripts/provision_alembic'
 require_relative 'scripts/provision_alembic_9.6'
+require_relative 'scripts/provision_auth'
 require_relative 'scripts/provision_hosts'
 require_relative 'scripts/provision_db2'
 require_relative 'scripts/provision_db2_devc'
@@ -55,7 +56,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.3.0'
+  this_version = '1.4.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -173,10 +174,10 @@ if ['start'].include?(ARGV[0])
   end
 
   puts colorize_lightblue('Building images...')
-  if run_command('docker-compose build --parallel') != 0
+  if run_command('docker-compose build --parallel --pull') != 0
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command('docker-compose build') != 0
+    if run_command('docker-compose build --pull') != 0
       puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
@@ -223,6 +224,8 @@ if ['start'].include?(ARGV[0])
   provision_elasticsearch(root_loc)
   # Elasticsearch5
   provision_elasticsearch5(root_loc)
+  # Auth
+  provision_auth(root_loc, new_containers)
 
   # Now that commodities are all provisioned, we can start the containers
 
@@ -276,7 +279,7 @@ if ['start'].include?(ARGV[0])
   # Now we can start inexpensive apps, which should be quick and easy
   if services_to_start.any?
     puts colorize_lightblue('Starting inexpensive services...')
-    up_exit_code = run_command('docker-compose up --remove-orphans -d ' + services_to_start.join(' '))
+    up_exit_code = run_command('docker-compose up --no-deps --remove-orphans -d ' + services_to_start.join(' '))
     if up_exit_code != 0
       puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
       exit
@@ -296,7 +299,7 @@ if ['start'].include?(ARGV[0])
       if service['healthcheck_cmd'] == 'docker'
         puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)")
         output_lines = []
-        outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{service['compose_service']}",
+        outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
@@ -329,7 +332,7 @@ if ['start'].include?(ARGV[0])
         if dep['healthcheck_cmd'] == 'docker'
           puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using Docker healthcheck)")
           output_lines = []
-          outcode = run_command("docker inspect --format='{{json .State.Health.Status}}' #{dep['compose_service']}",
+          outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{dep['compose_service']}",
                                 output_lines)
           dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
         else
@@ -347,7 +350,7 @@ if ['start'].include?(ARGV[0])
       end
 
       if dependency_healthy
-        run_command("docker-compose up --remove-orphans -d #{service['compose_service']}")
+        run_command("docker-compose up --no-deps --remove-orphans -d #{service['compose_service']}")
         expensive_inprogress << service
       end
       dependency_healthy
@@ -358,4 +361,11 @@ if ['start'].include?(ARGV[0])
   provision_custom(root_loc)
 
   puts colorize_green('All done, environment is ready for use')
+
+  post_up_message = config.fetch('post-up-message', nil)
+  if post_up_message
+    puts ''
+    puts colorize_yellow('Special message from your dev-env-config:')
+    puts colorize_pink(post_up_message)
+  end
 end

@@ -6,7 +6,7 @@ def create_commodities_list(root_loc)
   unless File.exist?("#{root_loc}/dev-env-config/configuration.yml")
     puts colorize_yellow('No dev-env-config found. Maybe this is a fresh box... '\
                          'if so, you need to do "source run.sh up"')
-    return
+    exit 1
   end
 
   # Load configuration.yml into a Hash

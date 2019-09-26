@@ -54,11 +54,13 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file lists the applications that will be running in the dev-env, and specifies the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
 The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
 If you are creating a new app that doesn't have a remote Git repository to clone from yet, you can manually put a directory into `/apps/` and add it to the configuration with the `repo` key set to `none` and no `ref` key.
+
+This file can also optionally contain a `post-up-message` key that provides a message to be displayed after the dev-env has finished starting all applications.
 
 [Example](snippets/configuration.yml)
 
@@ -121,6 +123,7 @@ The list of allowable commodity values is:
 11. swagger
 12. wiremock
 13. squid
+14. auth
 
 * The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -204,6 +207,53 @@ redis-cli monitor
 There are no fragments needed when using this. An HTTP proxy will be made available to all containers at runtime, at hostname `squid` and port 3128. It will be available on the host on port 30128.
 
 It also supports HTTPS, however you will need to ensure the self signed [root CA](https://github.com/LandRegistry/docker-base-images/blob/master/squid/devenv-squid-rootca.der?raw=true) is loaded into wherever it needs to go, depending on what is using the proxy (Java cacerts etc). This is best to do in your Dockerfile, alongside setting any variables needed to point to use the proxy itself.
+
+##### Auth
+
+The `auth` commodity can be used by applications requiring authentication functionality and adds two containers: `openldap` and `keycloak`.
+
+###### OpenLDAP
+
+The OpenLDAP container has been customised with a schema similar to that present in Microsoft's Active Directory and the base objects required to use it for authentication have been added. Use the following configuration to connect your application:
+
+From within a Docker container:
+
+* Host: openldap
+* Port: 389 (the default LDAP port)
+
+From the host system:
+
+* Host: localhost
+* Port: 1389
+
+Other parameters:
+
+* Base DN (AKA search base, search path, etc.): `dc=dev,dc=domain`
+* Bind DN (user account for administration): `cn=admin,dc=dev,dc=domain`
+* Admin password: `admin`
+
+**`/fragments/*.ldif`**
+
+No users are added to the LDAP database by default. To add users, groups, etc, appropriate for your application, add LDIF files to your application's fragments. Any files in the fragments directory with a `.ldif` extension will be added to the LDAP database. Entries you add must fall under the `dc=dev,dc=domain` base DN.
+
+[Example](snippets/ldap-entries.ldif)
+
+###### Keycloak
+
+Keycloak is an identity and access management system supporting the OAuth and OpenID Connect protocols. This container is built containing a `development` realm configured to use the OpenLDAP service to perform user authentication.
+
+When running, Keycloak's admin console is available at http://localhost:8180/ with username `admin` and password `admin`.
+
+Applications using OAuth flows or the OpenID Connect protocol can use Keycloak for this purpose with the following configuration parameters:
+
+* Client ID: `oauth-client`
+* Authentication URL: http://localhost:8180/auth/realms/development/protocol/openid-connect/auth  (must be resolvable by the user agent, hence we use `localhost` assuming that the user agent will be a web browser on the host system)
+* Token URL: http://keycloak:8080/auth/realms/development/protocol/openid-connect/token (use `localhost:8180` if connecting from the host system)
+* OpenID Connect configuration endpoint: http://keycloak:8080/auth/realms/development/.well-known/openid-configuration (use `localhost:8180` if connecting from the host system)
+
+JWT tokens issued from the `development` realm have been configured to mimic those issued by Microsoft ADFS servers. In particular, the LDAP `cn` field is mapped to the `UserName` claim in JWT tokens along with the `Office` claim mapped from the `physicalDeliveryOfficeName` in the LDAP database and the `group` claim listing the user's group memberships.
+
+A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
 
 #### Other files
 
