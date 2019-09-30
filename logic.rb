@@ -56,7 +56,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.4.0'
+  this_version = '1.4.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -315,12 +315,13 @@ if ['start'].include?(ARGV[0])
       service_healthy
     end
 
-    # If no room in in-progress, skip trying
-    next if expensive_inprogress.length >= 3
-
     # Move as many as we can into in-progress
     # todo list and start them up.
     expensive_todo.delete_if do |service|
+      # Have we reached the limit?
+      if expensive_inprogress.length >= 3
+        break false
+      end
       dependency_healthy = true
       # Would this service like others to be healthy prior to starting?
       wait_until_healthy_list = service.fetch('wait_until_healthy', {})
