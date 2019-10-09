@@ -293,6 +293,7 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 If you hate typing long commands then the commands below have been added to the dev-env for you:
 
 ```bash
+gitlist                                          -     lists all apps and the current branch
 status                                           -     view the status of all running containers
 stop <name of container>                         -     stop a container
 start <name of container>                        -     start a container
