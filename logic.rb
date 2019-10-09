@@ -319,9 +319,8 @@ if ['start'].include?(ARGV[0])
     # todo list and start them up.
     expensive_todo.delete_if do |service|
       # Have we reached the limit?
-      if expensive_inprogress.length >= 3
-        break false
-      end
+      break false if expensive_inprogress.length >= 3
+
       dependency_healthy = true
       # Would this service like others to be healthy prior to starting?
       wait_until_healthy_list = service.fetch('wait_until_healthy', {})
