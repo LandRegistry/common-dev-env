@@ -21,7 +21,7 @@ do
 		(
 			cd $item;
 			repo=$(basename `git rev-parse --show-toplevel`)
-			branch=$(git branch | grep \* | cut -d ' ' -f2)
+			branch=$(git rev-parse --abbrev-ref HEAD)
 			if [ $branch == "master" ];
 			then
 				branch_colour=$NORMAL
