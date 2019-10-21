@@ -56,7 +56,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.4.1'
+  this_version = '1.5.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -287,30 +287,52 @@ if ['start'].include?(ARGV[0])
   end
 
   # Until we have no more left to start AND we have no more in progress...
-  puts colorize_lightblue('Starting expensive services...')
+  puts colorize_lightblue('Starting expensive services...') if expensive_todo.length.positive?
+  expensive_failed = []
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Wait for a bit before the next round of checks
-    puts ''
-    sleep(3)
+    if expensive_inprogress.length.positive?
+      puts ''
+      sleep(5)
+    end
 
     # Remove any from the in progress list that are now healthy as per their declared cmd
     expensive_inprogress.delete_if do |service|
       service_healthy = false
+      service['check_count'] += 1
       if service['healthcheck_cmd'] == 'docker'
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)" \
+                                " - Attempt #{service['check_count']}")
         output_lines = []
         outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml)")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using configuration.yml CMD)" \
+                                " - Attempt #{service['check_count']}")
         service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
                                       []).zero?
       end
+
       if service_healthy
         puts colorize_green('It is!')
       else
         puts colorize_yellow('Not yet')
+        # Check if the container has crashed and restarted
+        output_lines = []
+        run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
+                    output_lines)
+        restart_count = output_lines[0].to_i
+        if restart_count.positive?
+          puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
+                             '(max 10 allowed)')
+        end
+        if restart_count > 9
+          puts colorize_red('The failure threshold has been reached. Skipping this container')
+          expensive_failed << service
+          run_command("docker-compose stop #{service['compose_service']}")
+          service_healthy = true
+        end
       end
       service_healthy
     end
@@ -319,9 +341,8 @@ if ['start'].include?(ARGV[0])
     # todo list and start them up.
     expensive_todo.delete_if do |service|
       # Have we reached the limit?
-      if expensive_inprogress.length >= 3
-        break false
-      end
+      break false if expensive_inprogress.length >= 3
+
       dependency_healthy = true
       # Would this service like others to be healthy prior to starting?
       wait_until_healthy_list = service.fetch('wait_until_healthy', {})
@@ -352,6 +373,7 @@ if ['start'].include?(ARGV[0])
 
       if dependency_healthy
         run_command("docker-compose up --no-deps --remove-orphans -d #{service['compose_service']}")
+        service['check_count'] = 0
         expensive_inprogress << service
       end
       dependency_healthy
@@ -361,7 +383,15 @@ if ['start'].include?(ARGV[0])
   # Any custom scripts to run?
   provision_custom(root_loc)
 
-  puts colorize_green('All done, environment is ready for use')
+  if expensive_failed.length.positive?
+    puts colorize_yellow('All done, but the following containers failed to start - check logs/log.txt for any ' \
+                         'useful error messages:')
+    expensive_failed.each do |service|
+      puts colorize_yellow("  #{service['compose_service']}")
+    end
+  else
+    puts colorize_green('All done, environment is ready for use')
+  end
 
   post_up_message = config.fetch('post-up-message', nil)
   if post_up_message

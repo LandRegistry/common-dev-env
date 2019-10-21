@@ -63,6 +63,8 @@ def choose_compose_version(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
+  apps_with_fragments = config['applications'].length
+
   compose_counts = {
     '2' => 0,
     '3.7' => 0
@@ -70,6 +72,9 @@ def choose_compose_version(root_loc)
 
   config['applications'].each do |appname, _appconfig|
     compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment*.yml"]
+    # Let's not count the repo as an app for consensus purposes if they have no fragment at all
+    apps_with_fragments -= 1 if compose_fragments.empty?
+
     compose_fragments.each do |fragment|
       basename = File.basename(fragment)
       if basename == 'docker-compose-fragment.yml'
@@ -82,7 +87,7 @@ def choose_compose_version(root_loc)
     end
   end
 
-  compose_version = get_consensus(compose_counts, config['applications'].length)
+  compose_version = get_consensus(compose_counts, apps_with_fragments)
   puts colorize_lightblue("Selecting compose version #{compose_version}")
   compose_version
 end

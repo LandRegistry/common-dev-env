@@ -16,6 +16,7 @@ alias db2="docker-compose exec --user db2inst1 db2 bash -c '~/sqllib/bin/db2'"
 alias psql96="docker-compose exec postgres-96 psql -h postgres-96 -U root -d"
 alias db2c="docker-compose exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
 alias db2co="docker-compose exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
+alias gitlist="bash ./scripts/git_list.sh"
 
 function bashin(){
     docker exec -it ${@:1} bash
@@ -107,6 +108,7 @@ function devenv-help(){
   cat <<EOF
     If typing a docker-compose command you can use the alias dc instead. For example "dc ps" rather than "docker-compose ps".
 
+    gitlist                                          -     lists all apps and the current branch
     status                                           -     view the status of all running containers
     stop <name of container>                         -     stop a container
     start <name of container>                        -     start a container

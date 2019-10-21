@@ -125,7 +125,7 @@ The list of allowable commodity values is:
 13. squid
 14. auth
 
-* The file may optionally also indicate that one or more services are resource intensive when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+* The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
@@ -293,6 +293,7 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 If you hate typing long commands then the commands below have been added to the dev-env for you:
 
 ```bash
+gitlist                                          -     lists all apps and the current branch
 status                                           -     view the status of all running containers
 stop <name of container>                         -     stop a container
 start <name of container>                        -     start a container
