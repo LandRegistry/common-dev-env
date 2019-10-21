@@ -324,7 +324,7 @@ if ['start'].include?(ARGV[0])
                     output_lines)
         restart_count = output_lines[0].to_i
         if restart_count.positive?
-        puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
+          puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
                              '(max 10 allowed)')
         end
         if restart_count > 9
@@ -373,6 +373,7 @@ if ['start'].include?(ARGV[0])
 
       if dependency_healthy
         run_command("docker-compose up --no-deps --remove-orphans -d #{service['compose_service']}")
+        service['check_count'] = 0
         expensive_inprogress << service
       end
       dependency_healthy
@@ -382,7 +383,15 @@ if ['start'].include?(ARGV[0])
   # Any custom scripts to run?
   provision_custom(root_loc)
 
-  puts colorize_green('All done, environment is ready for use')
+  if expensive_failed.length.positive?
+    puts colorize_yellow('All done, but the following containers failed to start - check logs/log.txt for any ' \
+                         'useful error messages:')
+    expensive_failed.each do |service|
+      puts colorize_yellow("  #{service['compose_service']}")
+    end
+  else
+    puts colorize_green('All done, environment is ready for use')
+  end
 
   post_up_message = config.fetch('post-up-message', nil)
   if post_up_message
