@@ -323,8 +323,10 @@ if ['start'].include?(ARGV[0])
         run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
                     output_lines)
         restart_count = output_lines[0].to_i
+        if restart_count.positive?
         puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
-                           '(max 10 allowed)') if restart_count.positive?
+                             '(max 10 allowed)')
+        end
         if restart_count > 9
           puts colorize_red('The failure threshold has been reached. Skipping this container')
           expensive_failed << service
