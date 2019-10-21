@@ -89,7 +89,7 @@ def init_db2_community
   command_outcode = 1
   until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
     command_output.clear
-    command_outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" db2_community",
+    command_outcode = run_command('docker inspect --format="{{json .State.Health.Status}}" db2_community',
                                   command_output)
     puts colorize_yellow('DB2 Community is unavailable - sleeping')
     sleep(5)

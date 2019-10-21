@@ -301,13 +301,15 @@ if ['start'].include?(ARGV[0])
       service_healthy = false
       service['check_count'] += 1
       if service['healthcheck_cmd'] == 'docker'
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck) - Attempt #{service['check_count']}")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using Docker healthcheck)" \
+                                " - Attempt #{service['check_count']}")
         output_lines = []
         outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
       else
-        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using cmd in configuration.yml) - Attempt #{service['check_count']}")
+        puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using configuration.yml CMD)" \
+                                " - Attempt #{service['check_count']}")
         service_healthy = run_command("docker exec #{service['compose_service']} #{service['healthcheck_cmd']}",
                                       []).zero?
       end
@@ -319,11 +321,10 @@ if ['start'].include?(ARGV[0])
         # Check if the container has crashed and restarted
         output_lines = []
         run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
-          output_lines)
+                    output_lines)
         restart_count = output_lines[0].to_i
-        if restart_count > 0
-          puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times (max 10 allowed)")
-        end
+        puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
+                           '(max 10 allowed)') if restart_count.positive?
         if restart_count > 9
           puts colorize_red('The failure threshold has been reached. Skipping this container')
           expensive_failed << service
