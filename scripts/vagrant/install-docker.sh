@@ -15,13 +15,11 @@ usermod -a -G docker vagrant
 
 echo "- - - Installing Docker Compose - - -"
 #Install Docker compose
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python get-pip.py
-rm get-pip.py
-pip install docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 # Bash autocompletion of container names
-wget -q https://raw.githubusercontent.com/docker/compose/1.24.1/contrib/completion/bash/docker-compose
+wget -q https://raw.githubusercontent.com/docker/compose/1.25.0/contrib/completion/bash/docker-compose
 mv -f docker-compose /etc/bash_completion.d/docker-compose
 
 echo "- - - Removing any orphaned docker images - - -"
