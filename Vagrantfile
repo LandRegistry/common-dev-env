@@ -29,7 +29,7 @@ if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.1.3')
 end
 
 Vagrant.configure('2') do |config|
-  config.vm.box = 'centos/7'
+  config.vm.box = 'centos/8'
   config.vm.box_version = '1905.1'
 
   # Required plugins are easier to specify in 2.1.3+, and stay local to project
@@ -95,8 +95,8 @@ Vagrant.configure('2') do |config|
   # Install latest git
   config.vm.provision 'shell', inline: 'source /vagrant/scripts/vagrant/install-git.sh'
 
-  # Install Ruby as the vagrant user (so it goes in the right .bash_profile)
-  config.vm.provision 'shell', privileged: false, inline: 'source /vagrant/scripts/vagrant/install-ruby.sh'
+  # Install Ruby
+  config.vm.provision 'shell', inline: 'source /vagrant/scripts/vagrant/install-ruby.sh'
 
   # Install docker and docker-compose
   config.vm.provision 'shell', inline: 'source /vagrant/scripts/vagrant/install-docker.sh'

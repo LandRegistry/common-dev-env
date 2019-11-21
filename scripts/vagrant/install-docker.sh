@@ -1,27 +1,23 @@
-# Install support for overlayfs (the default in docker 1.13+)
-# and yum config manager for installing docker
-yum -y -q install yum-plugin-ovl yum-utils
-
-# Install docker
 echo "- - - Installing Docker - - -"
+# Install support for installing docker
+yum -y -q install yum-utils device-mapper-persistent-data lvm2
+yum -q -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+
+# Install docker itself
 # Add the new yum repo for docker-ce
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum makecache fast
 yum -y -q install docker-ce bash-completion wget
 # Ensure it starts on startup
-service docker start
-chkconfig docker on
+systemctl enable --now docker
 usermod -a -G docker vagrant
 
 echo "- - - Installing Docker Compose - - -"
 #Install Docker compose
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python get-pip.py
-rm get-pip.py
-pip install docker-compose
+yum install -y -q python36
+pip3 -q install docker-compose
 
 # Bash autocompletion of container names
-wget -q https://raw.githubusercontent.com/docker/compose/1.24.1/contrib/completion/bash/docker-compose
+wget -q https://raw.githubusercontent.com/docker/compose/1.25.0/contrib/completion/bash/docker-compose
 mv -f docker-compose /etc/bash_completion.d/docker-compose
 
 echo "- - - Removing any orphaned docker images - - -"
