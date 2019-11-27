@@ -367,6 +367,7 @@ if ['start'].include?(ARGV[0])
         else
           puts colorize_yellow("#{dep['compose_service']} is not healthy, so #{service['compose_service']}"\
                                ' will not be started yet')
+          sleep(3)
           break
         end
       end
