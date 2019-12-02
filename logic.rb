@@ -56,7 +56,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.5.0'
+  this_version = '1.5.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -367,6 +367,7 @@ if ['start'].include?(ARGV[0])
         else
           puts colorize_yellow("#{dep['compose_service']} is not healthy, so #{service['compose_service']}"\
                                ' will not be started yet')
+          sleep(3)
           break
         end
       end
