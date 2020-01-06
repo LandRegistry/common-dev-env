@@ -1,0 +1,4 @@
+# This wipes out the EditorConfig settings that apply to the rest of the dev-env files,
+# so apps that don't have a .editorconfig but are used with an editor that supports it, do
+# not accidentally start using our rules
+root = true
