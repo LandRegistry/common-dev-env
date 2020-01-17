@@ -29,8 +29,8 @@ if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.1.3')
 end
 
 Vagrant.configure('2') do |config|
-  config.vm.box = 'centos/8'
-  config.vm.box_version = '1905.1'
+  config.vm.box = 'bento/centos-8'
+  config.vm.box_version = '202001.16.0'
 
   # Required plugins are easier to specify in 2.1.3+, and stay local to project
   config.vagrant.plugins = required_plugins if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('2.1.3')
