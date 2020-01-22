@@ -13,9 +13,9 @@ STDOUT.sync = true
 # Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
 
-required_plugins = {'vagrant-vbguest' => {'version' => '> 0.21.0'}, 'vagrant-triggers' => {}}
+required_plugins = {'vagrant-triggers' => {}}
 # We only need the triggers plugin if we're running a version that does not support them (and the ruby block)
-required_plugins = {'vagrant-vbguest' => {'version' => '> 0.21.0'}} if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('2.2.0')
+required_plugins = {} if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('2.2.0')
 
 if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.1.3')
   needs_installs = false
@@ -29,8 +29,8 @@ if Gem::Version.new(Vagrant::VERSION) < Gem::Version.new('2.1.3')
 end
 
 Vagrant.configure('2') do |config|
-  config.vm.box = 'centos/8'
-  config.vm.box_version = '1905.1'
+  config.vm.box = 'bento/centos-8'
+  config.vm.box_version = '202001.16.0'
 
   # Required plugins are easier to specify in 2.1.3+, and stay local to project
   config.vagrant.plugins = required_plugins if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('2.1.3')

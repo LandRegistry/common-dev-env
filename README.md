@@ -22,8 +22,8 @@ It provides several hooks for applications to take advantage of, including:
 
 #### Alternative setup
 
-* **Vagrant** (v1.9.5+)
-* **VirtualBox** (v5.1+)
+* **Vagrant** (v2+)
+* **VirtualBox** (v6+)
 
 A Vagrantfile is provided so `vagrant up` will result in a virtual machine containing all the prerequisites from the Recommended setup above. From there, just `vagrant ssh` in and use the dev-env as you would natively.
 
