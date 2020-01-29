@@ -121,6 +121,8 @@ def add_app_ports(root_loc)
 end
 
 def add_service_ports(compose_file, port_list)
+  return unless compose_file.key?('services')
+
   compose_file['services'].each do |_composeappname, composeappconfig|
     # If the compose file has a port section
     next unless composeappconfig.key?('ports')
