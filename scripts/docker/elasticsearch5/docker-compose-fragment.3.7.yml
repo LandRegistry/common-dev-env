@@ -16,6 +16,3 @@ services:
     cap_add:
       - IPC_LOCK
     restart: on-failure
-    resources:
-      limits:
-        memory: 2048M
