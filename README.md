@@ -248,9 +248,8 @@ Applications using OAuth flows or the OpenID Connect protocol can use Keycloak f
 
 * Client ID: `oauth-client`
 * Authentication URL: http://localhost:8180/auth/realms/development/protocol/openid-connect/auth  (must be resolvable by the user agent, hence we use `localhost` assuming that the user agent will be a web browser on the host system)
-* Token URL: http://keycloak:8180/auth/realms/development/protocol/openid-connect/token (use `localhost:8180` if connecting from the host system)
-* OpenID Connect configuration endpoint: http://keycloak:8180/auth/realms/development/.well-known/openid-configuration (use `localhost:8180` if connecting from the host system)
-* To verify a token and to check if it has expired the following url can be used: http://keycloak:8180/auth/realms/development/protocol/openid-connect/userinfo
+* Token URL: http://keycloak:8080/auth/realms/development/protocol/openid-connect/token (use `localhost:8180` if connecting from the host system)
+* OpenID Connect configuration endpoint: http://keycloak:8080/auth/realms/development/.well-known/openid-configuration (use `localhost:8180` if connecting from the host system)
 
 JWT tokens issued from the `development` realm have been configured to mimic those issued by Microsoft ADFS servers. In particular, the LDAP `cn` field is mapped to the `UserName` claim in JWT tokens along with the `Office` claim mapped from the `physicalDeliveryOfficeName` in the LDAP database and the `group` claim listing the user's group memberships.
 
