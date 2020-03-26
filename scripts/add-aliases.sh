@@ -79,6 +79,7 @@ function fullreset(){
     docker-compose stop ${1}
     docker-compose rm -v -f ${1}
     ruby ./scripts/commodities.rb ${1}
+    docker-compose up --build -d ${1}
 }
 
 function alembic(){
