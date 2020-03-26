@@ -1,5 +1,19 @@
 require_relative 'utilities'
+require_relative 'provision_postgres'
+require_relative 'provision_postgres_9.6'
+require_relative 'provision_alembic'
+require_relative 'provision_alembic_9.6'
+require_relative 'provision_auth'
+require_relative 'provision_hosts'
+require_relative 'provision_db2'
+require_relative 'provision_db2_devc'
+require_relative 'provision_db2_community'
+require_relative 'provision_nginx'
+require_relative 'provision_elasticsearch5'
+require_relative 'provision_elasticsearch'
+
 require 'fileutils'
+require 'open3'
 require 'yaml'
 
 def create_commodities_list(root_loc)
@@ -115,6 +129,32 @@ def commodity?(root_loc, commodity)
   end
 
   is_commodity
+end
+
+def provision_commodities(root_loc, new_containers)
+  # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
+  # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
+  # you'll need to delete the postgres container and it's volume else you'll get errors.
+  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-96 etc)
+  provision_postgres(root_loc, new_containers)
+  provision_postgres96(root_loc, new_containers)
+  # Alembic
+  provision_alembic(root_loc)
+  provision_alembic96(root_loc)
+  # Run app DB2 SQL statements
+  provision_db2(root_loc)
+  provision_db2_devc(root_loc, new_containers)
+  provision_db2_community(root_loc, new_containers)
+  # Nginx
+  provision_nginx(root_loc)
+  # Elasticsearch
+  provision_elasticsearch(root_loc)
+  # Elasticsearch5
+  provision_elasticsearch5(root_loc)
+  # Auth
+  provision_auth(root_loc, new_containers)
+  # Hosts File
+  provision_hosts(root_loc)
 end
 
 if $PROGRAM_NAME == __FILE__

@@ -16,18 +16,6 @@ require_relative 'scripts/self_update'
 require_relative 'scripts/docker_compose'
 require_relative 'scripts/commodities'
 require_relative 'scripts/provision_custom'
-require_relative 'scripts/provision_postgres'
-require_relative 'scripts/provision_postgres_9.6'
-require_relative 'scripts/provision_alembic'
-require_relative 'scripts/provision_alembic_9.6'
-require_relative 'scripts/provision_auth'
-require_relative 'scripts/provision_hosts'
-require_relative 'scripts/provision_db2'
-require_relative 'scripts/provision_db2_devc'
-require_relative 'scripts/provision_db2_community'
-require_relative 'scripts/provision_nginx'
-require_relative 'scripts/provision_elasticsearch5'
-require_relative 'scripts/provision_elasticsearch'
 
 require 'fileutils'
 require 'open3'
@@ -203,29 +191,8 @@ if ['start'].include?(ARGV[0])
               existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
-  # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
-  # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
-  # you'll need to delete the postgres container and it's volume else you'll get errors.
-  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-9.6 etc)
-  provision_postgres(root_loc, new_containers)
-  provision_postgres96(root_loc, new_containers)
-  # Alembic
-  provision_alembic(root_loc)
-  provision_alembic96(root_loc)
-  # Hosts File
-  provision_hosts(root_loc)
-  # Run app DB2 SQL statements
-  provision_db2(root_loc)
-  provision_db2_devc(root_loc, new_containers)
-  provision_db2_community(root_loc, new_containers)
-  # Nginx
-  provision_nginx(root_loc)
-  # Elasticsearch
-  provision_elasticsearch(root_loc)
-  # Elasticsearch5
-  provision_elasticsearch5(root_loc)
-  # Auth
-  provision_auth(root_loc, new_containers)
+  # Provision all commodities (by executing fragments found in app repos)
+  provision_commodities(root_loc, new_containers)
 
   # Now that commodities are all provisioned, we can start the containers
 
