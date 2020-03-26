@@ -75,3 +75,7 @@ def fail_and_exit(new_project)
     sleep(3)
   end
 end
+
+def check_healthy_output(command_output)
+  command_output.any? { |ln| ln.start_with?('"healthy"') }
+end

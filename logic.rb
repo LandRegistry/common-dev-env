@@ -273,7 +273,7 @@ if ['start'].include?(ARGV[0])
         output_lines = []
         outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
-        service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+        service_healthy = outcode.zero? && check_healthy_output(output_lines)
       else
         puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using configuration.yml CMD)" \
                                 " - Attempt #{service['check_count']}")
@@ -287,9 +287,14 @@ if ['start'].include?(ARGV[0])
         puts colorize_yellow('Not yet')
         # Check if the container has crashed and restarted
         output_lines = []
+        restart_count = 0
         run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
                     output_lines)
-        restart_count = output_lines[0].to_i
+        # Find the count in all the lines that have come out
+        output_lines.each do |ln|
+          restart_count = ln.to_i if ln.to_i.positive?
+        end
+
         if restart_count.positive?
           puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
                              '(max 10 allowed)')
@@ -323,7 +328,7 @@ if ['start'].include?(ARGV[0])
           output_lines = []
           outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{dep['compose_service']}",
                                 output_lines)
-          dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+          dependency_healthy = outcode.zero? && check_healthy_output(output_lines)
         else
           puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using cmd in configuration.yml)")
           dependency_healthy = run_command("docker exec #{dep['compose_service']} #{dep['healthcheck_cmd']}",
