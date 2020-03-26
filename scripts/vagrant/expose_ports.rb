@@ -72,8 +72,6 @@ def add_es_ports(root_loc, port_list)
 end
 
 def add_db_ports(root_loc, port_list)
-  port_list.push('50000:50000') if commodity?(root_loc, 'db2')
-
   port_list.push('50001:50001') if commodity?(root_loc, 'db2_devc')
 
   port_list.push('50002:50002') if commodity?(root_loc, 'db2_community')

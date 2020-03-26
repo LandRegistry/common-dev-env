@@ -5,7 +5,6 @@ require_relative 'provision_alembic'
 require_relative 'provision_alembic_9.6'
 require_relative 'provision_auth'
 require_relative 'provision_hosts'
-require_relative 'provision_db2'
 require_relative 'provision_db2_devc'
 require_relative 'provision_db2_community'
 require_relative 'provision_nginx'
@@ -142,7 +141,6 @@ def provision_commodities(root_loc, new_containers)
   provision_alembic(root_loc)
   provision_alembic96(root_loc)
   # Run app DB2 SQL statements
-  provision_db2(root_loc)
   provision_db2_devc(root_loc, new_containers)
   provision_db2_community(root_loc, new_containers)
   # Nginx
@@ -172,9 +170,9 @@ if $PROGRAM_NAME == __FILE__
     commodity_file['applications'].each do |app_name, _commodity|
       next unless commodity_provisioned?(root_loc, app_name, commodity_name)
 
-        puts colorize_yellow("At least one app has fragments for #{ARGV[0]}, so I'll provision everything again")
-        provision_commodities(root_loc, [ARGV[0]])
-        break
-      end
+      puts colorize_yellow("At least one app has fragments for #{ARGV[0]}, so I'll provision everything again")
+      provision_commodities(root_loc, [ARGV[0]])
+      break
     end
   end
+end
