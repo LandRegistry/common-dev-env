@@ -79,12 +79,6 @@ function fullreset(){
     docker-compose stop ${1}
     docker-compose rm -v -f ${1}
     ruby ./scripts/commodities.rb ${1}
-    if [ $? -eq 99 ]; then
-        echo "You've reset a commodity container, and at least one application needs to re-provison. Please reload the dev-env."
-    else
-        docker-compose up --build -d ${1}
-    fi
-
 }
 
 function alembic(){

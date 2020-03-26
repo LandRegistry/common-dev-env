@@ -157,21 +157,26 @@ def provision_commodities(root_loc, new_containers)
   provision_hosts(root_loc)
 end
 
+def container_to_commodity(container_name)
+  container_name == 'postgres-96' ? 'postgres-9.6' : container_name
+end
+
 if $PROGRAM_NAME == __FILE__
   root_loc = File.expand_path('..', File.dirname(__FILE__))
   exit unless File.exist?("#{root_loc}/.commodities.yml")
 
   done_one = false
   # Is a commodity container being reset
-  if commodity?(root_loc, ARGV[0])
+  commodity_name = container_to_commodity(ARGV[0])
+  if commodity?(root_loc, commodity_name)
     commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
     commodity_file['applications'].each do |app_name, _commodity|
-      # If this app has provisioned this commodity, change to false as it hasn't any more!
-      if commodity_provisioned?(root_loc, app_name, ARGV[0])
-        set_commodity_provision_status(root_loc, app_name, ARGV[0], false)
-        done_one = true
+      # If an app has provisioned this commodity, let's do
+      if commodity_provisioned?(root_loc, app_name, commodity_name)
+        puts colorize_yellow("At least one app has fragments for #{ARGV[0]}, so I'll provision everything again")
+        provision_commodities(root_loc, [ARGV[0]])
+        break
       end
     end
   end
-  exit 99 if done_one
 end
