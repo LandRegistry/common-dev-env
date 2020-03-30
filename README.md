@@ -112,18 +112,17 @@ The list of allowable commodity values is:
 
 1. postgres
 2. postgres-9.6
-3. db2 (**Warning:** source image no longer available on Docker Hub; use db2_community instead)
-4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-5. db2_community
-6. elasticsearch
-7. elasticsearch5
-8. nginx
-9. rabbitmq
-10. redis
-11. swagger
-12. wiremock
-13. squid
-14. auth
+3. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+4. db2_community
+5. elasticsearch
+6. elasticsearch5
+7. nginx
+8. rabbitmq
+9. redis
+10. swagger
+11. wiremock
+12. squid
+13. auth
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -154,11 +153,10 @@ This is a standard Alembic management file - if it exists, then a database migra
 
 ##### DB2
 
-`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0) or `db2` (DB2 Express 10.5)
+`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0)
 
 Note that DB2 Developer C is exposed on the host ports 50001/55001 and DB2 Community on 50002/55002 to avoid port clashes.
 
-**`/fragments/db2-init-fragment.sql`**
 **`/fragments/db2-devc-init-fragment.sql`**
 **`/fragments/db2-community-init-fragment.sql`**
 

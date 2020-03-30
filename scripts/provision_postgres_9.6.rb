@@ -51,7 +51,7 @@ def start_postgres96(root_loc, appname, started)
 
     command_output = []
     command_outcode = 1
-    until command_outcode.zero? && command_output.any? && command_output[0].start_with?('"healthy"')
+    until command_outcode.zero? && check_healthy_output(command_output)
       command_output.clear
       command_outcode = run_command('docker inspect --format="{{json .State.Health.Status}}" postgres-96',
                                     command_output)

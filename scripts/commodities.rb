@@ -1,5 +1,18 @@
 require_relative 'utilities'
+require_relative 'provision_postgres'
+require_relative 'provision_postgres_9.6'
+require_relative 'provision_alembic'
+require_relative 'provision_alembic_9.6'
+require_relative 'provision_auth'
+require_relative 'provision_hosts'
+require_relative 'provision_db2_devc'
+require_relative 'provision_db2_community'
+require_relative 'provision_nginx'
+require_relative 'provision_elasticsearch5'
+require_relative 'provision_elasticsearch'
+
 require 'fileutils'
+require 'open3'
 require 'yaml'
 
 def create_commodities_list(root_loc)
@@ -117,21 +130,49 @@ def commodity?(root_loc, commodity)
   is_commodity
 end
 
+def provision_commodities(root_loc, new_containers)
+  # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
+  # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
+  # you'll need to delete the postgres container and it's volume else you'll get errors.
+  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-96 etc)
+  provision_postgres(root_loc, new_containers)
+  provision_postgres96(root_loc, new_containers)
+  # Alembic
+  provision_alembic(root_loc)
+  provision_alembic96(root_loc)
+  # Run app DB2 SQL statements
+  provision_db2_devc(root_loc, new_containers)
+  provision_db2_community(root_loc, new_containers)
+  # Nginx
+  provision_nginx(root_loc)
+  # Elasticsearch
+  provision_elasticsearch(root_loc)
+  # Elasticsearch5
+  provision_elasticsearch5(root_loc)
+  # Auth
+  provision_auth(root_loc, new_containers)
+  # Hosts File
+  provision_hosts(root_loc)
+end
+
+def container_to_commodity(container_name)
+  container_name == 'postgres-96' ? 'postgres-9.6' : container_name
+end
+
 if $PROGRAM_NAME == __FILE__
   root_loc = File.expand_path('..', File.dirname(__FILE__))
   exit unless File.exist?("#{root_loc}/.commodities.yml")
 
-  done_one = false
   # Is a commodity container being reset
-  if commodity?(root_loc, ARGV[0])
+  commodity_name = container_to_commodity(ARGV[0])
+  if commodity?(root_loc, commodity_name)
     commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
     commodity_file['applications'].each do |app_name, _commodity|
-      # If this app has provisioned this commodity, change to false as it hasn't any more!
-      if commodity_provisioned?(root_loc, app_name, ARGV[0])
-        set_commodity_provision_status(root_loc, app_name, ARGV[0], false)
-        done_one = true
-      end
+      next unless commodity_provisioned?(root_loc, app_name, commodity_name)
+
+      puts colorize_yellow("At least one app has fragments for #{ARGV[0]}, so I'll provision everything again")
+      provision_commodities(root_loc, [ARGV[0]])
+      break
     end
   end
-  exit 99 if done_one
 end

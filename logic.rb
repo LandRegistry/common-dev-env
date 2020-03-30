@@ -16,18 +16,6 @@ require_relative 'scripts/self_update'
 require_relative 'scripts/docker_compose'
 require_relative 'scripts/commodities'
 require_relative 'scripts/provision_custom'
-require_relative 'scripts/provision_postgres'
-require_relative 'scripts/provision_postgres_9.6'
-require_relative 'scripts/provision_alembic'
-require_relative 'scripts/provision_alembic_9.6'
-require_relative 'scripts/provision_auth'
-require_relative 'scripts/provision_hosts'
-require_relative 'scripts/provision_db2'
-require_relative 'scripts/provision_db2_devc'
-require_relative 'scripts/provision_db2_community'
-require_relative 'scripts/provision_nginx'
-require_relative 'scripts/provision_elasticsearch5'
-require_relative 'scripts/provision_elasticsearch'
 
 require 'fileutils'
 require 'open3'
@@ -56,7 +44,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.6.3'
+  this_version = '1.6.4'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -203,29 +191,8 @@ if ['start'].include?(ARGV[0])
               existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
-  # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
-  # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
-  # you'll need to delete the postgres container and it's volume else you'll get errors.
-  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-9.6 etc)
-  provision_postgres(root_loc, new_containers)
-  provision_postgres96(root_loc, new_containers)
-  # Alembic
-  provision_alembic(root_loc)
-  provision_alembic96(root_loc)
-  # Hosts File
-  provision_hosts(root_loc)
-  # Run app DB2 SQL statements
-  provision_db2(root_loc)
-  provision_db2_devc(root_loc, new_containers)
-  provision_db2_community(root_loc, new_containers)
-  # Nginx
-  provision_nginx(root_loc)
-  # Elasticsearch
-  provision_elasticsearch(root_loc)
-  # Elasticsearch5
-  provision_elasticsearch5(root_loc)
-  # Auth
-  provision_auth(root_loc, new_containers)
+  # Provision all commodities (by executing fragments found in app repos)
+  provision_commodities(root_loc, new_containers)
 
   # Now that commodities are all provisioned, we can start the containers
 
@@ -306,7 +273,7 @@ if ['start'].include?(ARGV[0])
         output_lines = []
         outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
-        service_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+        service_healthy = outcode.zero? && check_healthy_output(output_lines)
       else
         puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using configuration.yml CMD)" \
                                 " - Attempt #{service['check_count']}")
@@ -320,9 +287,14 @@ if ['start'].include?(ARGV[0])
         puts colorize_yellow('Not yet')
         # Check if the container has crashed and restarted
         output_lines = []
+        restart_count = 0
         run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
                     output_lines)
-        restart_count = output_lines[0].to_i
+        # Find the count in all the lines that have come out
+        output_lines.each do |ln|
+          restart_count = ln.to_i if ln.to_i.positive?
+        end
+
         if restart_count.positive?
           puts colorize_pink("The container has exited (crashed?) and been restarted #{restart_count} times " \
                              '(max 10 allowed)')
@@ -356,7 +328,7 @@ if ['start'].include?(ARGV[0])
           output_lines = []
           outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{dep['compose_service']}",
                                 output_lines)
-          dependency_healthy = outcode.zero? && output_lines.any? && output_lines[0].start_with?('"healthy"')
+          dependency_healthy = outcode.zero? && check_healthy_output(output_lines)
         else
           puts colorize_lightblue("Checking if #{dep['compose_service']} is healthy (using cmd in configuration.yml)")
           dependency_healthy = run_command("docker exec #{dep['compose_service']} #{dep['healthcheck_cmd']}",
