@@ -156,7 +156,13 @@ def provision_commodities(root_loc, new_containers)
 end
 
 def container_to_commodity(container_name)
-  container_name == 'postgres-96' ? 'postgres-9.6' : container_name
+  if container_name == 'postgres-96'
+    'postgres-9.6'
+  elsif container_name == 'openldap'
+    'auth'
+  else
+    container_name
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
