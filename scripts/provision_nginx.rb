@@ -17,6 +17,9 @@ def provision_nginx(root_loc)
 
     started = build_nginx(root_loc, appname, started)
   end
+
+  # Will need to let it start again to pick up the newly copied files
+  run_command('docker-compose --compatibility stop nginx') if started
 end
 
 def build_nginx(root_loc, appname, already_started)
