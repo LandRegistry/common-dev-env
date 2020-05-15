@@ -1,7 +1,7 @@
 FROM hmlandregistry/dev_base_java:4
 
 ENV WM_PACKAGE wiremock
-ARG WM_VERSION=2.18.0
+ARG WM_VERSION=2.26.3
 
 RUN mkdir /$WM_PACKAGE
 WORKDIR /$WM_PACKAGE
