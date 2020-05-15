@@ -9,3 +9,7 @@ services:
     env_file:
       - ../scripts/docker/db2_community/.env_list
     privileged: true
+    deploy:
+      resources:
+        limits:
+          memory: 2GB

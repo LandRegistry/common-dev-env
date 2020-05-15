@@ -17,6 +17,9 @@ def provision_nginx(root_loc)
 
     started = build_nginx(root_loc, appname, started)
   end
+
+  # Will need to let it start again to pick up the newly copied files
+  run_command('docker-compose --compatibility stop nginx') if started
 end
 
 def build_nginx(root_loc, appname, already_started)
@@ -28,7 +31,7 @@ def build_nginx(root_loc, appname, already_started)
       puts colorize_yellow("NGINX has previously been provisioned for #{appname}, skipping")
     else
       unless started
-        run_command('docker-compose up -d --no-deps nginx')
+        run_command('docker-compose --compatibility up -d --no-deps nginx')
         started = true
       end
       # See comments in provision_postgres.rb for why we are doing it this way

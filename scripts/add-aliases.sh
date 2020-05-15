@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # Aliases for common commands
-alias dc="docker-compose"
-alias stop="docker-compose stop"
-alias start="docker-compose start"
-alias restart="docker-compose restart"
-alias rebuild="docker-compose up --build -d"
-alias remove="docker-compose rm -v -f"
-alias logs="docker-compose logs"
+alias dc="docker-compose --compatibility"
+alias stop="docker-compose --compatibility stop"
+alias start="docker-compose --compatibility start"
+alias restart="docker-compose --compatibility restart"
+alias rebuild="docker-compose --compatibility up --build -d"
+alias remove="docker-compose --compatibility rm -v -f"
+alias logs="docker-compose --compatibility logs"
 alias livelogs="docker attach --no-stdin --sig-proxy=false"
-alias ex="docker-compose exec"
-alias status="docker-compose ps"
-alias run="docker-compose run --rm"
-alias psql="docker-compose exec postgres psql -h postgres -U root -d"
-alias db2="docker-compose exec --user db2inst1 db2 bash -c '~/sqllib/bin/db2'"
-alias psql96="docker-compose exec postgres-96 psql -h postgres-96 -U root -d"
-alias db2c="docker-compose exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
-alias db2co="docker-compose exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
+alias ex="docker-compose --compatibility exec"
+alias status="docker-compose --compatibility ps"
+alias run="docker-compose --compatibility run --rm"
+alias psql="docker-compose --compatibility exec postgres psql -h postgres -U root -d"
+alias db2="docker-compose --compatibility exec --user db2inst1 db2 bash -c '~/sqllib/bin/db2'"
+alias psql96="docker-compose --compatibility exec postgres-96 psql -h postgres-96 -U root -d"
+alias db2c="docker-compose --compatibility exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
+alias db2co="docker-compose --compatibility exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash ./scripts/git_list.sh"
 
 function bashin(){
@@ -44,46 +44,46 @@ function unit-test(){
 
     # If the report flag is set generate report output otherwise just run the tests
     if [ "$reportflag" = on ] ; then
-       docker-compose exec $app_name make report="true" unittest
+       docker-compose --compatibility exec $app_name make report="true" unittest
     else
-       docker-compose exec $app_name make unittest
+       docker-compose --compatibility exec $app_name make unittest
     fi
 
     # docker network connect dv_default $app_name
 }
 
 function integration-test(){
-    docker-compose exec ${1} make integrationtest
+    docker-compose --compatibility exec ${1} make integrationtest
 }
 
 function acceptance-test(){
-    docker-compose run --rm ${1} sh run_tests.sh ${@:2}
+    docker-compose --compatibility run --rm ${1} sh run_tests.sh ${@:2}
 }
 function acctest(){
-    docker-compose run --rm ${1} sh run_tests.sh ${@:2}
+    docker-compose --compatibility run --rm ${1} sh run_tests.sh ${@:2}
 }
 
 function acceptance-lint(){
-    docker-compose run --rm ${1} sh run_linting.sh
+    docker-compose --compatibility run --rm ${1} sh run_linting.sh
 }
 
 function acclint(){
-    docker-compose run --rm ${1} sh run_linting.sh
+    docker-compose --compatibility run --rm ${1} sh run_linting.sh
 }
 
 function manage(){
-    docker-compose exec ${1} python3 manage.py ${@:2}
+    docker-compose --compatibility exec ${1} python3 manage.py ${@:2}
 }
 
 function fullreset(){
-    docker-compose stop ${1}
-    docker-compose rm -v -f ${1}
+    docker-compose --compatibility stop ${1}
+    docker-compose --compatibility rm -v -f ${1}
     ruby ./scripts/commodities.rb ${1}
-    docker-compose up --build -d ${1}
+    docker-compose --compatibility up --build -d ${1}
 }
 
 function alembic(){
-    docker-compose exec ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
+    docker-compose --compatibility exec ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
 }
 
 function add-to-docker-compose(){
@@ -96,7 +96,7 @@ function add-to-docker-compose(){
       fi
     done
   export COMPOSE_FILE=$COMPOSE_FILE_LIST
-  docker-compose up -d
+  docker-compose --compatibility up -d
 }
 
 function devenv-help(){

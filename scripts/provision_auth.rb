@@ -9,12 +9,6 @@ def provision_auth(root_loc, new_containers)
   return unless config['applications']
 
   # Did the container previously exist, if not then we MUST provision regardless of .commodities value
-  new_ldap_container = false
-  if new_containers.include?('openldap')
-    new_ldap_container = true
-    puts colorize_yellow('The OpenLDAP container has been newly created - '\
-                         'provision status in .commodities will be ignored')
-  end
 
   started = false
   config['applications'].each do |appname, _appconfig|
@@ -23,7 +17,7 @@ def provision_auth(root_loc, new_containers)
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'auth')
 
-    if commodity_provisioned?(root_loc, appname, 'auth') && !new_ldap_container
+    if commodity_provisioned?(root_loc, appname, 'auth') && !fresh_start(new_containers)
       puts colorize_yellow("LDIF files have already been loaded for #{appname}, skipping")
     else
       started = build_auth(root_loc, appname, started)
@@ -34,13 +28,21 @@ def provision_auth(root_loc, new_containers)
   end
 end
 
+def fresh_start(new_containers)
+  return false unless new_containers.include?('openldap')
+
+  puts colorize_yellow('The OpenLDAP container has been newly created - '\
+      'provision status in .commodities will be ignored')
+  true
+end
+
 def build_auth(root_loc, appname, already_started)
   # Load any LDIF files contained in the apps into the docker commands list
   started = already_started
   Dir.glob("#{root_loc}/apps/#{appname}/fragments/*.ldif").each do |file|
     puts colorize_pink("Found #{File.basename(file)} in #{appname}")
     unless started
-      run_command('docker-compose up -d --no-deps openldap')
+      run_command('docker-compose --compatibility up -d --no-deps openldap')
       # Ensure connections are possible before loading any fragments
       sleep(5)
       started = true

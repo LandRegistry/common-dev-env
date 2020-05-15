@@ -44,7 +44,7 @@ end
 
 # Does a version check and self-update if required
 if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.6.4'
+  this_version = '1.7.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -77,7 +77,7 @@ if ['stop'].include? ARGV[0]
     # If this file exists it must have previously got to the point of creating the containers
     # and if it has something in we know there are apps to stop and won't get an error
     puts colorize_lightblue('Stopping apps:')
-    run_command('docker-compose stop')
+    run_command('docker-compose --compatibility stop')
   end
 end
 
@@ -138,7 +138,7 @@ if ['reset'].include?(ARGV[0])
   delete_files(root_loc)
 
   # Docker
-  run_command('docker-compose down --rmi all --volumes --remove-orphans')
+  run_command('docker-compose --compatibility down --rmi all --volumes --remove-orphans')
 
   puts colorize_green('Environment reset')
 end
@@ -162,10 +162,10 @@ if ['start'].include?(ARGV[0])
   end
 
   puts colorize_lightblue('Building images...')
-  if run_command('docker-compose build --parallel --pull') != 0
+  if run_command('docker-compose --compatibility build --parallel --pull') != 0
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command('docker-compose build --pull') != 0
+    if run_command('docker-compose --compatibility build --pull') != 0
       puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
@@ -173,21 +173,21 @@ if ['start'].include?(ARGV[0])
 
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
-  run_command('docker-compose ps --services --filter "status=stopped" && '\
-              'docker-compose ps --services --filter "status=running"',
+  run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
+              'docker-compose --compatibility ps --services --filter "status=running"',
               existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
   puts colorize_lightblue('Creating containers...')
-  if run_command('docker-compose up --remove-orphans --force-recreate --no-start') != 0
+  if run_command('docker-compose --compatibility up --remove-orphans --force-recreate --no-start') != 0
     puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
     exit
   end
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
-  run_command('docker-compose ps --services --filter "status=stopped" && '\
-              'docker-compose ps --services --filter "status=running"',
+  run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
+              'docker-compose --compatibility ps --services --filter "status=running"',
               existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
@@ -201,7 +201,7 @@ if ['start'].include?(ARGV[0])
 
   # The list of all Compose services to start (which may be trimmed down in the following sections)
   services_to_start = []
-  run_command('docker-compose config --services', services_to_start)
+  run_command('docker-compose --compatibility config --services', services_to_start)
 
   # The list of expensive services we have yet to start
   expensive_todo = []
@@ -246,8 +246,8 @@ if ['start'].include?(ARGV[0])
   # Now we can start inexpensive apps, which should be quick and easy
   if services_to_start.any?
     puts colorize_lightblue('Starting inexpensive services...')
-    up_exit_code = run_command('docker-compose up --no-deps --remove-orphans -d ' + services_to_start.join(' '))
-    if up_exit_code != 0
+    up = run_command('docker-compose --compatibility up --no-deps --remove-orphans -d ' + services_to_start.join(' '))
+    if up != 0
       puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
       exit
     end
@@ -302,7 +302,7 @@ if ['start'].include?(ARGV[0])
         if restart_count > 9
           puts colorize_red('The failure threshold has been reached. Skipping this container')
           expensive_failed << service
-          run_command("docker-compose stop #{service['compose_service']}")
+          run_command("docker-compose --compatibility stop #{service['compose_service']}")
           service_healthy = true
         end
       end
@@ -345,7 +345,7 @@ if ['start'].include?(ARGV[0])
       end
 
       if dependency_healthy
-        run_command("docker-compose up --no-deps --remove-orphans -d #{service['compose_service']}")
+        run_command("docker-compose --compatibility up --no-deps --remove-orphans -d #{service['compose_service']}")
         service['check_count'] = 0
         expensive_inprogress << service
       end

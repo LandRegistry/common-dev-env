@@ -18,7 +18,7 @@ It provides several hooks for applications to take advantage of, including:
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
-* **Ruby 2.3+**
+* **Ruby 2.5+**
 
 #### Alternative setup
 
@@ -184,6 +184,14 @@ This file forms part of an NGINX configration file. It will be merged into the s
 Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name. Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
 
 [Example](snippets/nginx-fragment.conf)
+
+##### Wiremock
+
+**`/fragments/wiremock-fragment.json`**
+
+This is a file that contains stub mappings that Wiremock will pick up and use, as an alternative to dynamic programming via its API. See the official Wiremock documentation for help on the structure and contents of the file.
+
+[Example](snippets/wiremock-fragment.json)
 
 ##### RabbitMQ
 

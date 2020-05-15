@@ -96,7 +96,7 @@ def retrieve_version
 
   if response.code == '200'
     result = JSON.parse(response.body)
-    return result['tag_name'].sub(/^v/, ''), result['body'] # Remove v if it starts with it
+    [result['tag_name'].sub(/^v/, ''), result['body']] # Remove v if it starts with it
   else
     puts colorize_yellow("There was an error retrieving the current dev-env version (HTTP code #{response.code})." \
                          " I'll just get on with starting the machine.")
