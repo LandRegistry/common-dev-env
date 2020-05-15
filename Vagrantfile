@@ -13,7 +13,7 @@ STDOUT.sync = true
 # Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
 
-required_plugins = {'vagrant-triggers' => {}}
+required_plugins = { 'vagrant-triggers' => {} }
 # We only need the triggers plugin if we're running a version that does not support them (and the ruby block)
 required_plugins = {} if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('2.2.0')
 
