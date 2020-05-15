@@ -21,7 +21,7 @@ def provision_alembic(root_loc)
       started = true
     end
     puts colorize_pink("Found some in #{appname}")
-    run_command('docker-compose run --rm ' + appname + ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
+    run_command('docker-compose --compatibility run --rm ' + appname + ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
                 'export SQL_PASSWORD=superroot && python3 manage.py db upgrade"')
   end
 end

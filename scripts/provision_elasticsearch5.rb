@@ -32,7 +32,7 @@ def start_elasticsearch5(root_loc, appname, started)
     puts colorize_yellow("Elasticsearch5 has previously been provisioned for #{appname}, skipping")
   else
     unless started
-      run_command('docker-compose up -d elasticsearch5')
+      run_command('docker-compose --compatibility up -d elasticsearch5')
       # Better not run anything until elasticsearch is ready to accept connections...
       puts colorize_lightblue('Waiting for Elasticsearch 5 to finish initialising')
 
