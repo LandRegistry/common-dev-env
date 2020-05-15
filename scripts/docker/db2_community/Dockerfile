@@ -1,4 +1,4 @@
-FROM ibmcom/db2:11.5.0.0a
+FROM hmlandregistry/db2-cgroupaware:11.5.0.0a
 
 EXPOSE 50000 55000
 
