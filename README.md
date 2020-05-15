@@ -185,6 +185,14 @@ Important - if your app is adding itself as a proxied location{} behind NGINX, N
 
 [Example](snippets/nginx-fragment.conf)
 
+##### Wiremock
+
+**`/fragments/wiremock-fragment.json`**
+
+This is a file that contains stub mappings that Wiremock will pick up and use, as an alternative to dynamic programming via its API. See the official Wiremock documentation for help on the structure and contents of the file.
+
+[Example](snippets/wiremock-fragment.json)
+
 ##### RabbitMQ
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:45672> (guest/guest).
