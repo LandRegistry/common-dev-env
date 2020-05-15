@@ -18,7 +18,7 @@ It provides several hooks for applications to take advantage of, including:
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
-* **Ruby 2.3+**
+* **Ruby 2.5+**
 
 #### Alternative setup
 
