@@ -11,12 +11,14 @@ RUN sed -i -e 's%http://deb.debian.org/debian%http://ftp.uk.debian.org/debian%g'
   rm -rf /etc/ldap/schema
 
 ADD schema/* /etc/ldap/schema/
-ADD slapd.conf base.ldif /etc/ldap/
+ADD slapd.conf base.ldif config.ldif /etc/ldap/
 RUN rm -rf /etc/ldap/slapd.d/* && \
   mkdir -p /var/run/openldap && \
   slaptest -f /etc/ldap/slapd.conf -F /etc/ldap/slapd.d && \
   slapadd -F /etc/ldap/slapd.d -l /etc/ldap/base.ldif && \
+  slapadd -n 0 -F /etc/ldap/slapd.d -l /etc/ldap/config.ldif && \
   rm /etc/ldap/base.ldif && \
+  rm /etc/ldap/config.ldif && \
   chown -R openldap:openldap /etc/ldap/slapd.d /var/run/openldap
 
 EXPOSE 389
