@@ -8,3 +8,4 @@ expensive_startup:
     wait_until_healthy:
       - compose_service: db2_community
         healthcheck_cmd: docker
+perform_alembic_migration: true
