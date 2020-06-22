@@ -21,6 +21,7 @@ alias psql96="docker-compose --compatibility exec postgres-96 psql -h postgres-9
 alias db2c="docker-compose --compatibility exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
 alias db2co="docker-compose --compatibility exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
+alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
 
 function bashin(){
     docker exec -it ${@:1} bash
@@ -107,7 +108,8 @@ function devenv-help(){
   cat <<EOF
     If typing a docker-compose command you can use the alias dc instead. For example "dc ps" rather than "docker-compose ps".
 
-    gitlist                                          -     lists all apps and the current branch
+    gitlist                                          -     lists all apps and the current branch. Uses the contents of apps/ and not the list in configuration.yml
+    gitpull                                          -     Does a git pull for every repository found in /apps, regardless of configuration.yml settings
     status                                           -     view the status of all running containers
     stop <name of container>                         -     stop a container
     start <name of container>                        -     start a container
