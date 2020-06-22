@@ -19,6 +19,7 @@ require_relative 'scripts/provision_custom'
 
 require 'fileutils'
 require 'open3'
+require 'optparse'
 require 'rubygems'
 
 # Ensures stdout is never buffered
@@ -37,14 +38,42 @@ DEV_ENV_CONFIG_DIR = root_loc + '/dev-env-config'
 # A list of all the docker compose fragments we find, so they can be loaded into an env var and used as one big file
 DOCKER_COMPOSE_FILE_LIST = root_loc + '/.docker-compose-file-list'
 
-if ARGV.length != 1
-  puts colorize_red('We need exactly one argument')
-  exit 1
-end
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: logic.rb [options]'
+
+  opts.on('-u', '--check-for-update', 'Check if a newer dev-env version is available') do |v|
+    options['self_update'] = v
+  end
+  opts.on('-s', '--start-apps', 'Gracefully start all apps and their dependencies') do |v|
+    options['start_apps'] = v
+  end
+  opts.on('-S', '--stop-apps', 'Stop all running apps') do |v|
+    options['stop_apps'] = v
+  end
+  opts.on('-c', '--prepare-config', 'Set or update the dev-env config repo') do |v|
+    options['prepare_config'] = v
+  end
+  opts.on('-a', '--update-apps', 'Update the repositories of all configured apps') do |v|
+    options['update_apps'] = v
+  end
+  opts.on('-b', '--build-images', 'Build app images') do |v|
+    options['build_images'] = v
+  end
+  opts.on('-p', '--provision-commodities', 'Run any commodity provisioning fragments') do |v|
+    options['provision_commodities'] = v
+  end
+  opts.on('-C', '--prepare-compose', 'Ensures the compose file list and commodities file are up to date') do |v|
+    options['prepare_compose'] = v
+  end
+  opts.on('-r', '--reset', 'Deletes all dev-env configuration files') do |v|
+    options['reset'] = v
+  end
+end.parse!
 
 # Does a version check and self-update if required
-if ['check-for-update'].include?(ARGV[0])
-  this_version = '1.7.0'
+if options['self_update']
+  this_version = '1.8.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -72,7 +101,7 @@ if ['check-for-update'].include?(ARGV[0])
   end
 end
 
-if ['stop'].include? ARGV[0]
+if options['stop_apps']
   if File.exist?(DOCKER_COMPOSE_FILE_LIST) && File.size(DOCKER_COMPOSE_FILE_LIST) != 0
     # If this file exists it must have previously got to the point of creating the containers
     # and if it has something in we know there are apps to stop and won't get an error
@@ -84,7 +113,7 @@ end
 # Ask for/update the dev-env configuration.
 # Then use that config to clone/update apps, create commodities and custom provision lists
 # and download supporting files
-if ['prep'].include?(ARGV[0])
+if options['prepare_config']
   # Check if a DEV_ENV_CONTEXT_FILE exists, to prevent prompting for dev-env configuration choice on each vagrant up
   if File.exist?(DEV_ENV_CONTEXT_FILE)
     puts ''
@@ -115,14 +144,15 @@ if ['prep'].include?(ARGV[0])
 
   # Error if git clone or pulling failed
   fail_and_exit(new_project) if command_successful != 0
+end
 
+if options['update_apps']
   # Call the ruby function to pull/clone all the apps found in dev-env-config/configuration.yml
   puts colorize_lightblue('Updating apps:')
   update_apps(root_loc)
-
 end
 
-if ['reset'].include?(ARGV[0])
+if options['reset']
   # remove DEV_ENV_CONTEXT_FILE created on provisioning
   confirm = ''
   until confirm.upcase.start_with?('Y', 'N')
@@ -145,7 +175,7 @@ end
 
 # Run script to configure environment
 # TODO bash autocompletion of container names
-if ['prepare-compose-environment'].include?(ARGV[0])
+if options['prepare_compose']
   # Create a file called .commodities.yml with the list of commodities in it
   puts colorize_lightblue('Creating list of commodities')
   create_commodities_list(root_loc)
@@ -155,7 +185,7 @@ if ['prepare-compose-environment'].include?(ARGV[0])
   prepare_compose(root_loc, DOCKER_COMPOSE_FILE_LIST)
 end
 
-if ['start'].include?(ARGV[0])
+if options['build_images']
   if File.size(DOCKER_COMPOSE_FILE_LIST).zero?
     puts colorize_red('Nothing to start!')
     exit
@@ -170,7 +200,9 @@ if ['start'].include?(ARGV[0])
       exit
     end
   end
+end
 
+if options['provision_commodities']
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
   run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
@@ -193,8 +225,13 @@ if ['start'].include?(ARGV[0])
 
   # Provision all commodities (by executing fragments found in app repos)
   provision_commodities(root_loc, new_containers)
+end
 
-  # Now that commodities are all provisioned, we can start the containers
+if options['start_apps']
+  if File.size(DOCKER_COMPOSE_FILE_LIST).zero?
+    puts colorize_red('Nothing to start!')
+    exit
+  end
 
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")

@@ -12,9 +12,11 @@ def provision_alembic96(root_loc)
   config['applications'].each do |appname, _appconfig|
     # To help enforce the accuracy of the app's dependency file, only search for alembic code
     # if the app specifically specifies postgres in it's commodity list
+    # and they aren't suppressing it by setting perform_alembic_migration to false
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'postgres-9.6')
     next unless File.exist?("#{root_loc}/apps/#{appname}/manage.py")
+    next unless migration_enabled?(root_loc, appname)
 
     unless started
       start_postgres96_for_alembic
@@ -25,6 +27,13 @@ def provision_alembic96(root_loc)
                 ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
                 'export SQL_PASSWORD=superroot && python3 manage.py db upgrade"')
   end
+end
+
+def migration_enabled?(root_loc, appname)
+  app_configuration = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
+  do_migration = app_configuration.fetch('perform_alembic_migration', true)
+  puts colorize_yellow("Dev-env-triggered Alembic migration disabled for #{appname}, skipping") if do_migration == false
+  do_migration
 end
 
 def start_postgres96_for_alembic

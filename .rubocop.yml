@@ -37,3 +37,6 @@ Style/SafeNavigation:
 # Generating false positives in elasticsearch shell scripts
 Style/FormatStringToken:
   Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Max: 10

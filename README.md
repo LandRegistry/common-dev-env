@@ -47,7 +47,8 @@ Other `run.sh` parameters are:
 * `halt` - stops all containers
 * `reload` - stops all containers then rebuilds and restarts them (including running any commodity fragments)
 * `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from Docker Hub) and resets all dev-env configuration files.
-* `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several)
+* `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several or are in a different terminal window to the one you ran `up` in)
+* `quickup` and `quickreload` - as per `up` and `reload` except they do not update anything from git (apps or config), rebuild Docker images or provision any commodity fragments.
 
 ## Usage guide
 
@@ -149,7 +150,7 @@ The default Postgres port 5432 will be available for connections from other cont
 
 **`/manage.py`**
 
-This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`.
+This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This can be disabled by setting the key `perform_alembic_migration` to `false` in `configuration.yml` - for example if the file does not actually relate to Alembic, or you do your own migration during app startup.
 
 ##### DB2
 
@@ -299,7 +300,8 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 If you hate typing long commands then the commands below have been added to the dev-env for you:
 
 ```bash
-gitlist                                          -     lists all apps and the current branch
+gitlist                                          -     lists all apps and the current branch. Uses the contents of apps/ and not the list in configuration.yml
+gitpull                                          -     Does a git pull for every repository found in /apps, regardless of configuration.yml settings
 status                                           -     view the status of all running containers
 stop <name of container>                         -     stop a container
 start <name of container>                        -     start a container

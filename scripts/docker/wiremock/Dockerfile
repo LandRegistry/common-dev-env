@@ -10,4 +10,4 @@ WORKDIR /wiremock
 # To ensure our fragments we copy in are actually persisted in between container recreates.
 VOLUME /wiremock/mappings
 
-CMD ["java","-jar","wiremock.jar"]
+CMD ["java","-jar","wiremock.jar", "--global-response-templating"]
