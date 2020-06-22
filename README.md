@@ -47,7 +47,8 @@ Other `run.sh` parameters are:
 * `halt` - stops all containers
 * `reload` - stops all containers then rebuilds and restarts them (including running any commodity fragments)
 * `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from Docker Hub) and resets all dev-env configuration files.
-* `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several)
+* `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several or are in a different terminal window to the one you ran `up` in)
+* `quickup` and `quickreload` - as per `up` and `reload` except they do not update anything from git (apps or config), rebuild Docker images or provision any commodity fragments.
 
 ## Usage guide
 
