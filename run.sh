@@ -35,7 +35,7 @@ then
     echo -e "\e[36mBeginning RELOAD\e[0m"
     ruby logic.rb --prepare-compose &&
     source scripts/docker_prepare.sh &&
-    ruby logic.rb --stop-apps --prepare-config --prepare-compose &&
+    ruby logic.rb --stop-apps --prepare-config --update-apps --prepare-compose &&
     source scripts/docker_prepare.sh &&
     ruby logic.rb --build-images --provision-commodities --start-apps &&
     source scripts/after-ups.sh &&
