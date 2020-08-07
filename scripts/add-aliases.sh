@@ -83,7 +83,7 @@ function manage(){
 function fullreset(){
     docker-compose --compatibility stop ${1}
     docker-compose --compatibility rm -v -f ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities.rb ${1}
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1}
     docker-compose --compatibility up --build -d ${1}
 }
 
