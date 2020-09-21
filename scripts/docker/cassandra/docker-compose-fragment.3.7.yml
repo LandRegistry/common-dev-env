@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  cassandra:
+    container_name: cassandra
+    build: ../scripts/docker/cassandra/
+    ports:
+      - "9042:9042"
