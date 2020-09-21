@@ -145,7 +145,7 @@ def provision_commodities(root_loc, new_containers)
   provision_db2_devc(root_loc, new_containers)
   provision_db2_community(root_loc, new_containers)
   # Nginx
-  provision_nginx(root_loc)
+  provision_nginx(root_loc, new_containers)
   # Elasticsearch
   provision_elasticsearch(root_loc)
   # Elasticsearch5
