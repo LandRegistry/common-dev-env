@@ -1,6 +1,7 @@
 version: '3.7'
 services:
   cadence:
+    container_name: cadence
     build: ../scripts/docker/cadence/
     ports:
       - "7933:7933"
