@@ -1,2 +1,2 @@
 
-FROM ubercadence/server:master-auto-setup
+FROM ubercadence/server:0.14.1-auto-setup

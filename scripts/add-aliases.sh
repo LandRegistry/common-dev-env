@@ -22,6 +22,7 @@ alias db2c="docker-compose --compatibility exec --user db2inst1 db2_devc bash -c
 alias db2co="docker-compose --compatibility exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
+alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
 
 function bashin(){
     docker exec -it ${@:1} bash

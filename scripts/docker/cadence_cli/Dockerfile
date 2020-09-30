@@ -1,1 +1,0 @@
-FROM ubercadence/cli:master

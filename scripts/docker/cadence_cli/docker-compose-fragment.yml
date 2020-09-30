@@ -1,5 +1,0 @@
-version: '2'
-services:
-  cadence_cli:
-    container_name: cadence_cli
-    build: ../scripts/docker/cadence_cli/
