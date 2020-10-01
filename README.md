@@ -124,6 +124,9 @@ The list of allowable commodity values is:
 11. wiremock
 12. squid
 13. auth
+14. cassandra
+15. cadence orchestrator
+16. cadence command line tools
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -262,6 +265,30 @@ JWT tokens issued from the `development` realm have been configured to mimic tho
 
 A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
 
+###### Cassandra
+Cassandra is a NoSql database used as persistence layer for Cadence orchestrator.
+
+From within a Docker container:
+
+* Host: cassandra
+* Port: 9042 (CQL Native Transport Port)
+
+From the host system:
+* Host: localhost
+* Port: 9042
+
+###### Cadence
+Cadence is the Uber-developed HA orchestrator. It's configured to use an auto-setup mode to automatically create cassandra keyspace and tables required for cadence functioning.
+Use the following configuration to connect your application:
+
+From within a Docker container:
+* Host: cadence
+* Port: 7933 (default cadence frontend port)
+
+From the host system:
+* Host: localhost
+* Port: 7933
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
@@ -326,6 +353,7 @@ manage <name of container> <command>             -     run manage.py commands in
 alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
 add-to-docker-compose
   <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
+cadence-cli                                      -     runs the command line tool to interact with cadence orchestrator
 ```
 
 If you prefer using docker or docker-compose directly then below is list of useful commands (note: if you leave out \<name of container\> then all containers will be affected):
