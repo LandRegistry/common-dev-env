@@ -1,12 +1,20 @@
 require_relative 'utilities'
 require 'yaml'
 
-def provision_nginx(root_loc)
+def provision_nginx(root_loc, new_containers)
   puts colorize_lightblue('Searching for NGINX conf files in the apps')
 
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
+
+  # Did the container previously exist, if not then we MUST provision regardless of .commodities value
+  new_nginx_container = false
+  if new_containers.include?('nginx')
+    new_nginx_container = true
+    puts colorize_yellow('The nginx container has been newly created - '\
+                          'provision status in .commodities will be ignored')
+  end
 
   started = false
   config['applications'].each do |appname, _appconfig|
@@ -15,19 +23,19 @@ def provision_nginx(root_loc)
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
     next unless commodity_required?(root_loc, appname, 'nginx')
 
-    started = build_nginx(root_loc, appname, started)
+    started = build_nginx(root_loc, appname, started, new_nginx_container)
   end
 
   # Will need to let it start again to pick up the newly copied files
   run_command('docker-compose --compatibility stop nginx') if started
 end
 
-def build_nginx(root_loc, appname, already_started)
+def build_nginx(root_loc, appname, already_started, new_nginx_container)
   # Load any conf files contained in the apps into the docker commands list
   started = already_started
   if File.exist?("#{root_loc}/apps/#{appname}/fragments/nginx-fragment.conf")
     puts colorize_pink("Found some in #{appname}")
-    if commodity_provisioned?(root_loc, appname, 'nginx')
+    if commodity_provisioned?(root_loc, appname, 'nginx') && !new_nginx_container
       puts colorize_yellow("NGINX has previously been provisioned for #{appname}, skipping")
     else
       unless started

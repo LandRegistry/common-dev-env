@@ -14,6 +14,7 @@ unalias psql
 unalias db2
 unalias psql96
 unalias db2c
+unalias cadence-cli
 
 unset -f bashin
 unset -f unit-test

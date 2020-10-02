@@ -124,6 +124,8 @@ The list of allowable commodity values is:
 11. wiremock
 12. squid
 13. auth
+14. cassandra
+15. cadence
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -262,6 +264,30 @@ JWT tokens issued from the `development` realm have been configured to mimic tho
 
 A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
 
+###### Cassandra
+Cassandra is a NoSql database used as persistence layer for Cadence orchestrator.
+
+From within a Docker container:
+
+* Host: cassandra
+* Port: 9042 (CQL Native Transport Port)
+
+From the host system:
+* Host: localhost
+* Port: 9042
+
+###### Cadence
+Cadence is the Uber-developed HA orchestrator. It's configured to use an auto-setup mode to automatically create cassandra keyspace and tables required for cadence functioning.
+Use the following configuration to connect your application:
+
+From within a Docker container:
+* Host: cadence
+* Port: 7933 (default cadence frontend port)
+
+From the host system:
+* Host: localhost
+* Port: 7933
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
@@ -297,36 +323,7 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 
 ### Useful commands
 
-If you hate typing long commands then the commands below have been added to the dev-env for you:
-
-```bash
-gitlist                                          -     lists all apps and the current branch. Uses the contents of apps/ and not the list in configuration.yml
-gitpull                                          -     Does a git pull for every repository found in /apps, regardless of configuration.yml settings
-status                                           -     view the status of all running containers
-stop <name of container>                         -     stop a container
-start <name of container>                        -     start a container
-restart <name of container>                      -     restart a container
-logs <name of container>                         -     view the logs of a container (from the past)
-livelogs <name of container>                     -     view the logs of a container (as they happen)
-ex <name of container> <command to execute>      -     execute a command in a running container
-run <options> <name of container> <command>      -     creates a new container and runs the command in it.
-remove <name of container>                       -     remove a container
-fullreset <name of container>                    -     Performs stop, remove then rebuild. Useful if a container (like a database) needs to be wiped. Remember to reset .commodities if you do though to ensure init fragments get rerun
-rebuild <name of container>                      -     checks if a container needs rebuilding and rebuilds/recreates/restarts it if so, otherwise does nothing. Useful if a file has changed that the Dockerfile copies into the image.
-bashin <name of container>                       -     bash in to a container
-unit-test <name of container>                    -     run the unit tests for an application (this expects there to a be a Makefile with a unittest command). If you add -r it will output reports to the test-output folder.
-integration-test <name of container>             -     run the integration tests for an application (this expects there to a be a Makefile with a integrationtest command).
-acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
-          <name of container> <cucumber args>
-acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
-          <name of container>
-psql[96] <name of database>                      -     run psql in the postgres/posrgres-96 container
-db2[c][co]                                       -     run db2 command line in the db2/db2_devc/db2_community container
-manage <name of container> <command>             -     run manage.py commands in a container
-alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
-add-to-docker-compose
-  <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
-```
+If you hate typing long commands then the commands below have been added to the dev-env for you, just type `devenv-help` after an up for a full list.
 
 If you prefer using docker or docker-compose directly then below is list of useful commands (note: if you leave out \<name of container\> then all containers will be affected):
 
