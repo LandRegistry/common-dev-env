@@ -69,11 +69,14 @@ OptionParser.new do |opts|
   opts.on('-r', '--reset', 'Deletes all dev-env configuration files') do |v|
     options['reset'] = v
   end
+  opts.on('-n', '--nopull', 'Do not pull images FROMed in Dockerfiles when building if they already exist on system') do |v|
+    options['nopull'] = v
+  end
 end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '1.9.0'
+  this_version = '1.9.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -192,10 +195,10 @@ if options['build_images']
   end
 
   puts colorize_lightblue('Building images...')
-  if run_command('docker-compose --compatibility build --parallel --pull') != 0
+  if run_command('docker-compose --compatibility build --parallel ' + (options['nopull'] ? '' : '--pull')) != 0
     puts colorize_yellow('Build command failed. Trying without --parallel')
     # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command('docker-compose --compatibility build --pull') != 0
+    if run_command('docker-compose --compatibility build ' + (options['nopull'] ? '' : '--pull')) != 0
       puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
