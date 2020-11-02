@@ -18,12 +18,13 @@ if test $sourced -eq 0; then
 fi
 
 command="$1"
+subcommands="$2"
 if [ "$command" = "up" ]
 then
     echo -e "\e[36mBeginning UP\e[0m"
-    ruby logic.rb --check-for-update --prepare-config --update-apps --prepare-compose &&
+    ruby logic.rb --check-for-update --prepare-config --update-apps --prepare-compose "${subcommands}" &&
     source scripts/docker_prepare.sh &&
-    ruby logic.rb --build-images --provision-commodities --start-apps &&
+    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}" &&
     source scripts/after-ups.sh &&
     source scripts/add-aliases.sh
 fi
@@ -54,9 +55,9 @@ then
     echo -e "\e[36mBeginning RELOAD\e[0m"
     ruby logic.rb --prepare-compose &&
     source scripts/docker_prepare.sh &&
-    ruby logic.rb --stop-apps --prepare-config --update-apps --prepare-compose &&
+    ruby logic.rb --stop-apps --prepare-config --update-apps --prepare-compose "${subcommands}" &&
     source scripts/docker_prepare.sh &&
-    ruby logic.rb --build-images --provision-commodities --start-apps &&
+    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}" &&
     source scripts/after-ups.sh &&
     source scripts/add-aliases.sh
 fi
