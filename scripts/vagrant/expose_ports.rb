@@ -50,6 +50,15 @@ def get_port_list(root_loc)
     port_list.push('443:443')
   end
 
+  if commodity?(root_loc, 'activemq')
+    port_list.push('61616:61616')
+    port_list.push('8161:8161')
+    port_list.push('6672:6672')
+    port_list.push('61613:61613')
+    port_list.push('1883:1883')
+    port_list.push('61614:61614')
+  end
+
   port_list.push('16379:6379') if commodity?(root_loc, 'redis')
 
   port_list.push('5101:5101') if commodity?(root_loc, 'swagger')

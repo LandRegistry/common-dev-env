@@ -204,6 +204,10 @@ This is a file that contains stub mappings that Wiremock will pick up and use, a
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:45672> (guest/guest).
 
+##### ActiveMQ
+
+There are no fragments needed when using this. The Management Console will be available on <http://localhost:8161> (admin/admin).
+
 ##### Redis
 
 There are no fragments needed when using this. Redis will be available at <http://localhost:16379> on the host and at <http://redis:6379> inside the Docker network.
