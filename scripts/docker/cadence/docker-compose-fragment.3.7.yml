@@ -11,4 +11,4 @@ services:
     env_file:
       - ../scripts/docker/cadence/.env_list
     depends_on:
-      - cassandra
+      - postgres-96
