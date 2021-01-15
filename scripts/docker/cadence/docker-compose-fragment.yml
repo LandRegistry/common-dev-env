@@ -12,12 +12,3 @@ services:
       - ../scripts/docker/cadence/.env_list
     depends_on:
       - postgres-96
-  cadence-web:
-    container_name: cadence-web
-    image: ubercadence/web:3.18.1
-    environment:
-      - "CADENCE_TCHANNEL_PEERS=cadence:7933"
-    ports:
-      - "5004:8088"
-    depends_on:
-      - cadence
