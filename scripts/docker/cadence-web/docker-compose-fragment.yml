@@ -1,0 +1,11 @@
+version: '2'
+services:
+  cadence-web:
+    container_name: cadence-web
+    build: ../scripts/docker/cadence-web/
+    environment:
+      - "CADENCE_TCHANNEL_PEERS=cadence:7933"
+    ports:
+      - "5004:8088"
+    depends_on:
+      - cadence
