@@ -18,6 +18,6 @@ services:
     environment:
       - "CADENCE_TCHANNEL_PEERS=cadence:7933"
     ports:
-      - "8088:8088"
+      - "5004:8088"
     depends_on:
       - cadence
