@@ -3,7 +3,6 @@ services:
   cadence-web:
     container_name: cadence-web
     build: ../scripts/docker/cadence-web/
-    image: ubercadence/web:3.18.1
     environment:
       - "CADENCE_TCHANNEL_PEERS=cadence:7933"
     ports:
