@@ -129,7 +129,8 @@ The list of allowable commodity values is:
 12. squid
 13. auth
 14. cadence
-15. activemq
+15. cadence-web
+16. activemq
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -283,6 +284,13 @@ From within a Docker container:
 From the host system:
 * Host: localhost
 * Port: 7933
+
+###### Cadence Web
+[Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
+cadence core services.
+
+*Running Cadence web locally*
+- In a web browser enter http://localhost:5004
 
 #### Other files
 
