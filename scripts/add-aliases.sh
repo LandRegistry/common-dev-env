@@ -25,7 +25,13 @@ alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
 alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
 
 function bashin(){
-    docker exec -it ${@:1} bash
+  app_name=${@:1}
+  if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
+    echo "On a Windows Machine"
+    winpty docker exec -it $app_name bash
+  else
+    docker exec -it $app_name bash
+  fi
 }
 
 function unit-test(){
