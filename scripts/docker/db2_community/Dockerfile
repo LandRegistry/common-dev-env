@@ -1,4 +1,4 @@
-FROM hmlandregistry/db2-cgroupaware:11.5.5.0
+FROM hmlandregistry/db2-cgroupaware:11.5.5.1
 
 EXPOSE 50000 55000
 
