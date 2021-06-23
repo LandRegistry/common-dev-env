@@ -1,4 +1,4 @@
-FROM python:3.7.0
+FROM python:3.9.5-slim
 ENV PYTHONUNBUFFERED yes
 
 # Add Tini
