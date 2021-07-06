@@ -4,22 +4,22 @@
 export DEV_ENV_ROOT_DIR=$(pwd)
 
 # Aliases for common commands
-alias dc="docker-compose --compatibility"
-alias stop="docker-compose --compatibility stop"
-alias start="docker-compose --compatibility start"
-alias restart="docker-compose --compatibility restart"
-alias rebuild="docker-compose --compatibility up --build -d"
-alias remove="docker-compose --compatibility rm -v -f"
-alias logs="docker-compose --compatibility logs"
+alias dc="$DC_CMD"
+alias stop="$DC_CMD stop"
+alias start="$DC_CMD start"
+alias restart="$DC_CMD restart"
+alias rebuild="$DC_CMD up --build -d"
+alias remove="$DC_CMD rm -v -f"
+alias logs="$DC_CMD logs"
 alias livelogs="docker attach --no-stdin --sig-proxy=false"
-alias ex="docker-compose --compatibility exec"
-alias status="docker-compose --compatibility ps"
-alias run="docker-compose --compatibility run --rm"
-alias psql="docker-compose --compatibility exec postgres psql -h postgres -U root -d"
-alias db2="docker-compose --compatibility exec --user db2inst1 db2 bash -c '~/sqllib/bin/db2'"
-alias psql96="docker-compose --compatibility exec postgres-96 psql -h postgres-96 -U root -d"
-alias db2c="docker-compose --compatibility exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
-alias db2co="docker-compose --compatibility exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
+alias ex="$DC_CMD exec"
+alias status="$DC_CMD ps"
+alias run="$DC_CMD run --rm"
+alias psql="$DC_CMD exec postgres psql -h postgres -U root -d"
+alias db2="$DC_CMD exec --user db2inst1 db2 bash -c '~/sqllib/bin/db2'"
+alias psql96="$DC_CMD exec postgres-96 psql -h postgres-96 -U root -d"
+alias db2c="$DC_CMD exec --user db2inst1 db2_devc bash -c '~/sqllib/bin/db2'"
+alias db2co="$DC_CMD exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
 alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
@@ -56,46 +56,46 @@ function unit-test(){
 
     # If the report flag is set generate report output otherwise just run the tests
     if [ "$reportflag" = on ] ; then
-       docker-compose --compatibility exec $app_name make report="true" unittest
+       $DC_CMD exec $app_name make report="true" unittest
     else
-       docker-compose --compatibility exec $app_name make unittest
+       $DC_CMD exec $app_name make unittest
     fi
 
     # docker network connect dv_default $app_name
 }
 
 function integration-test(){
-    docker-compose --compatibility exec ${1} make integrationtest
+    $DC_CMD exec ${1} make integrationtest
 }
 
 function acceptance-test(){
-    docker-compose --compatibility run --rm ${1} sh run_tests.sh ${@:2}
+    $DC_CMD run --rm ${1} sh run_tests.sh ${@:2}
 }
 function acctest(){
-    docker-compose --compatibility run --rm ${1} sh run_tests.sh ${@:2}
+    $DC_CMD run --rm ${1} sh run_tests.sh ${@:2}
 }
 
 function acceptance-lint(){
-    docker-compose --compatibility run --rm ${1} sh run_linting.sh
+    $DC_CMD run --rm ${1} sh run_linting.sh
 }
 
 function acclint(){
-    docker-compose --compatibility run --rm ${1} sh run_linting.sh
+    $DC_CMD run --rm ${1} sh run_linting.sh
 }
 
 function manage(){
-    docker-compose --compatibility exec ${1} python3 manage.py ${@:2}
+    $DC_CMD exec ${1} python3 manage.py ${@:2}
 }
 
 function fullreset(){
-    docker-compose --compatibility stop ${1}
-    docker-compose --compatibility rm -v -f ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1}
-    docker-compose --compatibility up --build -d ${1}
+    $DC_CMD stop ${1}
+    $DC_CMD rm -v -f ${1}
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
+    $DC_CMD up --build -d ${1}
 }
 
 function alembic(){
-    docker-compose --compatibility exec ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
+    $DC_CMD exec ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
 }
 
 function add-to-docker-compose(){
@@ -108,7 +108,7 @@ function add-to-docker-compose(){
       fi
     done
   export COMPOSE_FILE=$COMPOSE_FILE_LIST
-  docker-compose --compatibility up -d
+  $DC_CMD up -d
 }
 
 function devenv-help(){

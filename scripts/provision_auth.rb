@@ -42,7 +42,7 @@ def build_auth(root_loc, appname, already_started)
   Dir.glob("#{root_loc}/apps/#{appname}/fragments/*.ldif").each do |file|
     puts colorize_pink("Found #{File.basename(file)} in #{appname}")
     unless started
-      run_command('docker-compose --compatibility up -d --build --no-deps openldap')
+      run_command("#{ENV['DC_CMD']} up -d --build --no-deps openldap")
       # Ensure connections are possible before loading any fragments
       sleep(5)
       started = true

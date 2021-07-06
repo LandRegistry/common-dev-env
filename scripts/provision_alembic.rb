@@ -23,7 +23,7 @@ def provision_alembic(root_loc)
       started = true
     end
     puts colorize_pink("Found some in #{appname}")
-    run_command("docker-compose --compatibility run --rm #{appname}" \
+    run_command("#{ENV['DC_CMD']} run --rm #{appname}" \
                 ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
                 'export SQL_PASSWORD=superroot && python3 manage.py db upgrade"')
   end
@@ -37,7 +37,7 @@ def migration_enabled?(root_loc, appname)
 end
 
 def start_postgres_for_alembic
-  run_command_noshell(['docker-compose', 'up', '-d', 'postgres'])
+  run_command_noshell(ENV['DC_CMD'].split(' ') + ['up', '-d', 'postgres'])
   # Better not run anything until postgres is ready to accept connections...
   puts colorize_lightblue('Waiting for Postgres to finish initialising')
 
