@@ -27,7 +27,7 @@ def provision_wiremock(root_loc, new_containers)
   end
 
   # Will need to let it start again to pick up the newly copied files
-  run_command('docker-compose --compatibility stop wiremock') if started
+  run_command("#{ENV['DC_CMD']} stop wiremock") if started
 end
 
 def build_wiremock(root_loc, appname, already_started, new_container)
@@ -39,7 +39,7 @@ def build_wiremock(root_loc, appname, already_started, new_container)
       puts colorize_yellow("Wiremock has previously been provisioned for #{appname}, skipping")
     else
       unless started
-        run_command('docker-compose --compatibility up -d --no-deps wiremock')
+        run_command("#{ENV['DC_CMD']} up -d --no-deps wiremock")
         started = true
       end
       # See comments in provision_postgres.rb for why we are doing it this way

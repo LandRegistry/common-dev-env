@@ -45,7 +45,7 @@ end
 
 def start_postgres96(root_loc, appname, started)
   unless started
-    run_command_noshell(['docker-compose', 'up', '-d', 'postgres-96'])
+    run_command_noshell(ENV['DC_CMD'].split(' ') + ['up', '-d', 'postgres-96'])
     # Better not run anything until postgres is ready to accept connections...
     puts colorize_lightblue('Waiting for Postgres 9.6 to finish initialising')
 
