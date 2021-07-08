@@ -56,46 +56,46 @@ function unit-test(){
 
     # If the report flag is set generate report output otherwise just run the tests
     if [ "$reportflag" = on ] ; then
-       $DC_CMD exec $app_name make report="true" unittest
+       ex $app_name make report="true" unittest
     else
-       $DC_CMD exec $app_name make unittest
+       ex $app_name make unittest
     fi
 
     # docker network connect dv_default $app_name
 }
 
 function integration-test(){
-    $DC_CMD exec ${1} make integrationtest
+    ex ${1} make integrationtest
 }
 
 function acceptance-test(){
-    $DC_CMD run --rm ${1} sh run_tests.sh ${@:2}
+    run ${1} sh run_tests.sh ${@:2}
 }
 function acctest(){
-    $DC_CMD run --rm ${1} sh run_tests.sh ${@:2}
+    run ${1} sh run_tests.sh ${@:2}
 }
 
 function acceptance-lint(){
-    $DC_CMD run --rm ${1} sh run_linting.sh
+    run ${1} sh run_linting.sh
 }
 
 function acclint(){
-    $DC_CMD run --rm ${1} sh run_linting.sh
+    run ${1} sh run_linting.sh
 }
 
 function manage(){
-    $DC_CMD exec ${1} python3 manage.py ${@:2}
+    ex ${1} python3 manage.py ${@:2}
 }
 
 function fullreset(){
-    $DC_CMD stop ${1}
-    $DC_CMD rm -v -f ${1}
+    stop ${1}
+    remove ${1}
     ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
-    $DC_CMD up --build -d ${1}
+    rebuild ${1}
 }
 
 function alembic(){
-    $DC_CMD exec ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
+    ex ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
 }
 
 function add-to-docker-compose(){
@@ -108,7 +108,8 @@ function add-to-docker-compose(){
       fi
     done
   export COMPOSE_FILE=$COMPOSE_FILE_LIST
-  $DC_CMD up -d
+  alias test="$DC_CMD up -d"
+  test
 }
 
 function devenv-help(){
