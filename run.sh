@@ -1,5 +1,5 @@
 export DC_VERSION=1
-docker-compose version 2>&1 | grep -q 'version 2' && DC_VERSION=2 && echo -e "\e[35mUsing Docker-Compose version 2 commands\e[0m"
+docker-compose version 2>&1 | grep -q 'version 2\|version v2' && DC_VERSION=2 && echo -e "\e[35mUsing Docker-Compose version 2 commands\e[0m"
 
 if [ "$DC_VERSION" = "2" ] ; then
   export DC_CMD='docker compose'
