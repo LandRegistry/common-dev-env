@@ -2,11 +2,12 @@ require_relative 'utilities'
 require 'yaml'
 
 def postgres_container(postgres_version)
-  if postgres_version == '9.4'
+  case postgres_version
+  when '9.4'
     'postgres'
-  elsif  postgres_version == '9.6'
+  when '9.6'
     'postgres-96'
-  elsif  postgres_version == '13'
+  when '13'
     'postgres-13'
   else
     puts colorize_red("Unknown PostgreSQL version (#{postgres_version}) specified.")
@@ -36,17 +37,21 @@ def provision_postgres(root_loc, new_containers, postgres_version)
   config['applications'].each do |appname, _appconfig|
     # To help enforce the accuracy of the app's dependency file, only search for init sql
     # if the app specifically specifies postgres in it's commodity list
-    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-    next unless commodity_required?(root_loc, appname, container_to_commodity(container))
+    next unless postgres_required?(root_loc, appname, container)
 
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql")
       started = start_postgres_maybe(root_loc, appname, started, new_db_container, postgres_version)
     else
-      puts colorize_yellow("#{appname} says it uses Postgres #{postgres_version} but doesn't contain an init SQL file. " \
-                           'Oh well, onwards we go!')
+      puts colorize_yellow("#{appname} says it uses Postgres #{postgres_version} but doesn't contain an init SQL " \
+                           'file. Oh well, onwards we go!')
     end
   end
+end
+
+def postgres_required?(root_loc, appname, container)
+  File.exist?("#{root_loc}/apps/#{appname}/configuration.yml") &&
+    commodity_required?(root_loc, appname, container_to_commodity(container))
 end
 
 def start_postgres_maybe(root_loc, appname, started, new_db_container, postgres_version)
@@ -75,7 +80,7 @@ def start_postgres(root_loc, appname, started, postgres_version)
     command_outcode = 1
     until command_outcode.zero? && check_healthy_output(command_output)
       command_output.clear
-      command_outcode = run_command('docker inspect --format="{{json .State.Health.Status}}" ' + container,
+      command_outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{container}",
                                     command_output)
       puts colorize_yellow("Postgres #{postgres_version} is unavailable - sleeping")
       sleep(3)
@@ -87,6 +92,15 @@ def start_postgres(root_loc, appname, started, postgres_version)
     puts colorize_green("Postgres #{postgres_version} is ready")
     started = true
   end
+
+  run_initialisation(root_loc, appname, container)
+
+  # Update the .commodities.yml to indicate that postgres has now been provisioned
+  set_commodity_provision_status(root_loc, appname, container, true)
+  started
+end
+
+def run_initialisation(root_loc, appname, container)
   # Copy the app's init sql into postgres then execute it with psql.
   # We don't just use docker cp with a plain file path as the source, to deal with WSL,
   # where LinuxRuby passes a path to WindowsDocker that it can't parse.
@@ -97,8 +111,4 @@ def start_postgres(root_loc, appname, started, postgres_version)
               ' postgres-init-fragment.sql' + # The file to add to the tar
               " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
-
-  # Update the .commodities.yml to indicate that postgres has now been provisioned
-  set_commodity_provision_status(root_loc, appname, container, true)
-  started
 end

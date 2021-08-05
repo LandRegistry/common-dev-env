@@ -16,10 +16,7 @@ def provision_alembic(root_loc, postgres_version)
     # To help enforce the accuracy of the app's dependency file, only search for alembic code
     # if the app specifically specifies postgres in it's commodity list
     # and they aren't suppressing it by setting perform_alembic_migration to false
-    next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-    next unless commodity_required?(root_loc, appname, container)
-    next unless File.exist?("#{root_loc}/apps/#{appname}/manage.py")
-    next unless migration_enabled?(root_loc, appname)
+    next unless proceed_with_migration?(root_loc, appname, container)
 
     unless started
       start_postgres_for_alembic(postgres_version)
@@ -30,6 +27,13 @@ def provision_alembic(root_loc, postgres_version)
                 ' bash -c "cd /src && export SQL_USE_ALEMBIC_USER=yes && ' \
                 'export SQL_PASSWORD=superroot && python3 manage.py db upgrade"')
   end
+end
+
+def proceed_with_migration?(root_loc, appname, container)
+  File.exist?("#{root_loc}/apps/#{appname}/configuration.yml") &&
+    commodity_required?(root_loc, appname, container) &&
+    File.exist?("#{root_loc}/apps/#{appname}/manage.py") &&
+    migration_enabled?(root_loc, appname)
 end
 
 def migration_enabled?(root_loc, appname)
