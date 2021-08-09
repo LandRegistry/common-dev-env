@@ -112,3 +112,50 @@ def run_initialisation(root_loc, appname, container)
               " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
 end
+
+def show_postgres_warnings(root_loc)
+  config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
+  return unless config['applications']
+
+  warned_versions = []
+  config['applications'].each do |appname, _appconfig|
+    if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
+      show_postgres94_warning()
+      warned_versions.append('postgres')
+    end
+
+    if postgres_required?(root_loc, appname, 'postgres-96') && !warned_versions.include?('postgres-96')
+      show_postgres96_warning()
+      warned_versions.append('postgres-96')
+    end
+  end
+end
+
+def show_postgres_94_warning()
+  puts colorize_yellow('*******************************************************')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('**                     WARNING!                      **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('**         POSTGRESQL 9.4 IS OUT OF SUPPPORT         **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('** PostgreSQL 9.4 is out of support and no longer    **')
+  puts colorize_yellow('** available in higher environments. Please update   **')
+  puts colorize_yellow('** your service to use PostgreSQL 13.                **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('*******************************************************')
+end
+
+def show_postgres96_warning()
+  puts colorize_yellow('*******************************************************')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('**                     WARNING!                      **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('**         POSTGRESQL 9.6 IS APPROACHING EOL         **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('** PostgreSQL 9.6 is approaching is end of life and  **')
+  puts colorize_yellow('** will soon become unsupported in higher            **')
+  puts colorize_yellow('** environments. Please update your service to use   **')
+  puts colorize_yellow('** PostgreSQL 13.                                    **')
+  puts colorize_yellow('**                                                   **')
+  puts colorize_yellow('*******************************************************')
+end
