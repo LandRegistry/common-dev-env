@@ -1,4 +1,5 @@
 require_relative 'utilities'
+require_relative 'provision_postgres'
 
 def provision_alembic(root_loc, postgres_version)
   container = postgres_container(postgres_version)
