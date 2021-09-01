@@ -279,18 +279,22 @@ JWT tokens issued from the `development` realm have been configured to mimic tho
 A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
 
 ###### Cadence
+
 Cadence is the Uber-developed HA orchestrator. It's configured to use an auto-setup mode to automatically create postgres schema and tables required for cadence functioning.
 Use the following configuration to connect your application:
 
 From within a Docker container:
+
 * Host: cadence
 * Port: 7933 (default cadence frontend port)
 
 From the host system:
+
 * Host: localhost
 * Port: 7933
 
 ###### Cadence Web
+
 [Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
 cadence core services.
 
