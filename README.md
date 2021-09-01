@@ -131,6 +131,7 @@ The list of allowable commodity values is:
 14. cadence
 15. cadence-web
 16. activemq
+17. ibmmq
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -208,6 +209,10 @@ There are no fragments needed when using this. The Management Console will be av
 ##### ActiveMQ
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:8161> (admin/admin).
+
+##### IBM MQ
+
+There are no fragments needed when using this. The Web Console will be available on <http://localhost:9443> (admin/admin), metrics on port 9157 and MQ itself on port 1414.
 
 ##### Redis
 
