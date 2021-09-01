@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  ibmmq:
+    container_name: ibmmq
+    build: ../scripts/docker/ibmmq/
+    environment:
+      LICENSE: accept
+      MQ_QMGR_NAME: develop
+      MQ_MULTI_INSTANCE: 'false'
+      LOG_FORMAT: basic
+      MQ_ENABLE_METRICS: 'true'
+      DEBUG: 'false'
+      MQ_ENABLE_TRACE_STRMQM: 'false'
+      MQ_EPHEMERAL_PREFIX: /run/mqm
+      MQ_GRACE_PERIOD: 29
+      MQ_ADMIN_PASSWORD: AdminPW
+      MQ_APP_PASSWORD: AppPW
+    ports:
+      - "1414:1414"
+      - "9443:9443"
+      - "9157:9157"
