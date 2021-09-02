@@ -59,6 +59,12 @@ def get_port_list(root_loc)
     port_list.push('61614:61614')
   end
 
+  if commodity?(root_loc, 'ibmmq')
+    port_list.push('1414:1414')
+    port_list.push('9443:9443')
+    port_list.push('9157:9157')
+  end
+
   port_list.push('16379:6379') if commodity?(root_loc, 'redis')
 
   port_list.push('5101:5101') if commodity?(root_loc, 'swagger')

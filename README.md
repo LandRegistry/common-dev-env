@@ -132,6 +132,7 @@ The list of allowable commodity values is:
 15. cadence
 16. cadence-web
 17. activemq
+18. ibmmq
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -210,6 +211,10 @@ There are no fragments needed when using this. The Management Console will be av
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:8161> (admin/admin).
 
+##### IBM MQ
+
+There are no fragments needed when using this. The Web Console will be available on <http://localhost:9443> (admin/admin), metrics on port 9157 and MQ itself on port 1414.
+
 ##### Redis
 
 There are no fragments needed when using this. Redis will be available at <http://localhost:16379> on the host and at <http://redis:6379> inside the Docker network.
@@ -275,18 +280,22 @@ JWT tokens issued from the `development` realm have been configured to mimic tho
 A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
 
 ###### Cadence
+
 Cadence is the Uber-developed HA orchestrator. It's configured to use an auto-setup mode to automatically create postgres schema and tables required for cadence functioning.
 Use the following configuration to connect your application:
 
 From within a Docker container:
+
 * Host: cadence
 * Port: 7933 (default cadence frontend port)
 
 From the host system:
+
 * Host: localhost
 * Port: 7933
 
 ###### Cadence Web
+
 [Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
 cadence core services.
 
