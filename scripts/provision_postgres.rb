@@ -29,7 +29,7 @@ def provision_postgres(root_loc, new_containers, postgres_version)
   new_db_container = false
   if new_containers.include?(container)
     new_db_container = true
-    puts colorize_yellow("The Postgre #{postgres_version} container has been newly created - "\
+    puts colorize_yellow("The Postgres #{postgres_version} container has been newly created - "\
                          'provision status in .commodities will be ignored')
   end
 
