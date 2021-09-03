@@ -76,7 +76,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '1.13.3'
+  this_version = '1.14.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -270,8 +270,8 @@ if options['start_apps']
   config['applications'].each do |appname, appconfig|
     # First, special options check (in the dev-env-config)
     # for any settings that should override what the app wants to do
-    options = appconfig.fetch('options', [])
-    options.each do |option|
+    config_options = appconfig.fetch('options', [])
+    config_options.each do |option|
       service_name = option['compose-service-name']
       auto_start = option.fetch('auto-start', true)
       next if auto_start
@@ -431,4 +431,9 @@ if options['start_apps']
     puts colorize_yellow('Special message from your dev-env-config:')
     puts colorize_pink(post_up_message)
   end
+end
+
+# Do this near the end so that messages are more obvious to the user.
+if options['provision_commodities']
+  show_commodity_messages(root_loc)
 end
