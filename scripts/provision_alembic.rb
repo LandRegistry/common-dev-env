@@ -32,7 +32,7 @@ end
 
 def proceed_with_migration?(root_loc, appname, container)
   File.exist?("#{root_loc}/apps/#{appname}/configuration.yml") &&
-    commodity_required?(root_loc, appname, container) &&
+    commodity_required?(root_loc, appname, container_to_commodity(container)) &&
     File.exist?("#{root_loc}/apps/#{appname}/manage.py") &&
     migration_enabled?(root_loc, appname)
 end

@@ -94,6 +94,8 @@ def add_db_ports(root_loc, port_list)
   port_list.push('15432:5432') if commodity?(root_loc, 'postgres')
 
   port_list.push('15433:5433') if commodity?(root_loc, 'postgres-9.6')
+
+  port_list.push('15434:5434') if commodity?(root_loc, 'postgres-13')
 end
 
 def add_auth_ports(root_loc, port_list)
