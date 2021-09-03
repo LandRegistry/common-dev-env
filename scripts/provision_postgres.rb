@@ -59,7 +59,7 @@ def start_postgres_maybe(root_loc, appname, started, new_db_container, postgres_
   return if container == ''
 
   puts colorize_pink("Found some in #{appname}")
-  if commodity_provisioned?(root_loc, appname, container) && !new_db_container
+  if commodity_provisioned?(root_loc, appname, container_to_commodity(container)) && !new_db_container
     puts colorize_yellow("Postgres #{postgres_version} has previously been provisioned for #{appname}, skipping")
   else
     started = start_postgres(root_loc, appname, started, postgres_version)
@@ -96,7 +96,7 @@ def start_postgres(root_loc, appname, started, postgres_version)
   run_initialisation(root_loc, appname, container)
 
   # Update the .commodities.yml to indicate that postgres has now been provisioned
-  set_commodity_provision_status(root_loc, appname, container, true)
+  set_commodity_provision_status(root_loc, appname, container_to_commodity(container), true)
   started
 end
 
