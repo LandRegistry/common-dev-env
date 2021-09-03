@@ -13,6 +13,7 @@ unalias run
 unalias psql
 unalias db2
 unalias psql96
+unalias psql13
 unalias db2c
 unalias cadence-cli
 

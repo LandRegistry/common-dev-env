@@ -270,8 +270,8 @@ if options['start_apps']
   config['applications'].each do |appname, appconfig|
     # First, special options check (in the dev-env-config)
     # for any settings that should override what the app wants to do
-    options = appconfig.fetch('options', [])
-    options.each do |option|
+    config_options = appconfig.fetch('options', [])
+    config_options.each do |option|
       service_name = option['compose-service-name']
       auto_start = option.fetch('auto-start', true)
       next if auto_start
@@ -431,4 +431,9 @@ if options['start_apps']
     puts colorize_yellow('Special message from your dev-env-config:')
     puts colorize_pink(post_up_message)
   end
+end
+
+# Do this near the end so that messages are more obvious to the user.
+if options['provision_commodities']
+  show_commodity_messages(root_loc)
 end

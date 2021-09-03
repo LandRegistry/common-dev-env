@@ -117,21 +117,22 @@ The list of allowable commodity values is:
 
 1. postgres
 2. postgres-9.6
-3. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-4. db2_community
-5. elasticsearch
-6. elasticsearch5
-7. nginx
-8. rabbitmq
-9. redis
-10. swagger
-11. wiremock
-12. squid
-13. auth
-14. cadence
-15. cadence-web
-16. activemq
-17. ibmmq
+3. postgres-13
+4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
+5. db2_community
+6. elasticsearch
+7. elasticsearch5
+8. nginx
+9. rabbitmq
+10. redis
+11. swagger
+12. wiremock
+13. squid
+14. auth
+15. cadence
+16. cadence-web
+17. activemq
+18. ibmmq
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -154,7 +155,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433.
+The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433, Postgres 13 on 5434.
 
 **`/manage.py`**
 
