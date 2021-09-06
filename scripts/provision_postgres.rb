@@ -131,7 +131,7 @@ def show_postgres_warnings(root_loc)
   end
 end
 
-def show_postgres_94_warning()
+def show_postgres94_warning()
   puts colorize_yellow('*******************************************************')
   puts colorize_yellow('**                                                   **')
   puts colorize_yellow('**                     WARNING!                      **')
