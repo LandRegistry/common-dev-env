@@ -43,13 +43,13 @@ function unit-test(){
     shift
     while [ $# -gt 0 ]
     do
-       case "$1" in
-           -r)  reportflag=on;;
-           *)
-               echo >&2 "usage: unit-test <container_name> [-r]"
-    	        return;;
-       esac
-       shift
+      case "$1" in
+        -r)  reportflag=on;;
+        *)
+            echo >&2 "usage: unit-test <container_name> [-r]"
+          return;;
+      esac
+      shift
     done
 
     # Would like to disconnect network during unit tests but Gradle needs it for test library downloads
@@ -57,9 +57,9 @@ function unit-test(){
 
     # If the report flag is set generate report output otherwise just run the tests
     if [ "$reportflag" = on ] ; then
-       ex $app_name make report="true" unittest
+      ex $app_name make report="true" unittest
     else
-       ex $app_name make unittest
+      ex $app_name make unittest
     fi
 
     # docker network connect dv_default $app_name
@@ -67,6 +67,45 @@ function unit-test(){
 
 function integration-test(){
     ex ${1} make integrationtest
+}
+
+function lint(){
+    reportflag=off
+    fixflag=off
+    app_name=${1}
+
+    # Check if there's a -r or -f argument (the only ones supported) and set a flag if so
+    shift
+    while getopts ":rf" opt;
+    do
+      case $opt in
+        r)  
+          reportflag=on;;
+        f)
+          fixflag=on;;
+        \?)
+          echo >&2 "Invalid option -$OPTARG"
+          echo >&2 "usage: lint <container_name> [-r] [-f]"
+          return;;
+      esac
+    done
+
+    # If the report/fix flag is set generate report output / fix issues otherwise just run the linter
+    if [ "$reportflag" = on ] ; then
+      if [ "$fixflag" = on ] ; then
+        ex $app_name make report="true" fix="true" lint
+      else
+        ex $app_name make report="true" lint
+      fi
+    elif [ "$fixflag" = on ] ; then
+      ex $app_name make fix="true" lint
+    else
+      ex $app_name make lint
+    fi
+}
+
+function format(){
+    ex ${1} make format
 }
 
 function acceptance-test(){
@@ -131,15 +170,20 @@ function devenv-help(){
     rebuild <name of container>                      -     checks if a container needs rebuilding and rebuilds/recreates/restarts it if so, otherwise does nothing. Useful if you've just changed a file that the Dockerfile copies into the image.
     fullreset <name of container>                    -     Performs stop, remove then rebuild. Useful if a container (like a database) needs to be wiped. Remember to reset .commodities if you do though to ensure init fragments get rerun
     bashin <name of container>                       -     bash in to a container
-    unit-test <name of container> [-r]               -     run the unit tests for an application (this expects there to a be a Makefile with a unittest command).
+    unit-test <name of container> [-r]               -     run the unit tests for an application (this expects there to be a Makefile with a unittest command).
                                                            if you add -r it will output reports to the test-output folder.
-    integration-test <name of container>             -     run the integration tests for an application (this expects there to a be a Makefile with a integrationtest command)
+    integration-test <name of container>             -     run the integration tests for an application (this expects there to be a Makefile with a integrationtest command)
     acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
                 <name of container> <cucumber args>
     acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
                 <name of container>
+    format <name of container>                       -     run the formatter for an application (this expects there to be a Makefile with a format command)
+    lint <name of container> [-r] [-f]               -     run the linter for an application (this expects there to be a Makefile with a lint command)
+                                                           if you add -r it will output reports to the test-output folder
+                                                           if you add -f it will automatically fix issues where possible
+                                                           (flags can be combined)
     psql[96] <name of database>                      -     run psql in the postgres/postgres-96 container
-    db2[c][co]                                        -     run db2 command line in the db2/db2_devc/db2_community container
+    db2[c][co]                                       -     run db2 command line in the db2/db2_devc/db2_community container
     manage <name of container> <command>             -     run manage.py commands in a container
     alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
     add-to-docker-compose
