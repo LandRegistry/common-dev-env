@@ -215,7 +215,7 @@ There are no fragments needed when using this. The Management Console will be av
 
 ##### IBM MQ
 
-There are no fragments needed when using this. The Web Console will be available on <http://localhost:9443> (admin/admin), metrics on port 9157 and MQ itself on port 1414.
+There are no fragments needed when using this. The Web Console will be available on <http://localhost:9443> (admin/passw0rd) and MQ itself on port 1414. To access IBM MQ through a service use the username `app` with no password.
 
 ##### Redis
 
