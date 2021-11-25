@@ -1,2 +1,0 @@
-* Define Server/Client Channels for communication
-DEFINE CHANNEL(S_LOCAL_CHANNEL) CHLTYPE(SVRCONN) MCAUSER('mqm') REPLACE
