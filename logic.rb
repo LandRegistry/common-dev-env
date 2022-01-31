@@ -302,8 +302,16 @@ if options['start_apps']
     end
   end
 
+  puts colorize_lightblue('Starting log receiver service...')
+  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash")
+  sleep(3)
+  if up != 0
+    puts colorize_red('Something went wrong when initialising logging. Check the output above.')
+    exit
+  end
+
   # Now we can start inexpensive apps, which should be quick and easy
-  if services_to_start.any?
+  if services_to_start.any?   
     puts colorize_lightblue('Starting inexpensive services...')
     up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d " + services_to_start.join(' '))
     if up != 0
