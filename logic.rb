@@ -76,7 +76,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '1.15.0'
+  this_version = '1.15.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -302,8 +302,16 @@ if options['start_apps']
     end
   end
 
+  puts colorize_lightblue('Starting log receiver service...')
+  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash")
+  sleep(3)
+  if up != 0
+    puts colorize_red('Something went wrong when initialising logging. Check the output above.')
+    exit
+  end
+
   # Now we can start inexpensive apps, which should be quick and easy
-  if services_to_start.any?
+  if services_to_start.any?   
     puts colorize_lightblue('Starting inexpensive services...')
     up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d " + services_to_start.join(' '))
     if up != 0
