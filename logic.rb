@@ -76,7 +76,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '1.15.0'
+  this_version = '1.15.1'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
