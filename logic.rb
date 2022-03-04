@@ -351,10 +351,13 @@ if options['start_apps']
       if service_healthy
         puts colorize_green('It is!')
       else
-        puts colorize_yellow('Not yet')
-        # Check if the container has crashed and restarted
         output_lines = []
+        run_command("docker logs --tail 1 #{service['compose_service']}",
+                    output_lines)
+        puts colorize_yellow("Not yet (Last log line: #{output_lines[0]})")
+        # Check if the container has crashed and restarted
         restart_count = 0
+        output_lines = []
         run_command("docker inspect --format=\"{{json .RestartCount}}\" #{service['compose_service']}",
                     output_lines)
         # Find the count in all the lines that have come out
