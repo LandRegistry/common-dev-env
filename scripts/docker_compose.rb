@@ -67,7 +67,8 @@ def choose_compose_version(root_loc)
 
   compose_counts = {
     '2' => 0,
-    '3.7' => 0
+    '3.7' => 0,
+    'unversioned' => 0
   }
 
   config['applications'].each do |appname, _appconfig|
@@ -81,6 +82,8 @@ def choose_compose_version(root_loc)
         compose_counts['2'] += 1
       elsif basename == 'docker-compose-fragment.3.7.yml'
         compose_counts['3.7'] += 1
+      elsif basename == 'compose-fragment.yml'
+        compose_counts['unversioned'] += 1
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
       end
@@ -113,6 +116,8 @@ end
 def fragment_filename(compose_version)
   if compose_version == '3.7'
     'docker-compose-fragment.3.7.yml'
+  elsif compose_version == 'unversioned'
+    'compose-fragment.yml'
   else
     'docker-compose-fragment.yml'
   end
