@@ -9,6 +9,7 @@ require_relative 'provision_nginx'
 require_relative 'provision_elasticsearch5'
 require_relative 'provision_elasticsearch'
 require_relative 'provision_wiremock'
+require_relative 'provision_localstack'
 
 require 'fileutils'
 require 'open3'
@@ -155,6 +156,8 @@ def provision_commodities(root_loc, new_containers)
   provision_wiremock(root_loc, new_containers)
   # Hosts File
   provision_hosts(root_loc)
+  # Localstack
+  provision_localstack(root_loc, new_containers)
 end
 
 def container_to_commodity(container_name)

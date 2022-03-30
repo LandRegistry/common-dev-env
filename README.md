@@ -304,6 +304,11 @@ cadence core services.
 *Running Cadence web locally*
 - In a web browser enter http://localhost:5004
 
+###### Localstack
+[Localstack](https://localstack.cloud) is a cloud stack testing and mocking framework for developing against various AWS services.
+
+A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not *require* the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)). However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh). 
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**

@@ -88,6 +88,10 @@ function manage(){
     ex ${1} python3 manage.py ${@:2}
 }
 
+function localstack(){
+    ex localstack awslocal ${@:1}
+}
+
 function fullreset(){
     stop ${1}
     remove ${1}
@@ -146,5 +150,6 @@ function devenv-help(){
     add-to-docker-compose
       <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
     cadence-cli                                      -     runs the command line tool to interact with cadence orchestrator
+    localstack                                       -     run localstack commands in the localstack container
 EOF
 }
