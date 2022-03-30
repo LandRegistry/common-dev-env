@@ -27,6 +27,7 @@ unset -f acclint
 unset -f manage
 unset -f fullreset
 unset -f alembic
+unset -f localstack
 unset -f add-to-docker-compose
 unset -f devenv-help
 
