@@ -27,7 +27,7 @@ def provision_localstack(root_loc, new_containers)
 
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/localstack-init-fragment.sh")
-      database_initialised = process_localstack_fragment(root_loc, appname, localstack_initialised, new_db_container)
+      process_localstack_fragment(root_loc, appname, localstack_initialised, new_db_container)
     else
       puts colorize_yellow("#{appname} says it uses Localstack but doesn't contain an init file.
           Oh well, onwards we go!")
