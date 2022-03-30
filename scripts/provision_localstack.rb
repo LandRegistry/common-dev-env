@@ -62,11 +62,11 @@ def init_localstack_sh(root_loc, appname)
   cmd = 'docker exec localstack bash -c "sh /localstack-init-fragment.sh"'
   exit_code = run_command(cmd)
 
-  puts colorize_lightblue("Completed #{appname} localstack fragment")
+  puts colorize_lightblue("Completed #{appname} Localstack fragment")
 
   if ![0].include?(exit_code)
     # if exit_code != 0
-    puts colorize_red("Something went wrong with the localstack setup. Exitcode - #{exit_code}")
+    puts colorize_red("Something went wrong with the Localstack setup. Exitcode - #{exit_code}")
   else
     puts colorize_yellow("Localstack initialised correctly. Exitcode - #{exit_code}.")
     set_commodity_provision_status(root_loc, appname, 'localstack', true)
