@@ -135,7 +135,8 @@ function fullreset(){
 }
 
 function alembic(){
-    ex ${1} bash -c 'cd /src && export SQL_USE_ALEMBIC_USER=yes && export SQL_PASSWORD=superroot && python3 manage.py db '"${@:2}"''
+    ex -e SQL_USE_ALEMBIC_USER=yes -e SQL_PASSWORD=superroot -e SQLALCHEMY_POOL_RECYCLE=3600 ${1} \
+        bash -c 'cd /src && python3 manage.py db '"${@:2}"''
 }
 
 function add-to-docker-compose(){
