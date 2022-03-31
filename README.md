@@ -309,6 +309,8 @@ cadence core services.
 
 A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not *require* the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)). However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh). 
 
+Localstack is available at <http://localstack:4566> within the Docker network, and <http://localhost:4566> on the host.
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
