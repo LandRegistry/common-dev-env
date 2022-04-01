@@ -1,0 +1,8 @@
+services:
+  elasticsearch5:
+    container_name: elasticsearch5
+    build: ../scripts/docker/elasticsearch5
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    restart: on-failure
