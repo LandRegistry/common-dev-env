@@ -75,31 +75,31 @@ For an application repository to leverage the full power of the dev-env...
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
-##### `/fragments/docker-compose-fragment.yml`
+##### `/fragments/compose-fragment.yml`
 
-This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2) - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose Spec](https://github.com/compose-spec/compose-spec/blob/master/spec.md) structure applies - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
 * A `volumes` entry should map the path of the app folder to wherever the image expects source files to be (if they are to be accessed dynamically, and not copied in at image build time)
 * If the provided log collator is to be used, then a syslog logging driver needs to be present, forwarding to logstash:25826.
-* If you wish to run the container as the host user so you have full access to any files created by the container (this is only a problem on Linux and Windows), environment variables `OUTSIDE_UID` and `OUTSIDE_GID` are provided for use in the fragment as build args (which can then be used in the `Dockerfile` to create a matching user and set them as the container-executor).
+* If you wish to run the container as the host user so you have full access to any files created by the container (this is only a problem on Linux and WSL), environment variables `OUTSIDE_UID` and `OUTSIDE_GID` are provided for use in the fragment as build args (which can then be used in the `Dockerfile` to create a matching user and set them as the container-executor).
 
-Although generally an application should only have itself in it's compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
+Although generally an application should only have itself in its compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
 
 Note that when including directives such as a Dockerfile build location or host volume mapping for the source code, the Compose context root `.` is considered to be the dev-env's /apps/ folder, not the location of the fragment. Ensure relative paths are set accordingly.
 
-[Example](snippets/docker-compose-fragment.yml)
+[Example](snippets/compose-fragment.yml)
 
-##### `/fragments/docker-compose-fragment.3.7.yml`
+##### `/fragments/docker-compose-fragment.yml` and `/fragments/docker-compose-fragment.3.7.yml`
 
-An optional variant of `docker-compose-fragment.yml` with a version of `3.7`. The development environment will select the highest compose file version supplied by all applications in the environment. If all applications supply a `docker-compose-fragment.3.7.yml`, then the environment will use the `3.7` files, otherwise it falls back to the version `2` compose files.
-
-Compose 3.7 support requires Docker engine version 18.06.0 or later.
+Optional variants of `compose-fragment.yml` with a version of `2` and `3.7` respectively. Support for these is still present for backwards compatibility with older apps.The development environment will select the highest compose file version supplied by _all_ applications in the environment (2 --> 3.7 --> unversioned).
 
 If the environment cannot identify a universal compose file version, then provisioning will fail.
 
-[Example](snippets/docker-compose-fragment.3.7.yml)
+[2 Example](snippets/docker-compose-fragment.yml)
+
+[3.7 Example](snippets/docker-compose-fragment.3.7.yml)
 
 ##### `/Dockerfile`
 
