@@ -8,3 +8,4 @@ services:
     env_file:
       - ../scripts/docker/db2_devc/.env_list
     privileged: true
+    platform: "linux/amd64"

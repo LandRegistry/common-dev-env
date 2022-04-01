@@ -8,3 +8,4 @@ services:
       - "5004:8088"
     depends_on:
       - cadence
+    platform: "linux/amd64"

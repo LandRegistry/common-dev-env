@@ -12,3 +12,4 @@ services:
       - "8180:8080"
     depends_on:
       - openldap
+    platform: "linux/amd64"

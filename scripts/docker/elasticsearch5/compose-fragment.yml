@@ -6,3 +6,4 @@ services:
       - "9202:9200"
       - "9302:9300"
     restart: on-failure
+    platform: "linux/amd64"

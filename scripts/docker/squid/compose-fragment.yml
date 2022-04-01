@@ -4,3 +4,4 @@ services:
     build: ../scripts/docker/squid/
     ports:
       - 30128:3128
+    platform: "linux/amd64"
