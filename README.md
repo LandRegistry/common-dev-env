@@ -75,31 +75,31 @@ For an application repository to leverage the full power of the dev-env...
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
-##### `/fragments/docker-compose-fragment.yml`
+##### `/fragments/compose-fragment.yml`
 
-This is used by the environment to construct an application container and then launch it. Standard [Compose file](https://docs.docker.com/compose/compose-file/) structure applies - and all apps must use the same Compose file version (which must be 2) - but some recommendations are:
+This is used by the environment to construct an application container and then launch it. Standard [Compose Spec](https://github.com/compose-spec/compose-spec/blob/master/spec.md) structure applies - but some recommendations are:
 
 * Container name and service name should match
 * Any ports that need to be accessed from the host machine (as opposed to from other containers) should be mapped
 * A `volumes` entry should map the path of the app folder to wherever the image expects source files to be (if they are to be accessed dynamically, and not copied in at image build time)
 * If the provided log collator is to be used, then a syslog logging driver needs to be present, forwarding to logstash:25826.
-* If you wish to run the container as the host user so you have full access to any files created by the container (this is only a problem on Linux and Windows), environment variables `OUTSIDE_UID` and `OUTSIDE_GID` are provided for use in the fragment as build args (which can then be used in the `Dockerfile` to create a matching user and set them as the container-executor).
+* If you wish to run the container as the host user so you have full access to any files created by the container (this is only a problem on Linux and WSL), environment variables `OUTSIDE_UID` and `OUTSIDE_GID` are provided for use in the fragment as build args (which can then be used in the `Dockerfile` to create a matching user and set them as the container-executor).
 
-Although generally an application should only have itself in it's compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
+Although generally an application should only have itself in its compose fragment, there is no reason why other containers based on other Docker images cannot also be listed in this file, if they are not provided already by the dev-env.
 
 Note that when including directives such as a Dockerfile build location or host volume mapping for the source code, the Compose context root `.` is considered to be the dev-env's /apps/ folder, not the location of the fragment. Ensure relative paths are set accordingly.
 
-[Example](snippets/docker-compose-fragment.yml)
+[Example](snippets/compose-fragment.yml)
 
-##### `/fragments/docker-compose-fragment.3.7.yml`
+##### `/fragments/docker-compose-fragment.yml` and `/fragments/docker-compose-fragment.3.7.yml`
 
-An optional variant of `docker-compose-fragment.yml` with a version of `3.7`. The development environment will select the highest compose file version supplied by all applications in the environment. If all applications supply a `docker-compose-fragment.3.7.yml`, then the environment will use the `3.7` files, otherwise it falls back to the version `2` compose files.
-
-Compose 3.7 support requires Docker engine version 18.06.0 or later.
+Optional variants of `compose-fragment.yml` with a version of `2` and `3.7` respectively. Support for these is still present for backwards compatibility with older apps.The development environment will select the highest compose file version supplied by _all_ applications in the environment (2 --> 3.7 --> unversioned).
 
 If the environment cannot identify a universal compose file version, then provisioning will fail.
 
-[Example](snippets/docker-compose-fragment.3.7.yml)
+[2 Example](snippets/docker-compose-fragment.yml)
+
+[3.7 Example](snippets/docker-compose-fragment.3.7.yml)
 
 ##### `/Dockerfile`
 
@@ -133,6 +133,7 @@ The list of allowable commodity values is:
 16. cadence-web
 17. activemq
 18. ibmmq
+19. localstack
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -304,6 +305,13 @@ cadence core services.
 *Running Cadence web locally*
 - In a web browser enter http://localhost:5004
 
+###### Localstack
+[Localstack](https://localstack.cloud) is a cloud stack testing and mocking framework for developing against various AWS services.
+
+A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not *require* the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)). However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh). 
+
+Localstack is available at <http://localstack:4566> within the Docker network, and <http://localhost:4566> on the host.
+
 #### Other files
 
 **`/fragments/custom-provision.sh`**
@@ -336,6 +344,7 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 
 * Ensure that you give Docker enough CPU and memory to run all your apps.
 * The `run.sh destroy` command should be a last resort, as you will have to rebuild all images from scratch. Try the `fullreset` alias as that will just remove your app containers and recreate them. They are most likely to be the source of any corruption. Remember to alter `.commodities.yml` and `.custom_provision.yml` if you need to, and `run.sh reload`.
+* A memory limit of 384mb is set for intermediate containers during the image build process - but only if using Docker Compose V1 and you have Buildkit disabled in advanced Docker settings.
 
 ### Useful commands
 

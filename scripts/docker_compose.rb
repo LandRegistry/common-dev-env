@@ -67,11 +67,12 @@ def choose_compose_version(root_loc)
 
   compose_counts = {
     '2' => 0,
-    '3.7' => 0
+    '3.7' => 0,
+    'unversioned' => 0
   }
 
   config['applications'].each do |appname, _appconfig|
-    compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/docker-compose-fragment*.yml"]
+    compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/*compose-fragment*.yml"]
     # Let's not count the repo as an app for consensus purposes if they have no fragment at all
     apps_with_fragments -= 1 if compose_fragments.empty?
 
@@ -81,6 +82,8 @@ def choose_compose_version(root_loc)
         compose_counts['2'] += 1
       elsif basename == 'docker-compose-fragment.3.7.yml'
         compose_counts['3.7'] += 1
+      elsif basename == 'compose-fragment.yml'
+        compose_counts['unversioned'] += 1
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
       end
@@ -105,14 +108,18 @@ def get_consensus(compose_counts, app_count)
 end
 
 def highest_version(version_a, version_b)
-  return version_a if version_a.to_f > version_b.to_f
+  return 'unversioned' if (version_a == 'unversioned' || version_b == 'unversioned')
+  return '3.7' if (version_a == '3.7' || version_b == '3.7')
+  return '2' if (version_a == '2' || version_b == '2')
 
-  version_b
+  nil
 end
 
 def fragment_filename(compose_version)
   if compose_version == '3.7'
     'docker-compose-fragment.3.7.yml'
+  elsif compose_version == 'unversioned'
+    'compose-fragment.yml'
   else
     'docker-compose-fragment.yml'
   end

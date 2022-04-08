@@ -1,0 +1,15 @@
+services:
+  cadence:
+    container_name: cadence
+    build: ../scripts/docker/cadence/
+    ports:
+      - "7933:7933"
+      - "7934:7934"
+      - "7935:7935"
+      - "7939:7939"
+    env_file:
+      - ../scripts/docker/cadence/.env_list
+    depends_on:
+      postgres-13:
+        condition: service_healthy
+    platform: "linux/amd64"

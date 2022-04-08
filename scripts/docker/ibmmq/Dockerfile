@@ -1,4 +1,4 @@
-FROM ibmcom/mq:9.2.0.0-r1
+FROM ibmcom/mq:9.2.4.0-r1
 
 # Auto-accept the license
 # Create default users and channels
