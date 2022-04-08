@@ -344,6 +344,7 @@ If you want to make use of this functionality, ensure that `logstash` is also pr
 
 * Ensure that you give Docker enough CPU and memory to run all your apps.
 * The `run.sh destroy` command should be a last resort, as you will have to rebuild all images from scratch. Try the `fullreset` alias as that will just remove your app containers and recreate them. They are most likely to be the source of any corruption. Remember to alter `.commodities.yml` and `.custom_provision.yml` if you need to, and `run.sh reload`.
+* A memory limit of 384mb is set for intermediate containers during the image build process - but only if using Docker Compose V1 and you have Buildkit disabled in advanced Docker settings.
 
 ### Useful commands
 
