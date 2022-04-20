@@ -100,26 +100,26 @@ function lint(){
     if [ "$reportflag" = on ] ; then
       if [ "$fixflag" = on ] ; then
         if [ "$windows" = true ] ; then
-          winpty ex $app_name make report="true" fix="true" lint
+          winpty docker exec -it $app_name make report="true" fix="true" lint
         else
           ex $app_name make report="true" fix="true" lint
         fi
       else
         if [ "$windows" = true ] ; then
-          winpty ex $app_name make report="true" lint
+          winpty docker exec -it $app_name make report="true" lint
         else
           ex $app_name make report="true" lint
         fi
       fi
     elif [ "$fixflag" = on ] ; then
       if [ "$windows" = true ] ; then
-        winpty ex $app_name make fix="true" lint
+        winpty docker exec -it $app_name make fix="true" lint
       else
         ex $app_name make fix="true" lint
       fi
     else
       if [ "$windows" = true ] ; then
-        winpty ex $app_name make lint
+        winpty docker exec -it $app_name make lint
       else
         ex $app_name make lint
       fi
@@ -128,7 +128,7 @@ function lint(){
 
 function format(){
   if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
-    winpty ex ${1} make format
+    winpty docker exec -it ${1} make format
   else
     ex ${1} make format
   fi
