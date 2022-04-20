@@ -122,6 +122,7 @@ function lint(){
         winpty ex $app_name make lint
       else
         ex $app_name make lint
+      fi
     fi
 }
 
