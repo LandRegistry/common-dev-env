@@ -1,0 +1,15 @@
+services:
+  openldap:
+    container_name: openldap
+    build: ../scripts/docker/auth/openldap
+    ports:
+      - "1389:389"
+
+  keycloak:
+    container_name: keycloak
+    build: ../scripts/docker/auth/keycloak
+    ports:
+      - "8180:8080"
+    depends_on:
+      - openldap
+    platform: "linux/amd64"

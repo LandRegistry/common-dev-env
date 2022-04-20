@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  localstack:
+    container_name: localstack
+    build: ../scripts/docker/localstack/
+    ports:
+      - "4566:4566"
+    env_file: ../scripts/docker/localstack/.env_list

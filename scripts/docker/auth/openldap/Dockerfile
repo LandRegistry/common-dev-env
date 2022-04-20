@@ -21,7 +21,10 @@ RUN rm -rf /etc/ldap/slapd.d/* && \
   rm /etc/ldap/config.ldif && \
   chown -R openldap:openldap /etc/ldap/slapd.d /var/run/openldap
 
+COPY tini /
+RUN chmod +x tini
+
 EXPOSE 389
 VOLUME /var/lib/ldap
 
-ENTRYPOINT ["slapd", "-u", "openldap", "-g", "openldap", "-h", "ldap:///", "-d", "stats,stats2"]
+ENTRYPOINT ["/tini", "--", "slapd", "-u", "openldap", "-g", "openldap", "-h", "ldap:///", "-d", "stats,stats2"]
