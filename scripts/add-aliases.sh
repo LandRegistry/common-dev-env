@@ -76,18 +76,19 @@ function lint(){
 
     # Check if there's a -r or -f argument (the only ones supported) and set a flag if so
     shift
-    while getopts ":rf" opt;
+    while [ $# -gt 0 ]
     do
-      case $opt in
-        r)  
+      case "$1" in
+        -r) 
           reportflag=on;;
-        f)
+        -f)
           fixflag=on;;
-        \?)
-          echo >&2 "Invalid option -$OPTARG"
+        *)
+          echo >&2 "Invalid option used"
           echo >&2 "usage: lint <container_name> [-r] [-f]"
           return;;
       esac
+      shift
     done
 
     if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
