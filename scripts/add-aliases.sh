@@ -90,22 +90,48 @@ function lint(){
       esac
     done
 
+    if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
+      windows=true
+    else
+      windows=false
+    fi
+
     # If the report/fix flag is set generate report output / fix issues otherwise just run the linter
     if [ "$reportflag" = on ] ; then
       if [ "$fixflag" = on ] ; then
-        ex $app_name make report="true" fix="true" lint
+        if [ "$windows" = true ] ; then
+          winpty ex $app_name make report="true" fix="true" lint
+        else
+          ex $app_name make report="true" fix="true" lint
+        fi
       else
-        ex $app_name make report="true" lint
+        if [ "$windows" = true ] ; then
+          winpty ex $app_name make report="true" lint
+        else
+          ex $app_name make report="true" lint
+        fi
       fi
     elif [ "$fixflag" = on ] ; then
-      ex $app_name make fix="true" lint
+      if [ "$windows" = true ] ; then
+        winpty ex $app_name make fix="true" lint
+      else
+        ex $app_name make fix="true" lint
+      fi
     else
-      ex $app_name make lint
+      if [ "$windows" = true ] ; then
+        winpty ex $app_name make lint
+      else
+        ex $app_name make lint
     fi
 }
 
 function format(){
+  if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
+    winpty ex ${1} make format
+  else
     ex ${1} make format
+  fi
+    
 }
 
 function acceptance-test(){
