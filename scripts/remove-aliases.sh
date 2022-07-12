@@ -21,6 +21,8 @@ unset -f bashin
 unset -f unit-test
 unset -f integration-test
 unset -f acceptance-test
+unset -f lint
+unset -f format
 unset -f acctest
 unset -f acceptance-lint
 unset -f acclint
