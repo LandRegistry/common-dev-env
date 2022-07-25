@@ -208,7 +208,13 @@ This is a file that contains stub mappings that Wiremock will pick up and use, a
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> (guest/guest).
 
-Currently, only the `rabbitmq_management` and `rabbitmq_consistent_hash_exchange` plugins are enabled.
+Rabbit is available over port 5672 and TLS on port 5671.
+
+TLS presents a self signed cert. If verification is needed a copy of the ca certificate is [here](scripts/docker/rabbitmq/certs/ca_certificate.crt). The host has been set to `rabbitmq` for host verification in most common libraries, although will only work within the docker network.
+
+MTLS is not enabled, although a [client certificate pem](scripts/docker/rabbitmq/certs/client_certificate.pem) and [client key pem](scripts/docker/rabbitmq/certs/client_key.pem) have been generated as part of the certificate set for potential future use.
+
+Currently, only the `rabbitmq_management`, `rabbitmq_consistent_hash_exchange`, `rabbitmq_shovel`, `rabbitmq_shovel_management` and `rabbitmq_stream` plugins are enabled.
 
 ##### ActiveMQ
 
