@@ -14,6 +14,6 @@ RUN rabbitmq-plugins enable rabbitmq_consistent_hash_exchange
 # https://www.rabbitmq.com/shovel.html
 RUN rabbitmq-plugins --offline enable rabbitmq_shovel rabbitmq_shovel_management
 # This is a RabbitMQ plugin that exposes streams. 
-# Streams are a new persistent and replicated data structure, handy to presist historic messages for a period of time
+# Streams are a new persistent and replicated data structure, handy to persist historic messages for a period of time
 # https://www.rabbitmq.com/stream.html
 RUN rabbitmq-plugins --offline enable rabbitmq_stream
