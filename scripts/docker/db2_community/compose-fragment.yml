@@ -3,8 +3,8 @@ services:
     container_name: db2_community
     build: ../scripts/docker/db2_community/
     ports:
-      - "50002:50000"
-      - "55002:55000"
+      - "30002:50000"
+      - "35002:55000"
     env_file:
       - ../scripts/docker/db2_community/.env_list
     privileged: true
