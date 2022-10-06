@@ -110,7 +110,9 @@ def run_initialisation(root_loc, appname, container)
               " -C #{root_loc}/apps/#{appname}/fragments" + # This is the context, so tar will not contain file path
               ' postgres-init-fragment.sql' + # The file to add to the tar
               " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
+  puts colorize_pink("Executing SQL fragment for #{appname}...")
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
+  puts colorize_pink("...done.")
 end
 
 def show_postgres_warnings(root_loc)
