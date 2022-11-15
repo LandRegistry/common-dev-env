@@ -3,7 +3,6 @@ require_relative 'provision_postgres'
 require_relative 'provision_alembic'
 require_relative 'provision_auth'
 require_relative 'provision_hosts'
-require_relative 'provision_db2_devc'
 require_relative 'provision_db2_community'
 require_relative 'provision_nginx'
 require_relative 'provision_elasticsearch5'
@@ -142,7 +141,6 @@ def provision_commodities(root_loc, new_containers)
   end
 
   # Run app DB2 SQL statements
-  provision_db2_devc(root_loc, new_containers)
   provision_db2_community(root_loc, new_containers)
   # Nginx
   provision_nginx(root_loc, new_containers)
