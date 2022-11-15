@@ -87,13 +87,8 @@ def add_es_ports(root_loc, port_list)
 end
 
 def add_db_ports(root_loc, port_list)
-  port_list.push('50001:50001') if commodity?(root_loc, 'db2_devc')
 
-  port_list.push('50002:50002') if commodity?(root_loc, 'db2_community')
-
-  port_list.push('15432:5432') if commodity?(root_loc, 'postgres')
-
-  port_list.push('15433:5433') if commodity?(root_loc, 'postgres-9.6')
+  port_list.push('30002:30002') if commodity?(root_loc, 'db2_community')
 
   port_list.push('15434:5434') if commodity?(root_loc, 'postgres-13')
 end

@@ -115,25 +115,22 @@ This file specifies which commodities the dev-env should create and launch for t
 
 The list of allowable commodity values is:
 
-1. postgres
-2. postgres-9.6
-3. postgres-13
-4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-5. db2_community
-6. elasticsearch
-7. elasticsearch5
-8. nginx
-9. rabbitmq
-10. redis
-11. swagger
-12. wiremock
-13. squid
-14. auth
-15. cadence
-16. cadence-web
-17. activemq
-18. ibmmq
-19. localstack
+1. postgres-13
+2. db2_community
+3. elasticsearch
+4. elasticsearch5
+5. nginx
+6. rabbitmq
+7.  redis
+8.  swagger
+9.  wiremock
+10. squid
+11. auth
+12. cadence
+13. cadence-web
+14. activemq
+15. ibmmq
+16. localstack
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -162,13 +159,10 @@ The default Postgres port 5432 will be available for connections from other cont
 
 This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This can be disabled by setting the key `perform_alembic_migration` to `false` in `configuration.yml` - for example if the file does not actually relate to Alembic, or you do your own migration during app startup.
 
-##### DB2
+##### DB2 Community
 
-`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0)
+Note that DB2 Community is exposed on 30002/35002 to avoid port clashes.
 
-Note that DB2 Developer C is exposed on the host ports 50001/55001 and DB2 Community on 50002/55002 to avoid port clashes.
-
-**`/fragments/db2-devc-init-fragment.sql`**
 **`/fragments/db2-community-init-fragment.sql`**
 
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
