@@ -156,7 +156,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433, Postgres 13 on 5434.
+The default Postgres port 5432 will be available for connections from other containers. Port 5434 is exposed for external connections from the host.
 
 **`/manage.py`**
 
