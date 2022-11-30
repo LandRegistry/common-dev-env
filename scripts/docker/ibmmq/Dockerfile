@@ -1,9 +1,10 @@
-FROM ibmcom/mq:9.2.4.0-r1
+FROM icr.io/ibm-messaging/mq:9.2.5.0-r3
 
 # Auto-accept the license
 # Create default users and channels
 ENV LICENSE=accept \
   MQ_DEV=true \
+  MQ_ENABLE_METRICS=false \
   MQ_QMGR_NAME=LOCAL_QM
 
 # For persistence
