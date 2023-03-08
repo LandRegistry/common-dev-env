@@ -1,7 +1,7 @@
 export DC_VERSION=1
 
 # No docker-compose command means v2 is implied
-docker-compose 2>/dev/null
+docker-compose > /dev/null 2>&1
 retVal=$?
 if [ $retVal -ne 0 ]; then
   DC_VERSION=2
