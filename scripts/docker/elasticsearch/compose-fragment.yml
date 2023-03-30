@@ -1,8 +1,0 @@
-services:
-  elasticsearch:
-    container_name: elasticsearch
-    build: ../scripts/docker/elasticsearch/
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    platform: "linux/amd64"

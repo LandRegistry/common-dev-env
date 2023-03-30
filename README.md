@@ -117,7 +117,6 @@ The list of allowable commodity values is:
 
 1. postgres-13
 2. db2_community
-3. elasticsearch
 4. elasticsearch5
 5. nginx
 6. rabbitmq
@@ -169,16 +168,15 @@ This file contains any one-off SQL to run in DB2 - at the minimum it will normal
 
 [Example](snippets/db2-community-init-fragment.sql)
 
-##### ElasticSearch
+##### ElasticSearch 5
 
-**`/fragments/elasticsearch-fragment.sh`**
 **`/fragments/elasticsearch5-fragment.sh`**
 
 This file is a shell script that contains curl commands to do any setup the app needs in elasticsearch - creating indexes etc. It will be passed a single argument, the host and port, which can be accessed in the script using `$1`.
 
-The ports 9200/9300 and 9202/9302 are exposed on the host for Elasticsearch versions 2 and 5 respectively.
+The ports 9300 and 9302 are exposed on the host.
 
-[Example](snippets/elasticsearch-fragment.sh)
+[Example](snippets/elasticsearch5-fragment.sh)
 
 ##### Nginx
 

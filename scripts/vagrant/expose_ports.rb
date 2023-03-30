@@ -75,10 +75,6 @@ def get_port_list(root_loc)
 end
 
 def add_es_ports(root_loc, port_list)
-  if commodity?(root_loc, 'elasticsearch')
-    port_list.push('19200:9200')
-    port_list.push('19300:9300')
-  end
 
   return unless commodity?(root_loc, 'elasticsearch5')
 

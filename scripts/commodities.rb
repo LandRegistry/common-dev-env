@@ -6,7 +6,6 @@ require_relative 'provision_hosts'
 require_relative 'provision_db2_community'
 require_relative 'provision_nginx'
 require_relative 'provision_elasticsearch5'
-require_relative 'provision_elasticsearch'
 require_relative 'provision_wiremock'
 require_relative 'provision_localstack'
 
@@ -144,8 +143,6 @@ def provision_commodities(root_loc, new_containers)
   provision_db2_community(root_loc, new_containers)
   # Nginx
   provision_nginx(root_loc, new_containers)
-  # Elasticsearch
-  provision_elasticsearch(root_loc)
   # Elasticsearch5
   provision_elasticsearch5(root_loc)
   # Auth
