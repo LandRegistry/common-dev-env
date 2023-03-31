@@ -1,4 +1,4 @@
-FROM nginx:1.20
+FROM nginx:1.22
 
 RUN apt-get update && apt-get install openssl && \
   rm /etc/nginx/conf.d/default.conf && \
