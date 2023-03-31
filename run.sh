@@ -43,8 +43,7 @@ then
     ruby logic.rb --check-for-update --prepare-config --update-apps --prepare-compose "${subcommands}" &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
-    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}" &&
-    source scripts/after-ups.sh
+    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}"
 fi
 
 if [ "$command" = "quickup" ]
@@ -53,8 +52,7 @@ then
     ruby logic.rb --check-for-update --prepare-compose &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
-    ruby logic.rb --start-apps &&
-    source scripts/after-ups.sh
+    ruby logic.rb --start-apps
 fi
 
 if [ "$command" = "halt" ]
@@ -76,8 +74,7 @@ then
     ruby logic.rb --stop-apps --prepare-config --update-apps --prepare-compose "${subcommands}" &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
-    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}" &&
-    source scripts/after-ups.sh
+    ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}"
 fi
 
 if [ "$command" = "quickreload" ]
@@ -88,8 +85,7 @@ then
     ruby logic.rb --stop-apps --prepare-compose &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
-    ruby logic.rb --start-apps &&
-    source scripts/after-ups.sh
+    ruby logic.rb --start-apps
 fi
 
 if [ "$command" = "destroy" ]
