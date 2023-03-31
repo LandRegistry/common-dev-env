@@ -39,8 +39,8 @@ end
 
 def migration_enabled?(root_loc, appname)
   app_configuration = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
-  do_migration = app_configuration.fetch('perform_alembic_migration', true)
-  puts colorize_yellow("Dev-env-triggered Alembic migration disabled for #{appname}, skipping") if do_migration == false
+  do_migration = app_configuration.fetch('perform_alembic_migration', false)
+  puts colorize_pink("Dev-env-triggered Alembic migration enabled for #{appname}") if do_migration == true
   do_migration
 end
 
