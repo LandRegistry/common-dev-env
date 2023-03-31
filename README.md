@@ -156,7 +156,7 @@ The default Postgres port 5432 will be available for connections from other cont
 
 **`/manage.py`**
 
-This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This can be disabled by setting the key `perform_alembic_migration` to `false` in `configuration.yml` - for example if the file does not actually relate to Alembic, or you do your own migration during app startup.
+This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This functionality can be enabled by setting the key `perform_alembic_migration` to `true` in `configuration.yml`. It is recommended however that you do your own migration during app startup.
 
 ##### DB2 Community
 
