@@ -11,21 +11,12 @@ It provides several hooks for applications to take advantage of, including:
 
 ### Prerequisites
 
-#### Recommended setup
-
 * **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
   * [Docker For Mac](https://docs.docker.com/docker-for-mac/)
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.5+**
-
-#### Alternative setup
-
-* **Vagrant** (v2+)
-* **VirtualBox** (v6+)
-
-A Vagrantfile is provided so `vagrant up` will result in a virtual machine containing all the prerequisites from the Recommended setup above. From there, just `vagrant ssh` in and use the dev-env as you would natively.
 
 ### Git/SSH
 

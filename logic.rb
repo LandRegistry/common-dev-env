@@ -29,7 +29,6 @@ STDOUT.sync = true
 root_loc = __dir__
 
 # Define the DEV_ENV_CONTEXT_FILE file name to store the users app_grouping choice
-# As vagrant up can be run from any subdirectory, we must make sure it is stored alongside the Vagrantfile
 DEV_ENV_CONTEXT_FILE = root_loc + '/.dev-env-context'
 
 # Where we clone the dev env configuration repo into
@@ -117,7 +116,7 @@ end
 # Then use that config to clone/update apps, create commodities and custom provision lists
 # and download supporting files
 if options['prepare_config']
-  # Check if a DEV_ENV_CONTEXT_FILE exists, to prevent prompting for dev-env configuration choice on each vagrant up
+  # Check if a DEV_ENV_CONTEXT_FILE exists, to prevent prompting for dev-env configuration choice on each up
   if File.exist?(DEV_ENV_CONTEXT_FILE)
     puts ''
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
