@@ -1,1 +1,6 @@
 version: '2'
+
+networks:
+  default:
+    name: 'dv_default'
+    external: true
