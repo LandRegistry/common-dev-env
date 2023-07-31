@@ -196,15 +196,12 @@ if options['build_images']
   puts colorize_lightblue('Building images...')
   # v2 already builds in parallel
   if ENV['DC_VERSION'] == '2'
-    if run_command("#{ENV['DC_CMD']} build --memory 384m " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_yellow('Build command failed. Trying without a memory limit')
-      if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-        puts colorize_red('Something went wrong when building your app images. Check the output above.')
-        exit
-      end
+    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
+      puts colorize_red('Something went wrong when building your app images. Check the output above.')
+      exit
     end
   else
-    if run_command("#{ENV['DC_CMD']} build --memory 384m --parallel " + (options['nopull'] ? '' : '--pull')) != 0
+    if run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
       puts colorize_yellow('Build command failed. Trying without --parallel and no memory limit')
       # Might not be running a version of compose that supports --parallel, try one more time
       if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
