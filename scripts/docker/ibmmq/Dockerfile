@@ -1,4 +1,4 @@
-FROM icr.io/ibm-messaging/mq:9.2.5.0-r3
+FROM icr.io/ibm-messaging/mq:9.3.3.0-r2
 
 # Auto-accept the license
 # Create default users and channels
