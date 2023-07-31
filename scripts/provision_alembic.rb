@@ -40,8 +40,25 @@ end
 def migration_enabled?(root_loc, appname)
   app_configuration = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
   do_migration = app_configuration.fetch('perform_alembic_migration', false)
-  puts colorize_pink("Dev-env-triggered Alembic migration enabled for #{appname}") if do_migration == true
+  print_migration_enabled_warning(appname) if do_migration == true
   do_migration
+end
+
+def print_migration_enabled_warning(appname)
+  puts colorize_pink("Dev-env-triggered Alembic migration enabled for #{appname}")
+  puts colorize_yellow('*********************************************************************')
+  puts colorize_yellow('**                                                                 **')
+  puts colorize_yellow('**                            WARNING!                             **')
+  puts colorize_yellow('**                                                                 **')
+  puts colorize_yellow('**              DEV-ENV_TRIGGERED ALEMBIC MIGRATION                **')
+  puts colorize_yellow('**       IS DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
+  puts colorize_yellow('**                                                                 **')
+  puts colorize_yellow('**           This app has set perform_alembic_migration            **')
+  puts colorize_yellow('**                to true in its configuration.yml                 **')
+  puts colorize_yellow('**                                                                 **')
+  puts colorize_yellow('**                                                                 **')
+  puts colorize_yellow('*********************************************************************')
+  sleep(3)
 end
 
 def start_postgres_for_alembic(postgres_version)
