@@ -202,7 +202,7 @@ if options['build_images']
     end
   else
     if run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_yellow('Build command failed. Trying without --parallel and no memory limit')
+      puts colorize_yellow('Build command failed. Trying without --parallel')
       # Might not be running a version of compose that supports --parallel, try one more time
       if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
         puts colorize_red('Something went wrong when building your app images. Check the output above.')
