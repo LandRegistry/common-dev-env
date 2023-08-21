@@ -1,13 +1,8 @@
-FROM python:3.10.4-slim
+FROM python:3.11.3-slim
+
 ENV PYTHONUNBUFFERED yes
+COPY tini server.py run.sh .
+RUN chmod 755 tini server.py run.sh
 
-# Add Tini
-COPY tini .
-RUN chmod +x tini
 ENTRYPOINT ["/tini", "-e", "143", "--"]
-
 CMD ["/run.sh"]
-
-COPY server.py .
-COPY run.sh .
-RUN chmod +x run.sh

@@ -1,7 +1,0 @@
-version: '2'
-services:
-  postgres-96:
-    container_name: postgres-96
-    build: ../scripts/docker/postgres-9.6/
-    ports:
-      - "5433:5432"

@@ -11,21 +11,12 @@ It provides several hooks for applications to take advantage of, including:
 
 ### Prerequisites
 
-#### Recommended setup
-
 * **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
   * [Docker For Mac](https://docs.docker.com/docker-for-mac/)
   * [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
   * [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * **Git**
 * **Ruby 2.5+**
-
-#### Alternative setup
-
-* **Vagrant** (v2+)
-* **VirtualBox** (v6+)
-
-A Vagrantfile is provided so `vagrant up` will result in a virtual machine containing all the prerequisites from the Recommended setup above. From there, just `vagrant ssh` in and use the dev-env as you would natively.
 
 ### Git/SSH
 
@@ -115,25 +106,21 @@ This file specifies which commodities the dev-env should create and launch for t
 
 The list of allowable commodity values is:
 
-1. postgres
-2. postgres-9.6
-3. postgres-13
-4. db2_devc (**Warning:** source image deprecated by IBM; use db2_community instead)
-5. db2_community
-6. elasticsearch
-7. elasticsearch5
-8. nginx
-9. rabbitmq
-10. redis
-11. swagger
-12. wiremock
-13. squid
-14. auth
-15. cadence
-16. cadence-web
-17. activemq
-18. ibmmq
-19. localstack
+1. postgres-13
+2. db2_community
+4. elasticsearch5
+5. nginx
+6. rabbitmq
+7.  redis
+8.  swagger
+9.  wiremock
+10. squid
+11. auth
+12. cadence
+13. cadence-web
+14. activemq
+15. ibmmq
+16. localstack
 
 * The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
   * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
@@ -156,35 +143,31 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers and on the host. Postgres 9.6 will be exposed on port 5433, Postgres 13 on 5434.
+The default Postgres port 5432 will be available for connections from other containers. Port 5434 is exposed for external connections from the host.
 
 **`/manage.py`**
 
-This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This can be disabled by setting the key `perform_alembic_migration` to `false` in `configuration.yml` - for example if the file does not actually relate to Alembic, or you do your own migration during app startup.
+This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This functionality can be enabled by setting the key `perform_alembic_migration` to `true` in `configuration.yml`. It is recommended however that you do your own migration during app startup.
 
-##### DB2
+##### DB2 Community
 
-`db2_community` (DB2 Community Edition 11.5) is recommended over `db2_devc` (DB2 Developer C 11.0)
+Note that DB2 Community is exposed on 30002/35002 to avoid port clashes.
 
-Note that DB2 Developer C is exposed on the host ports 50001/55001 and DB2 Community on 50002/55002 to avoid port clashes.
-
-**`/fragments/db2-devc-init-fragment.sql`**
 **`/fragments/db2-community-init-fragment.sql`**
 
 This file contains any one-off SQL to run in DB2 - at the minimum it will normally be creating a database.
 
 [Example](snippets/db2-community-init-fragment.sql)
 
-##### ElasticSearch
+##### ElasticSearch 5
 
-**`/fragments/elasticsearch-fragment.sh`**
 **`/fragments/elasticsearch5-fragment.sh`**
 
 This file is a shell script that contains curl commands to do any setup the app needs in elasticsearch - creating indexes etc. It will be passed a single argument, the host and port, which can be accessed in the script using `$1`.
 
-The ports 9200/9300 and 9202/9302 are exposed on the host for Elasticsearch versions 2 and 5 respectively.
+The ports 9300 and 9302 are exposed on the host.
 
-[Example](snippets/elasticsearch-fragment.sh)
+[Example](snippets/elasticsearch5-fragment.sh)
 
 ##### Nginx
 

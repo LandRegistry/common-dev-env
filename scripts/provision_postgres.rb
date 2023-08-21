@@ -3,10 +3,6 @@ require 'yaml'
 
 def postgres_container(postgres_version)
   case postgres_version
-  when '9.4'
-    'postgres'
-  when '9.6'
-    'postgres-96'
   when '13'
     'postgres-13'
   else
@@ -110,7 +106,9 @@ def run_initialisation(root_loc, appname, container)
               " -C #{root_loc}/apps/#{appname}/fragments" + # This is the context, so tar will not contain file path
               ' postgres-init-fragment.sql' + # The file to add to the tar
               " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
+  puts colorize_pink("Executing SQL fragment for #{appname}...")
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
+  puts colorize_pink("...done.")
 end
 
 def show_postgres_warnings(root_loc)
@@ -119,41 +117,25 @@ def show_postgres_warnings(root_loc)
 
   warned_versions = []
   config['applications'].each do |appname, _appconfig|
-    if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
-      show_postgres94_warning()
-      warned_versions.append('postgres')
-    end
-
-    if postgres_required?(root_loc, appname, 'postgres-96') && !warned_versions.include?('postgres-96')
-      show_postgres96_warning()
-      warned_versions.append('postgres-96')
-    end
+    # Example
+    # if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
+    #   show_postgres94_warning()
+    #   warned_versions.append('postgres')
+    # end
   end
 end
 
-def show_postgres94_warning()
-  puts colorize_yellow('*******************************************************')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('**                     WARNING!                      **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('**         POSTGRESQL 9.4 IS OUT OF SUPPPORT         **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('** PostgreSQL 9.4 is out of support. Please update   **')
-  puts colorize_yellow('** your service to use a supported version.          **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('*******************************************************')
-end
+# Example
+# def show_postgres94_warning()
+#   puts colorize_yellow('*******************************************************')
+#   puts colorize_yellow('**                                                   **')
+#   puts colorize_yellow('**                     WARNING!                      **')
+#   puts colorize_yellow('**                                                   **')
+#   puts colorize_yellow('**         POSTGRESQL 9.4 IS OUT OF SUPPPORT         **')
+#   puts colorize_yellow('**                                                   **')
+#   puts colorize_yellow('** PostgreSQL 9.4 is out of support. Please update   **')
+#   puts colorize_yellow('** your service to use a supported version.          **')
+#   puts colorize_yellow('**                                                   **')
+#   puts colorize_yellow('*******************************************************')
+# end
 
-def show_postgres96_warning()
-  puts colorize_yellow('*******************************************************')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('**                     WARNING!                      **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('**         POSTGRESQL 9.6 IS OUT OF SUPPPORT         **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('** PostgreSQL 9.6 is out of support. Please update   **')
-  puts colorize_yellow('** your service to use a supported version.          **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('**                                                   **')
-  puts colorize_yellow('*******************************************************')
-end

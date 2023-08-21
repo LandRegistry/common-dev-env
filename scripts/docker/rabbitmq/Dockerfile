@@ -8,7 +8,7 @@ COPY rabbitmq.conf /etc/rabbitmq/
 COPY certs/ca_certificate.pem certs/server_certificate.pem certs/server_key.pem certs/
 # This plugin adds a consistent-hash exchange type to RabbitMQ. This exchange type uses consistent hashing to 
 # distribute messages between the bound queues
-RUN rabbitmq-plugins enable rabbitmq_consistent_hash_exchange
+RUN rabbitmq-plugins --offline enable rabbitmq_consistent_hash_exchange
 # This is a RabbitMQ plugin adds message transfer and management functionality.
 # Handy for tasks such as bulk moving msgs for a DLQ.
 # https://www.rabbitmq.com/shovel.html

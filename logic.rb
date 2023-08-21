@@ -29,7 +29,6 @@ STDOUT.sync = true
 root_loc = __dir__
 
 # Define the DEV_ENV_CONTEXT_FILE file name to store the users app_grouping choice
-# As vagrant up can be run from any subdirectory, we must make sure it is stored alongside the Vagrantfile
 DEV_ENV_CONTEXT_FILE = root_loc + '/.dev-env-context'
 
 # Where we clone the dev env configuration repo into
@@ -76,7 +75,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '1.21.2'
+  this_version = '2.0.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -117,7 +116,7 @@ end
 # Then use that config to clone/update apps, create commodities and custom provision lists
 # and download supporting files
 if options['prepare_config']
-  # Check if a DEV_ENV_CONTEXT_FILE exists, to prevent prompting for dev-env configuration choice on each vagrant up
+  # Check if a DEV_ENV_CONTEXT_FILE exists, to prevent prompting for dev-env configuration choice on each up
   if File.exist?(DEV_ENV_CONTEXT_FILE)
     puts ''
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
@@ -197,16 +196,13 @@ if options['build_images']
   puts colorize_lightblue('Building images...')
   # v2 already builds in parallel
   if ENV['DC_VERSION'] == '2'
-    if run_command("#{ENV['DC_CMD']} build --memory 384m " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_yellow('Build command failed. Trying without a memory limit')
-      if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-        puts colorize_red('Something went wrong when building your app images. Check the output above.')
-        exit
-      end
+    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
+      puts colorize_red('Something went wrong when building your app images. Check the output above.')
+      exit
     end
   else
-    if run_command("#{ENV['DC_CMD']} build --memory 384m --parallel " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_yellow('Build command failed. Trying without --parallel and no memory limit')
+    if run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
+      puts colorize_yellow('Build command failed. Trying without --parallel')
       # Might not be running a version of compose that supports --parallel, try one more time
       if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
         puts colorize_red('Something went wrong when building your app images. Check the output above.')

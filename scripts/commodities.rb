@@ -3,11 +3,9 @@ require_relative 'provision_postgres'
 require_relative 'provision_alembic'
 require_relative 'provision_auth'
 require_relative 'provision_hosts'
-require_relative 'provision_db2_devc'
 require_relative 'provision_db2_community'
 require_relative 'provision_nginx'
 require_relative 'provision_elasticsearch5'
-require_relative 'provision_elasticsearch'
 require_relative 'provision_wiremock'
 require_relative 'provision_localstack'
 
@@ -134,20 +132,17 @@ def provision_commodities(root_loc, new_containers)
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
-  # Do a fullreset, or docker-compose rm -v -f postgres (or postgres-96 etc)
-  ['9.4', '9.6', '13'].each do |postgres_version|
+  # Do a fullreset, or docker-compose rm -v -f postgres-13
+  ['13'].each do |postgres_version|
     provision_postgres(root_loc, new_containers, postgres_version)
       # Alembic, too
     provision_alembic(root_loc, postgres_version)
   end
 
   # Run app DB2 SQL statements
-  provision_db2_devc(root_loc, new_containers)
   provision_db2_community(root_loc, new_containers)
   # Nginx
   provision_nginx(root_loc, new_containers)
-  # Elasticsearch
-  provision_elasticsearch(root_loc)
   # Elasticsearch5
   provision_elasticsearch5(root_loc)
   # Auth
@@ -161,9 +156,7 @@ def provision_commodities(root_loc, new_containers)
 end
 
 def container_to_commodity(container_name)
-  if container_name == 'postgres-96'
-    'postgres-9.6'
-  elsif container_name == 'openldap'
+  if container_name == 'openldap'
     'auth'
   else
     container_name

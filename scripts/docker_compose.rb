@@ -101,10 +101,27 @@ def get_consensus(compose_counts, app_count)
     preference = highest_version(preference, version) if count == app_count
   end
 
-  return preference unless preference.nil?
-
-  puts colorize_red('Applications have a mix of docker compose fragments versions. Unable to proceed.')
-  exit 1
+  if preference.nil?
+    puts colorize_red('Applications have a mix of docker compose fragments versions. Unable to proceed.')
+    exit 1
+  else
+    if preference != 'unversioned'
+      puts colorize_yellow('*********************************************************************')
+      puts colorize_yellow('**                                                                 **')
+      puts colorize_yellow('**                            WARNING!                             **')
+      puts colorize_yellow('**                                                                 **')
+      puts colorize_yellow('** DOCKER-COMPOSE-FRAGMENT.YML AND DOCKER-COMPOSE-FRAGMENT.3.7.YML **')
+      puts colorize_yellow('**      ARE DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
+      puts colorize_yellow('**                                                                 **')
+      puts colorize_yellow('** At least one of your apps does not have a compose-fragment.yml  **')
+      puts colorize_yellow('**       which uses the newest and final version of compose        **')
+      puts colorize_yellow('**                                                                 **')
+      puts colorize_yellow('**                                                                 **')
+      puts colorize_yellow('*********************************************************************')
+      sleep(3)
+    end
+    return preference
+  end
 end
 
 def highest_version(version_a, version_b)
