@@ -33,7 +33,9 @@ end
 def build_wiremock(root_loc, appname, already_started, new_container)
   # Load any mapping files contained in the apps into the docker commands list
   started = already_started
-  if File.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock-fragment.json")
+  wiremock_dir = Dir.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock")
+  wiremock_file = File.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock-fragment.json")
+  if wiremock_dir or wiremock_file
     puts colorize_pink("Found some in #{appname}")
     if commodity_provisioned?(root_loc, appname, 'wiremock') && !new_container
       puts colorize_yellow("Wiremock has previously been provisioned for #{appname}, skipping")
@@ -43,10 +45,17 @@ def build_wiremock(root_loc, appname, already_started, new_container)
         started = true
       end
       # See comments in provision_postgres.rb for why we are doing it this way
-      run_command('tar -c' \
-                  " -C #{root_loc}/apps/#{appname}/fragments" \
-                  ' wiremock-fragment.json' \
-                  ' | docker cp - wiremock:/wiremock/mappings/')
+      if wiremock_dir
+        run_command('tar -c' \
+                    " -C #{root_loc}/apps/#{appname}/fragments/wiremock" \
+                    ' .' \
+                    ' | docker cp - wiremock:/wiremock/mappings/')
+      elsif wiremock_file
+        run_command('tar -c' \
+                    " -C #{root_loc}/apps/#{appname}/fragments" \
+                    ' wiremock-fragment.json' \
+                    ' | docker cp - wiremock:/wiremock/mappings/')
+      end
 
       # Rename the file so it is unique and wont get overwritten by any others we copy up
       # Also, GitBash needs the inner quotes to be doubles
