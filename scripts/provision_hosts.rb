@@ -33,7 +33,7 @@ def hosts_filename
     # assume on Linux via WSL
     '/mnt/c/Windows/System32/drivers/etc/hosts'
   else
-    # Linux or Mac
+    # LINUX or MAC OS (NOT TESTED)
 		'/etc/hosts'
   end
 end
