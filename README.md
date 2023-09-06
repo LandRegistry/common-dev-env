@@ -187,6 +187,10 @@ This is a file that contains stub mappings that Wiremock will pick up and use, a
 
 [Example](snippets/wiremock-fragment.json)
 
+**`/fragments/wiremock/`**
+
+This is a directory that can contain multiple stub mappings files that Wiremock will pick up and use. The files should all be in the same format as the example above. If such a wiremock directory exists, it will take precedence over any `wiremock-fragment.json` file.
+
 ##### RabbitMQ
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> (guest/guest).
