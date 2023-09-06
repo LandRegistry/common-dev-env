@@ -34,7 +34,7 @@ def hosts_filename
     '/mnt/c/Windows/System32/drivers/etc/hosts'
   else
     # LINUX or MAC OS (NOT TESTED)
-		'/etc/hosts'
+    '/etc/hosts'
   end
 end
 
