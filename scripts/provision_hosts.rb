@@ -25,9 +25,13 @@ def provision_hosts(root_loc)
 end
 
 def hosts_filename
+  wsl_version_filename = '/proc/version'
   if !(/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM).nil?
     # WINDOWS
     'C:/Windows/System32/drivers/etc/hosts'
+  elsif File.file?(wsl_version_filename) && File.foreach(wsl_version_filename).any? { |l| l['microsoft'] }
+    # assume on Linux via WSL
+    '/mnt/c/Windows/System32/drivers/etc/hosts'
   else
     # LINUX or MAC OS (NOT TESTED)
     '/etc/hosts'
