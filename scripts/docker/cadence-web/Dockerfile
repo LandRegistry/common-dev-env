@@ -1,2 +1,2 @@
 
-FROM ubercadence/web:3.18.1
+FROM docker.io/ubercadence/web:3.18.1

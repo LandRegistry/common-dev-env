@@ -1,4 +1,4 @@
-FROM elasticsearch:5.2.1
+FROM docker.io/elasticsearch:5.2.1
 
 ENV ES_JAVA_OPTS -Xms1024m -Xmx1024m
 

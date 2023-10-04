@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim
+FROM docker.io/openjdk:11-jre-slim
 
 ARG WM_VERSION=2.32.0
 

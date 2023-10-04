@@ -1,4 +1,4 @@
-FROM hmlandregistry/db2-cgroupaware:11.5.8.0
+FROM docker.io/hmlandregistry/db2-cgroupaware:11.5.8.0
 
 EXPOSE 50000 55000
 
