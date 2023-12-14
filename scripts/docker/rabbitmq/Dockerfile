@@ -1,5 +1,5 @@
 # This is so a reset (dc down) won't remove the base rabbit image, only the one created from this dockerfile
-FROM rabbitmq:3-management
+FROM docker.io/rabbitmq:3-management
 # Copy the configuration file to rabbitmq
 # https://www.rabbitmq.com/configure.html#configuration-files
 COPY rabbitmq.conf /etc/rabbitmq/
