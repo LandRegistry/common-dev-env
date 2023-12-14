@@ -1,1 +1,1 @@
-FROM docker.io/localstack/localstack:2.2
+FROM docker.io/localstack/localstack:2.3
