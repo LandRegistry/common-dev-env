@@ -193,7 +193,7 @@ function devenv-help(){
     restart <name of container>                      -     restart a container
     logs <name of container>                         -     view the logs of a container (from the past)
     livelogs <name of container>                     -     view the logs of a container (as they happen)
-    exec <name of container> <command to execute>    -     execute a command in a running container
+    ex <name of container> <command to execute>      -     execute a command in a running container
     run <options> <name of container> <command>      -     creates a new container and runs the command in it
     remove <name of container>                       -     remove a container
     rebuild <name of container>                      -     checks if a container needs rebuilding and rebuilds/recreates/restarts it if so, otherwise does nothing. Useful if you've just changed a file that the Dockerfile copies into the image.
