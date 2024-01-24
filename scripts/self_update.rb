@@ -3,6 +3,7 @@ require 'json'
 require 'net/http'
 require 'rubygems'
 require 'uri'
+require 'date'
 
 def self_update(root_loc, this_version)
   latest_version = retrieve_version
