@@ -120,7 +120,7 @@ else
                     for users with several common-dev-env instances
 
    flags:
-      -n, --nopull  for `up` and `reload` only; avoid docker hub ratelimiting 
+      -n, --nopull  for 'up' and 'reload' only; avoid docker hub ratelimiting 
                     by not checking for updates to FROM images used in 
-                    Dockerfiles
+                    Dockerfiles"
 fi
