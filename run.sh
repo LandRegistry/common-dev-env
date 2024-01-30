@@ -101,6 +101,11 @@ then
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh
 
+elif [ "$command" = "aliases" ]
+then
+    source scripts/docker_prepare.sh &&
+    source scripts/add-aliases.sh
+
 else
     echo "Syntax:
    source run.sh [command] [flags]
@@ -118,6 +123,7 @@ else
                     images and (optionally) reset common-dev-env configuration
       repair        set the docker-compose configuration to use *this* dev-env,
                     for users with several common-dev-env instances
+      aliases       import aliases only; useful if you use multiple shells
 
    flags:
       -n, --nopull  for 'up' and 'reload' only; avoid docker hub ratelimiting 
