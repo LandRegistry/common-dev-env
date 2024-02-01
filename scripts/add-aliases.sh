@@ -2,6 +2,7 @@
 
 # Save the dev-env root directory for use in aliases and functions
 export DEV_ENV_ROOT_DIR=$(pwd)
+export DEV_ENV_SEARCHABLE_SERVICE_LIST=":$($DC_CMD config --services|tr '\n' ':')"
 
 # Aliases for common commands
 alias dc="$DC_CMD"
@@ -21,22 +22,84 @@ alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
 alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
 
+function _locate_nearest_compose_fragment_file() {
+  _curdir=$(pwd)
+  # Load all of the different docker compose fragment filenames into an array
+  IFS=':' read -ra _composefiles_arr <<< "$COMPOSE_FILE"
+
+  # For each dirname, from the current dirname up to the root directory
+  while [ ${_curdir} != '/' ]; do
+    declare -a _matches
+
+    # Check each compose file to see if it shares a prefix with the current dirname we're looking at
+    for composefile in "${_composefiles_arr[@]}"; do
+      if [[ "${composefile#"$_curdir"}" != "${composefile}" ]]; then
+        _matches+=("${composefile}")
+      fi
+    done
+
+    # If we've got multiple compose fragments that match, bail, don't want to try to work out which to use
+    if [[ "${#_matches[@]}" -gt 1 ]]; then
+      return
+    # If only one of the compose fragments shares a directory prefix, we've got a clear match
+    elif [[ "${#_matches[@]}" -eq 1 ]]; then
+      echo "${_matches[0]}"
+      return 0
+    fi
+
+    # If no matches at this level, strip the basename and try the dir above
+    _curdir=$(dirname ${_curdir})
+  done
+}
+
+function _find_service_name_in_compose_fragment() {
+  # Try to find the name of the docker container associated with this repository.
+  _fragmentfile=$(_locate_nearest_compose_fragment_file)
+
+  if [[ "${_fragmentfile}" == "" ]]; then
+    return
+  fi
+
+  # If the compose fragment declares multiple services, let's default to the first one.
+  # If this is wrong the user will need to declare the service explicitly.
+  ruby <<EOF
+require 'yaml'
+fragment = YAML.load_file("${_fragmentfile}")
+STDERR.puts "error: multiple docker services in fragment; defauting to the first entry" if fragment['services'].size != 1
+STDERR.puts "Found docker service: #{fragment['services'].keys[0]}"
+puts fragment['services'].values[0]['container_name']
+EOF
+}
+
+function _get_app_name_from_first_arg_else_nearest_compose_fragment() {
+  # Check the first argument passed;
+  # if it matches a docker compose service we know about, use it
+  # else search for a docker compose fragment and use the first service from that
+  app_name=${1}
+  if echo "${DEV_ENV_SEARCHABLE_SERVICE_LIST}" | grep ":${app_name}:" &> /dev/null; then
+    false
+  else
+    app_name=$(_find_service_name_in_compose_fragment)
+  fi
+  echo ${app_name}
+}
+
 function bashin(){
-  app_name=${@:1}
+  app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
   if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
     echo "On a Windows Machine"
-    winpty docker exec -it $app_name bash
+    winpty docker exec -it ${app_name} bash
   else
-    docker exec -it $app_name bash
+    docker exec -it ${app_name} bash
   fi
 }
 
 function unit-test(){
     reportflag=off
-    app_name=${1}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
 
     # Check if there's a -r argument (the only one supported) and set a flag if so
-    shift
     while [ $# -gt 0 ]
     do
       case "$1" in
@@ -62,13 +125,15 @@ function unit-test(){
 }
 
 function integration-test(){
-    ex ${1} make integrationtest
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    ex ${app_name} make integrationtest
 }
 
 function lint(){
     reportflag=off
     fixflag=off
-    app_name=${1}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
 
     # Check if there's a -r or -f argument (the only ones supported) and set a flag if so
     shift
@@ -124,31 +189,43 @@ function lint(){
 }
 
 function format(){
+  app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+  if [[ "${app_name}" == "${1}" ]]; then shift; fi
   if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
-    winpty docker exec -it ${1} make format
+    winpty docker exec -it ${app_name} make format
   else
-    ex ${1} make format
+    ex ${app_name} make format
   fi
     
 }
 
 function acceptance-test(){
-    run ${1} sh run_tests.sh ${@:2}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
+    run ${app_name} sh run_tests.sh ${@:1}
 }
 function acctest(){
-    run ${1} sh run_tests.sh ${@:2}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
+    run ${app_name} sh run_tests.sh ${@:1}
 }
 
 function acceptance-lint(){
-    run ${1} sh run_linting.sh
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
+    run ${app_name} sh run_linting.sh
 }
 
 function acclint(){
-    run ${1} sh run_linting.sh
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
+    run ${app_name} sh run_linting.sh
 }
 
 function manage(){
-    ex ${1} python3 manage.py ${@:2}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    if [[ "${app_name}" == "${1}" ]]; then shift; fi
+    ex ${app_name} python3 manage.py ${@:1}
 }
 
 function localstack(){
@@ -156,10 +233,11 @@ function localstack(){
 }
 
 function fullreset(){
-    stop ${1}
-    remove ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
-    rebuild ${1}
+    app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
+    stop ${app_name}
+    remove ${app_name}
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${app_name} $DC_VERSION
+    rebuild ${app_name}
 }
 
 function alembic(){
@@ -182,9 +260,9 @@ function add-to-docker-compose(){
 }
 
 function devenv-help(){
-  cat <<EOF
-    If typing a docker-compose command you can use the alias dc instead. For example "dc ps" rather than "docker-compose ps".
+  echo -e "  \e[0;33mIf typing a docker-compose command you can use the alias dc instead. For example \"dc ps\" rather than \"docker-compose ps\".\e[0;37m
 
+  \e[0;33mCommands:\e[0;37m
     gitlist                                          -     lists all apps and the current branch. Uses the contents of apps/ and not the list in configuration.yml
     gitpull                                          -     Does a git pull for every repository found in /apps, regardless of configuration.yml settings
     status                                           -     view the status of all running containers
@@ -197,27 +275,28 @@ function devenv-help(){
     run <options> <name of container> <command>      -     creates a new container and runs the command in it
     remove <name of container>                       -     remove a container
     rebuild <name of container>                      -     checks if a container needs rebuilding and rebuilds/recreates/restarts it if so, otherwise does nothing. Useful if you've just changed a file that the Dockerfile copies into the image.
-    fullreset <name of container>                    -     Performs stop, remove then rebuild. Useful if a container (like a database) needs to be wiped. Remember to reset .commodities if you do though to ensure init fragments get rerun
-    bashin <name of container>                       -     bash in to a container
-    unit-test <name of container> [-r]               -     run the unit tests for an application (this expects there to be a Makefile with a unittest command).
+   \e[0;33m*\e[0;37mfullreset [<name of container>]                  -     Performs stop, remove then rebuild. Useful if a container (like a database) needs to be wiped. Remember to reset .commodities if you do though to ensure init fragments get rerun
+   \e[0;33m*\e[0;37mbashin [<name of container>]                     -     bash in to a container
+   \e[0;33m*\e[0;37munit-test [<name of container>] [-r]             -     run the unit tests for an application (this expects there to be a Makefile with a unittest command).
                                                            if you add -r it will output reports to the test-output folder.
-    integration-test <name of container>             -     run the integration tests for an application (this expects there to be a Makefile with a integrationtest command)
-    acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
+   \e[0;33m*\e[0;37mintegration-test [<name of container>]           -     run the integration tests for an application (this expects there to be a Makefile with a integrationtest command)
+   \e[0;33m*\e[0;37macceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
                 <name of container> <cucumber args>
-    acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
+   \e[0;33m*\e[0;37macceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
                 <name of container>
-    format <name of container>                       -     run the formatter for an application (this expects there to be a Makefile with a format command)
-    lint <name of container> [-r] [-f]               -     run the linter for an application (this expects there to be a Makefile with a lint command)
+   \e[0;33m*\e[0;37mformat [<name of container>]                     -     run the formatter for an application (this expects there to be a Makefile with a format command)
+   \e[0;33m*\e[0;37mlint [<name of container>] [-r] [-f]             -     run the linter for an application (this expects there to be a Makefile with a lint command)
                                                            if you add -r it will output reports to the test-output folder
                                                            if you add -f it will automatically fix issues where possible
                                                            (flags can be combined)
     psql13 <name of database>                        -     run psql in the postgres-13 container
     db2co                                            -     run db2 command line in the db2_community container
-    manage <name of container> <command>             -     run manage.py commands in a container
-    alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
+   \e[0;33m*\e[0;37mmanage [<name of container>] <command>           -     run manage.py commands in a container
+    alembic [<name of container>] <command>          -     run an alembic db command in a container, with the appropriate environment variables preset
     add-to-docker-compose
       <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
     cadence-cli                                      -     runs the command line tool to interact with cadence orchestrator
     localstack                                       -     run localstack (aws) commands in the localstack container
-EOF
+
+  \e[0;33m* Commands marked with an asterisk don't require the container name to be provided explicitly. If omitted, it will find the service associated with your current working directory (or parent directories) and use that.\e[0;37m"
 }
