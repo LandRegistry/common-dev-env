@@ -21,10 +21,21 @@ alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
 alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
 
+# ------ START: Convenience functions for helping auto-detect the docker service from the current directory -----
+if [ -n "$BASH" ]; then
+  _whatshell="bash"
+elif [ -n "$ZSH_VERSION" ]; then
+  _whatshell="zsh"
+fi
+
 function _locate_nearest_compose_fragment_file() {
   _curdir=$(pwd)
   # Load all of the different docker compose fragment filenames into an array
-  IFS=':' read -ra _composefiles_arr <<< "$COMPOSE_FILE"
+  if [[ "${_whatshell}" == "bash" ]]; then
+    IFS=':' read -ra _composefiles_arr <<< "$COMPOSE_FILE"
+  else
+    IFS=':' read -rA _composefiles_arr <<< "$COMPOSE_FILE"
+  fi
 
   # For each dirname, from the current dirname up to the root directory
   while [ ${_curdir} != '/' ]; do
@@ -42,7 +53,8 @@ function _locate_nearest_compose_fragment_file() {
       return
     # If only one of the compose fragments shares a directory prefix, we've got a clear match
     elif [[ "${#_matches[@]}" -eq 1 ]]; then
-      echo "${_matches[0]}"
+      # Return the first (only) match; syntax is cross-compatible with zsh. Direct indexing fails (bash is 0-indexed, zsh is 1-indexed)
+      echo "${_matches[@]:0:1}"
       return 0
     fi
 
@@ -84,6 +96,7 @@ function _get_app_name_from_first_arg_else_nearest_compose_fragment() {
   fi
   echo ${app_name}
 }
+# ------ END: Convenience functions for helping auto-detect the docker service from the current directory -----
 
 function bashin(){
   app_name=$(_get_app_name_from_first_arg_else_nearest_compose_fragment ${1})
