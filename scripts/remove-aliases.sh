@@ -28,6 +28,10 @@ unset -f fullreset
 unset -f alembic
 unset -f localstack
 unset -f add-to-docker-compose
+unset -f _locate_nearest_compose_fragment_file
+unset -f _find_service_name_in_compose_fragment
+unset -f _get_app_name_from_first_arg_else_nearest_compose_fragment
 unset -f devenv-help
 
+unset DEV_ENV_SEARCHABLE_SERVICE_LIST
 unset DEV_ENV_ROOT_DIR
