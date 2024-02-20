@@ -19,9 +19,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: super-linter/super-linter/lite@v6
+        # The only difference between full and slim is the latter contains .NET and Rust linters
+      - uses: super-linter/super-linter/slim@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Only run against
+          # Only run against ruby and markdown - we don't care about the others
           VALIDATE_RUBY: true
           VALIDATE_MARKDOWN: true
