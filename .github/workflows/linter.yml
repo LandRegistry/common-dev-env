@@ -24,6 +24,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Only run against ruby and markdown - we don't care about the others
-          RUBY_CONFIG_FILE: .rubocop.yml
+          RUBY_CONFIG_FILE: ${{ github.workspace }}/.rubocop.yml
           VALIDATE_RUBY: true
           VALIDATE_MARKDOWN: true
