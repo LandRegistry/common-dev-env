@@ -3,6 +3,7 @@ AllCops:
 
   Exclude:
     - 'apps/**/*'
+    - 'scripts/docker/**/*'
 
 Layout/LineLength:
   Max: 120

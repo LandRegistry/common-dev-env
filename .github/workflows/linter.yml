@@ -1,0 +1,27 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+
+jobs:
+  build:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: super-linter/super-linter/lite@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Only run against
+          VALIDATE_RUBY: true
+          VALIDATE_MARKDOWN: true
