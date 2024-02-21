@@ -29,13 +29,13 @@ $stdout.sync = true
 root_loc = __dir__
 
 # Define the DEV_ENV_CONTEXT_FILE file name to store the users app_grouping choice
-DEV_ENV_CONTEXT_FILE = "#{root_loc}/.dev-env-context"
+DEV_ENV_CONTEXT_FILE = "#{root_loc}/.dev-env-context".freeze
 
 # Where we clone the dev env configuration repo into
-DEV_ENV_CONFIG_DIR = "#{root_loc}/dev-env-config"
+DEV_ENV_CONFIG_DIR = "#{root_loc}/dev-env-config".freeze
 
 # A list of all the docker compose fragments we find, so they can be loaded into an env var and used as one big file
-DOCKER_COMPOSE_FILE_LIST = "#{root_loc}/.docker-compose-file-list"
+DOCKER_COMPOSE_FILE_LIST = "#{root_loc}/.docker-compose-file-list".freeze
 
 options = {}
 OptionParser.new do |opts|

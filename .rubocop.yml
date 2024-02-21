@@ -21,12 +21,14 @@ Metrics/BlockNesting:
   Max: 5
 
 # There are loads of calls to colorize which are fairly clear, but drive up AbcSize
-# Set to 21 for update_apps (ensures it won't grow)
 Metrics/AbcSize:
-  Max: 21
+  Enabled: false
 
 Metrics/ParameterLists:
   Max: 7
+
+Metrics/PerceivedComplexity:
+  Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: false

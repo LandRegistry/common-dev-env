@@ -113,16 +113,16 @@ end
 
 def show_postgres_warnings(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
-  return unless config['applications']
+#   return unless config['applications']
 
-  # warned_versions = []
-  # config['applications'].each do |appname, _appconfig|
-    # Example
-    # if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
-    #   show_postgres94_warning()
-    #   warned_versions.append('postgres')
-    # end
-  # end
+#   warned_versions = []
+#   config['applications'].each do |appname, _appconfig|
+#     # Example
+#     if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
+#       show_postgres94_warning()
+#       warned_versions.append('postgres')
+#     end
+#   end
 end
 
 # Example
