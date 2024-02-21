@@ -30,7 +30,7 @@ def provision_postgres(root_loc, new_containers, postgres_version)
   end
 
   started = false
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for init sql
     # if the app specifically specifies postgres in it's commodity list
     next unless postgres_required?(root_loc, appname, container)
@@ -108,21 +108,21 @@ def run_initialisation(root_loc, appname, container)
               " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
   puts colorize_pink("Executing SQL fragment for #{appname}...")
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
-  puts colorize_pink("...done.")
+  puts colorize_pink('...done.')
 end
 
 def show_postgres_warnings(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
-  warned_versions = []
-  config['applications'].each do |appname, _appconfig|
+  # warned_versions = []
+  # config['applications'].each do |appname, _appconfig|
     # Example
     # if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
     #   show_postgres94_warning()
     #   warned_versions.append('postgres')
     # end
-  end
+  # end
 end
 
 # Example
@@ -138,4 +138,3 @@ end
 #   puts colorize_yellow('**                                                   **')
 #   puts colorize_yellow('*******************************************************')
 # end
-

@@ -10,7 +10,7 @@ def provision_elasticsearch5(root_loc)
   started = false
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for init scripts
     # if the app specifically specifies elasticsearch in it's commodity list
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")

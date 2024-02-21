@@ -40,7 +40,7 @@ def provision_custom(root_loc)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # Load any scripts contained in the apps into the commands list
     run_onetime_custom_provision(root_loc, appname)
 

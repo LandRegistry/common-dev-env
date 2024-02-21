@@ -13,7 +13,7 @@ def provision_alembic(root_loc, postgres_version)
   started = false
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for alembic code
     # if the app specifically specifies postgres in it's commodity list
     # and they aren't suppressing it by setting perform_alembic_migration to false
@@ -47,7 +47,6 @@ end
 def print_migration_enabled_warning(appname)
   puts colorize_pink("Dev-env-triggered Alembic migration enabled for #{appname}")
   puts colorize_yellow('*********************************************************************')
-  puts colorize_yellow('**                                                                 **')
   puts colorize_yellow('**                            WARNING!                             **')
   puts colorize_yellow('**                                                                 **')
   puts colorize_yellow('**              DEV-ENV_TRIGGERED ALEMBIC MIGRATION                **')
@@ -55,8 +54,6 @@ def print_migration_enabled_warning(appname)
   puts colorize_yellow('**                                                                 **')
   puts colorize_yellow('**           This app has set perform_alembic_migration            **')
   puts colorize_yellow('**                to true in its configuration.yml                 **')
-  puts colorize_yellow('**                                                                 **')
-  puts colorize_yellow('**                                                                 **')
   puts colorize_yellow('*********************************************************************')
   sleep(3)
 end

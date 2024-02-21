@@ -2,7 +2,6 @@ require_relative 'utilities'
 
 def prepare_compose(root_loc, file_list_loc)
   require 'yaml'
-  root_loc = root_loc
 
   commodity_list = []
   compose_version = choose_compose_version(root_loc)
@@ -49,7 +48,7 @@ def get_apps(root_loc, commodity_list, compose_version)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # If this app is docker, add its compose to the list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
       commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
@@ -71,18 +70,18 @@ def choose_compose_version(root_loc)
     'unversioned' => 0
   }
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/*compose-fragment*.yml"]
     # Let's not count the repo as an app for consensus purposes if they have no fragment at all
     apps_with_fragments -= 1 if compose_fragments.empty?
 
     compose_fragments.each do |fragment|
-      basename = File.basename(fragment)
-      if basename == 'docker-compose-fragment.yml'
+      case File.basename(fragment)
+      when 'docker-compose-fragment.yml'
         compose_counts['2'] += 1
-      elsif basename == 'docker-compose-fragment.3.7.yml'
+      when basename == 'docker-compose-fragment.3.7.yml'
         compose_counts['3.7'] += 1
-      elsif basename == 'compose-fragment.yml'
+      when basename == 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
@@ -104,30 +103,28 @@ def get_consensus(compose_counts, app_count)
   if preference.nil?
     puts colorize_red('Applications have a mix of docker compose fragments versions. Unable to proceed.')
     exit 1
-  else
-    if preference != 'unversioned'
-      puts colorize_yellow('*********************************************************************')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('**                            WARNING!                             **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('** DOCKER-COMPOSE-FRAGMENT.YML AND DOCKER-COMPOSE-FRAGMENT.3.7.YML **')
-      puts colorize_yellow('**      ARE DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('** At least one of your apps does not have a compose-fragment.yml  **')
-      puts colorize_yellow('**       which uses the newest and final version of compose        **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('*********************************************************************')
-      sleep(3)
-    end
-    return preference
+  elsif preference != 'unversioned'
+    puts colorize_yellow('*********************************************************************')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('**                            WARNING!                             **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('** DOCKER-COMPOSE-FRAGMENT.YML AND DOCKER-COMPOSE-FRAGMENT.3.7.YML **')
+    puts colorize_yellow('**      ARE DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('** At least one of your apps does not have a compose-fragment.yml  **')
+    puts colorize_yellow('**       which uses the newest and final version of compose        **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('*********************************************************************')
+    sleep(3)
   end
+  preference
 end
 
 def highest_version(version_a, version_b)
-  return 'unversioned' if (version_a == 'unversioned' || version_b == 'unversioned')
-  return '3.7' if (version_a == '3.7' || version_b == '3.7')
-  return '2' if (version_a == '2' || version_b == '2')
+  return 'unversioned' if version_a == 'unversioned' || version_b == 'unversioned'
+  return '3.7' if version_a == '3.7' || version_b == '3.7'
+  return '2' if version_a == '2' || version_b == '2'
 
   nil
 end
