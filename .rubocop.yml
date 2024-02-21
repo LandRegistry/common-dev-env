@@ -6,7 +6,7 @@ AllCops:
     - 'scripts/docker/**/*'
 
 Layout/LineLength:
-  Max: 120
+  Max: 125
 
 # The default is 10, which is low...
 Metrics/MethodLength:

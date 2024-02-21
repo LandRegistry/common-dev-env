@@ -163,6 +163,6 @@ def container_to_commodity(container_name)
   end
 end
 
-def show_commodity_messages(root_loc)
-  show_postgres_warnings(root_loc)
-end
+# def show_commodity_messages(root_loc)
+#   show_postgres_warnings(root_loc)
+# end

@@ -438,4 +438,4 @@ if options['start_apps']
 end
 
 # Do this near the end so that messages are more obvious to the user.
-show_commodity_messages(root_loc) if options['provision_commodities']
+# show_commodity_messages(root_loc) if options['provision_commodities']
