@@ -50,7 +50,9 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key).
+
+The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
 
 The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
@@ -126,10 +128,11 @@ The list of allowable commodity values is:
 15. ibmmq
 16. localstack
 
-* The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
+The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
 This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
-  * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
+
+If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
 
@@ -314,7 +317,7 @@ cadence core services.
 
 [Localstack](https://localstack.cloud) is a cloud stack testing and mocking framework for developing against various AWS services.
 
-A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not *require* the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)).
+A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not _require_ the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)).
 
 However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh).
 
