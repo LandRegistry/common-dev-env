@@ -79,9 +79,9 @@ def choose_compose_version(root_loc)
       case File.basename(fragment)
       when 'docker-compose-fragment.yml'
         compose_counts['2'] += 1
-      when basename == 'docker-compose-fragment.3.7.yml'
+      when 'docker-compose-fragment.3.7.yml'
         compose_counts['3.7'] += 1
-      when basename == 'compose-fragment.yml'
+      when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
