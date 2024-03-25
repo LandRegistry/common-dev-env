@@ -92,7 +92,7 @@ def choose_compose_version(root_loc)
       when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       when /compose-fragment\..+\.yml/
-        variant_name = basename.split('compose-fragment.').last.split('.yml').first
+        variant_name = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
         # Check if the variant is selected in the application.yml
         if config['applications'][appname].key?('variant')
           # If it is selected, load it into compose_variants
