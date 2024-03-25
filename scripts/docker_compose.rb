@@ -51,8 +51,9 @@ def get_apps(root_loc, commodity_list, compose_version, compose_variants)
   config['applications'].each_key do |appname|
     # If this app is docker, add its compose to the list
     if compose_variants.key?(appname)
-      if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version, compose_variants[appname])}")
-        commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version, compose_variants[appname])}")
+      variant_fragment_filename = fragment_filename(compose_version, compose_variants[appname])
+      if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{variant_fragment_filename}")
+        commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{variant_fragment_filename}")
       end
     elsif File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
       commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
@@ -74,8 +75,7 @@ def choose_compose_version(root_loc)
     'unversioned' => 0
   }
 
-  compose_variants = {
-  }
+  compose_variants = {}
 
   config['applications'].each_key do |appname|
     compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/*compose-fragment*.yml"]
@@ -92,9 +92,9 @@ def choose_compose_version(root_loc)
       when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       when /compose-fragment\..+\.yml/
-        variant_name = basename.split("compose-fragment.").last.split(".yml").first
+        variant_name = basename.split('compose-fragment.').last.split('.yml').first
         # Check if the variant is selected in the application.yml
-        if config['applications'][appname].has_key?('variant')
+        if config['applications'][appname].key?('variant')
           # If it is selected, load it into compose_variants
           puts colorize_lightblue("#{appname}: Selected compose variant #{variant_name}")
           compose_variants[appname] = variant_name
@@ -121,7 +121,8 @@ def get_consensus(compose_counts, app_count, compose_variants)
     exit 1
   elsif preference != 'unversioned'
     unless compose_variants.empty?
-      puts colorize_red('Compose variants selected when at least one of your apps does not have a compose-fragment.yml. Unable to proceed.')
+      puts colorize_red('Compose variants selected when at least one of your ' \
+                        'apps does not have a compose-fragment.yml. Unable to proceed.')
       exit 1
     end
     puts colorize_yellow('*********************************************************************')
