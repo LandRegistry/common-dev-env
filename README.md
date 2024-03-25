@@ -50,9 +50,11 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key).
+`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key), and any optional Compose fragment variant name to use (the `variant` key) if appropriate.
 
-The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's compose-fragment.yml will work correctly.
+
+Any Compose fragment variant name, if defined, should also match with a variant Compose file in the repository, in the format `compose-fragment.xyz.yml` (where "xyz" is the variant name).
 
 The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
@@ -84,6 +86,14 @@ Although generally an application should only have itself in its compose fragmen
 
 Note that when including directives such as a Dockerfile build location or host volume mapping for the source code, the Compose context root `.` is considered to be the dev-env's /apps/ folder, not the location of the fragment. Ensure relative paths are set accordingly.
 
+##### `/fragments/compose-fragment.<variant>.yml`
+
+Optional variants of `compose-fragment.yml` designed for specific use cases, such as offering slimmed-down or extended configurations. The syntax for a variant compose fragment is the same as that for a default unversioned compose fragment (see above).
+
+Replace `<variant>` with the specific name of the variant configuration required, such as `slim` or `full`.
+
+A default `compose-fragment.yml` is still required in addition to any optional variants.
+
 [Example](snippets/compose-fragment.yml)
 
 ##### `/fragments/docker-compose-fragment.yml` and `/fragments/docker-compose-fragment.3.7.yml`
@@ -91,6 +101,8 @@ Note that when including directives such as a Dockerfile build location or host 
 Optional variants of `compose-fragment.yml` with a version of `2` and `3.7` respectively. Support for these is still present for backwards compatibility with older apps.The development environment will select the highest compose file version supplied by _all_ applications in the environment (2 --> 3.7 --> unversioned).
 
 If the environment cannot identify a universal compose file version, then provisioning will fail.
+
+Compose fragment variants are unsupported when used in conjunction with older compose fragment versions.
 
 [2 Example](snippets/docker-compose-fragment.yml)
 
