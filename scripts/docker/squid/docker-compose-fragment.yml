@@ -5,3 +5,7 @@ services:
     build: ../scripts/docker/squid/
     ports:
       - 30128:3128
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536

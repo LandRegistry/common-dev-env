@@ -17,7 +17,7 @@ def provision_nginx(root_loc, new_containers)
   end
 
   started = false
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for a conf file
     # if the app specifically specifies nginx in it's commodity list
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")

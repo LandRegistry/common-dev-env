@@ -17,7 +17,7 @@ def provision_wiremock(root_loc, new_containers)
   end
 
   started = false
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for a conf file
     # if the app specifically specifies wiremock in it's commodity list
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
@@ -35,7 +35,7 @@ def build_wiremock(root_loc, appname, already_started, new_container)
   started = already_started
   wiremock_dir = Dir.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock")
   wiremock_file = File.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock-fragment.json")
-  if wiremock_dir or wiremock_file
+  if wiremock_dir || wiremock_file
     puts colorize_pink("Found some in #{appname}")
     if commodity_provisioned?(root_loc, appname, 'wiremock') && !new_container
       puts colorize_yellow("Wiremock has previously been provisioned for #{appname}, skipping")

@@ -5,3 +5,7 @@ services:
     ports:
       - 30128:3128
     platform: "linux/amd64"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536

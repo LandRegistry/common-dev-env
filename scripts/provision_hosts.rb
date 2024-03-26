@@ -19,7 +19,7 @@ def provision_hosts(root_loc)
     if file.include? s
       puts colorize_yellow("Host already has entry: #{s}")
     else
-      File.write(hosts_filename, "\n" + s, mode: 'a')
+      File.write(hosts_filename, "\n#{s}", mode: 'a')
     end
   end
 end
@@ -46,7 +46,7 @@ def get_host_additions(root_loc)
 
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # Check adfs is required
     next unless File.exist?("#{root_loc}/apps/#{appname}/fragments/host-fragments.yml")
 

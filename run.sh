@@ -44,18 +44,16 @@ then
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
     ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}"
-fi
 
-if [ "$command" = "quickup" ]
+elif [ "$command" = "quickup" ]
 then
     echo -e "\e[36mBeginning UP (Quick mode)\e[0m"
     ruby logic.rb --check-for-update --prepare-compose &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
     ruby logic.rb --start-apps
-fi
 
-if [ "$command" = "halt" ]
+elif [ "$command" = "halt" ]
 then
     echo -e "\e[36mBeginning HALT\e[0m"
     ruby logic.rb --prepare-compose &&
@@ -64,9 +62,8 @@ then
     source scripts/docker_clean.sh &&
     source scripts/add-aliases.sh &&
     source scripts/remove-aliases.sh
-fi
 
-if [ "$command" = "reload" ]
+elif [ "$command" = "reload" ]
 then
     echo -e "\e[36mBeginning RELOAD\e[0m"
     ruby logic.rb --prepare-compose &&
@@ -75,9 +72,8 @@ then
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
     ruby logic.rb --build-images --provision-commodities --start-apps "${subcommands}"
-fi
 
-if [ "$command" = "quickreload" ]
+elif [ "$command" = "quickreload" ]
 then
     echo -e "\e[36mBeginning RELOAD (Quick mode)\e[0m"
     ruby logic.rb --prepare-compose &&
@@ -86,9 +82,8 @@ then
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh &&
     ruby logic.rb --start-apps
-fi
 
-if [ "$command" = "destroy" ]
+elif [ "$command" = "destroy" ]
 then
     echo -e "\e[36mBeginning DESTROY\e[0m"
     ruby logic.rb --prepare-compose &&
@@ -98,12 +93,34 @@ then
     export COMPOSE_PROJECT_NAME= &&
     source scripts/add-aliases.sh &&
     source scripts/remove-aliases.sh
-fi
 
-if [ "$command" = "repair" ]
+elif [ "$command" = "repair" ]
 then
     echo -e "\e[36mBeginning REPAIR\e[0m"
     ruby logic.rb prepare-compose &&
     source scripts/docker_prepare.sh &&
     source scripts/add-aliases.sh
+
+else
+    echo "Syntax:
+   source run.sh [command] [flags]
+
+   commands:
+      up            configure, build and run all services; will pull updates
+                    from services' git repos and rebuild images
+      quickup       as per up, but without updating services' git repos or
+                    rebuilding images
+      halt          stop all containers
+      reload        stop all containers, rebuild them, and restart them
+                    (including commodity fragments)
+      quickreload   as per reload, but without rebuilding images 
+      destroy       stop and remove all containers, then remove all built
+                    images and (optionally) reset common-dev-env configuration
+      repair        set the docker-compose configuration to use *this* dev-env,
+                    for users with several common-dev-env instances
+
+   flags:
+      -n, --nopull  for 'up' and 'reload' only; avoid docker hub ratelimiting 
+                    by not checking for updates to FROM images used in 
+                    Dockerfiles"
 fi

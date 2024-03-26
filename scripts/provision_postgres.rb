@@ -30,7 +30,7 @@ def provision_postgres(root_loc, new_containers, postgres_version)
   end
 
   started = false
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for init sql
     # if the app specifically specifies postgres in it's commodity list
     next unless postgres_required?(root_loc, appname, container)
@@ -102,28 +102,25 @@ def run_initialisation(root_loc, appname, container)
   # where LinuxRuby passes a path to WindowsDocker that it can't parse.
   # Therefore we create and pipe a tar file into docker cp instead, handy as tar runs in the
   # shell and understands Ruby's paths in both WSL and Git Bash!
-  run_command('tar -c ' \
-              " -C #{root_loc}/apps/#{appname}/fragments" + # This is the context, so tar will not contain file path
-              ' postgres-init-fragment.sql' + # The file to add to the tar
-              " | docker cp - #{container}:/") # Pipe it into docker cp, which will extract it for us
+  run_command("tar -c -C #{root_loc}/apps/#{appname}/fragments postgres-init-fragment.sql | docker cp - #{container}:/")
   puts colorize_pink("Executing SQL fragment for #{appname}...")
   run_command_noshell(['docker', 'exec', container, 'psql', '-q', '-f', 'postgres-init-fragment.sql'])
-  puts colorize_pink("...done.")
+  puts colorize_pink('...done.')
 end
 
-def show_postgres_warnings(root_loc)
-  config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
-  return unless config['applications']
+# def show_postgres_warnings(root_loc)
+#   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
+#   return unless config['applications']
 
-  warned_versions = []
-  config['applications'].each do |appname, _appconfig|
-    # Example
-    # if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
-    #   show_postgres94_warning()
-    #   warned_versions.append('postgres')
-    # end
-  end
-end
+#   warned_versions = []
+#   config['applications'].each do |appname, _appconfig|
+#     # Example
+#     if postgres_required?(root_loc, appname, 'postgres') && !warned_versions.include?('postgres')
+#       show_postgres94_warning()
+#       warned_versions.append('postgres')
+#     end
+#   end
+# end
 
 # Example
 # def show_postgres94_warning()
@@ -138,4 +135,3 @@ end
 #   puts colorize_yellow('**                                                   **')
 #   puts colorize_yellow('*******************************************************')
 # end
-

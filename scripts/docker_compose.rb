@@ -2,10 +2,9 @@ require_relative 'utilities'
 
 def prepare_compose(root_loc, file_list_loc)
   require 'yaml'
-  root_loc = root_loc
 
   commodity_list = []
-  compose_version = choose_compose_version(root_loc)
+  compose_version, compose_variants = choose_compose_version(root_loc)
   # When using the COMPOSE_FILE env var, the first fragment in the list is used
   # as the path that all relative paths in further fragments are based on.
   # By making this consistently /apps, fragments do not need to rely on ${PWD}
@@ -15,7 +14,7 @@ def prepare_compose(root_loc, file_list_loc)
   commodity_list.push("#{root_loc}/apps/root-#{fragment_filename(compose_version)}")
 
   # Put all the apps into an array, as their compose file argument
-  get_apps(root_loc, commodity_list, compose_version)
+  get_apps(root_loc, commodity_list, compose_version, compose_variants)
 
   # Load any commodities into the docker compose list
   if File.exist?("#{root_loc}/.commodities.yml")
@@ -38,7 +37,7 @@ def prepare_compose(root_loc, file_list_loc)
   end
 end
 
-def get_apps(root_loc, commodity_list, compose_version)
+def get_apps(root_loc, commodity_list, compose_version, compose_variants)
   unless File.exist?("#{root_loc}/dev-env-config/configuration.yml")
     puts colorize_yellow('No dev-env-config found. Maybe this is a fresh box... '\
                          'if so, you need to do "source run.sh up"')
@@ -49,9 +48,14 @@ def get_apps(root_loc, commodity_list, compose_version)
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # If this app is docker, add its compose to the list
-    if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
+    if compose_variants.key?(appname)
+      variant_fragment_filename = fragment_filename(compose_version, compose_variants[appname])
+      if File.exist?("#{root_loc}/apps/#{appname}/fragments/#{variant_fragment_filename}")
+        commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{variant_fragment_filename}")
+      end
+    elsif File.exist?("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
       commodity_list.push("#{root_loc}/apps/#{appname}/fragments/#{fragment_filename(compose_version)}")
     end
   end
@@ -71,31 +75,41 @@ def choose_compose_version(root_loc)
     'unversioned' => 0
   }
 
-  config['applications'].each do |appname, _appconfig|
+  compose_variants = {}
+
+  config['applications'].each_key do |appname|
     compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/*compose-fragment*.yml"]
     # Let's not count the repo as an app for consensus purposes if they have no fragment at all
     apps_with_fragments -= 1 if compose_fragments.empty?
 
     compose_fragments.each do |fragment|
       basename = File.basename(fragment)
-      if basename == 'docker-compose-fragment.yml'
+      case basename
+      when 'docker-compose-fragment.yml'
         compose_counts['2'] += 1
-      elsif basename == 'docker-compose-fragment.3.7.yml'
+      when 'docker-compose-fragment.3.7.yml'
         compose_counts['3.7'] += 1
-      elsif basename == 'compose-fragment.yml'
+      when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
+      when /compose-fragment\..+\.yml/
+        variant_fragment_filename = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
+        if config['applications'][appname].key?('variant') == variant_fragment_filename
+          # If it is selected, load it into compose_variants
+          compose_variants[appname] = variant_fragment_filename
+          puts colorize_lightblue("#{appname}: Selected compose variant #{compose_variants[appname]}")
+        end
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
       end
     end
   end
 
-  compose_version = get_consensus(compose_counts, apps_with_fragments)
+  compose_version = get_consensus(compose_counts, apps_with_fragments, compose_variants)
   puts colorize_lightblue("Selecting compose version #{compose_version}")
-  compose_version
+  [compose_version, compose_variants]
 end
 
-def get_consensus(compose_counts, app_count)
+def get_consensus(compose_counts, app_count, compose_variants)
   preference = nil
   compose_counts.each do |version, count|
     preference = highest_version(preference, version) if count == app_count
@@ -104,39 +118,46 @@ def get_consensus(compose_counts, app_count)
   if preference.nil?
     puts colorize_red('Applications have a mix of docker compose fragments versions. Unable to proceed.')
     exit 1
-  else
-    if preference != 'unversioned'
-      puts colorize_yellow('*********************************************************************')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('**                            WARNING!                             **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('** DOCKER-COMPOSE-FRAGMENT.YML AND DOCKER-COMPOSE-FRAGMENT.3.7.YML **')
-      puts colorize_yellow('**      ARE DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('** At least one of your apps does not have a compose-fragment.yml  **')
-      puts colorize_yellow('**       which uses the newest and final version of compose        **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('**                                                                 **')
-      puts colorize_yellow('*********************************************************************')
-      sleep(3)
+  elsif preference != 'unversioned'
+    unless compose_variants.empty?
+      puts colorize_red('Compose variants selected when at least one of your ' \
+                        'apps does not have a compose-fragment.yml. Unable to proceed.')
+      exit 1
     end
-    return preference
+    puts colorize_yellow('*********************************************************************')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('**                            WARNING!                             **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('** DOCKER-COMPOSE-FRAGMENT.YML AND DOCKER-COMPOSE-FRAGMENT.3.7.YML **')
+    puts colorize_yellow('**      ARE DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE     **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('** At least one of your apps does not have a compose-fragment.yml  **')
+    puts colorize_yellow('**       which uses the newest and final version of compose        **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('**                                                                 **')
+    puts colorize_yellow('*********************************************************************')
+    sleep(3)
   end
+  preference
 end
 
 def highest_version(version_a, version_b)
-  return 'unversioned' if (version_a == 'unversioned' || version_b == 'unversioned')
-  return '3.7' if (version_a == '3.7' || version_b == '3.7')
-  return '2' if (version_a == '2' || version_b == '2')
+  return 'unversioned' if version_a == 'unversioned' || version_b == 'unversioned'
+  return '3.7' if version_a == '3.7' || version_b == '3.7'
+  return '2' if version_a == '2' || version_b == '2'
 
   nil
 end
 
-def fragment_filename(compose_version)
+def fragment_filename(compose_version, compose_variant_name = nil)
   if compose_version == '3.7'
     'docker-compose-fragment.3.7.yml'
   elsif compose_version == 'unversioned'
-    'compose-fragment.yml'
+    if compose_variant_name.nil?
+      'compose-fragment.yml'
+    else
+      "compose-fragment.#{compose_variant_name}.yml"
+    end
   else
     'docker-compose-fragment.yml'
   end
