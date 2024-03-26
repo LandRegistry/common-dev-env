@@ -1,4 +1,4 @@
-FROM docker.io/jboss/keycloak:7.0.0
+FROM quay.io/keycloak/keycloak:7.0.1
 
 ADD development_realm.json /etc/keycloak/
 
