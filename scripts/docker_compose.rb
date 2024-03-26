@@ -92,9 +92,10 @@ def choose_compose_version(root_loc)
       when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       when /compose-fragment\..+\.yml/
-        if config['applications'][appname].key?('variant')
+        variant_fragment_filename = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
+        if config['applications'][appname].key?('variant') == variant_fragment_filename
           # If it is selected, load it into compose_variants
-          compose_variants[appname] = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
+          compose_variants[appname] = variant_fragment_filename
           puts colorize_lightblue("#{appname}: Selected compose variant #{compose_variants[appname]}")
         end
       else
