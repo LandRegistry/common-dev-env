@@ -7,6 +7,10 @@ services:
       - "7934:7934"
       - "7935:7935"
       - "7939:7939"
+      - "7833:7833"
+      - "7834:7834"
+      - "7835:7835"
+      - "7839:7839"
     env_file:
       - ../scripts/docker/cadence/.env_list
     depends_on:
