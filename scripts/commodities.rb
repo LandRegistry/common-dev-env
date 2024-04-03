@@ -57,7 +57,7 @@ def which_app_needs_what(root_loc, config)
   app_to_commodity_map = Hash.new([].freeze)
   commodity_list = []
   if config['applications']
-    config['applications'].each do |appname, _appconfig|
+    config['applications'].each_key do |appname|
       # Load any commodities into the list
       unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
         puts colorize_yellow("No configuration.yml found for #{appname}, assume no commodities & inexpensive startup")
@@ -135,7 +135,7 @@ def provision_commodities(root_loc, new_containers)
   # Do a fullreset, or docker-compose rm -v -f postgres-13
   ['13'].each do |postgres_version|
     provision_postgres(root_loc, new_containers, postgres_version)
-      # Alembic, too
+    # Alembic, too
     provision_alembic(root_loc, postgres_version)
   end
 
@@ -163,6 +163,6 @@ def container_to_commodity(container_name)
   end
 end
 
-def show_commodity_messages(root_loc)
-  show_postgres_warnings(root_loc)
-end
+# def show_commodity_messages(root_loc)
+#   show_postgres_warnings(root_loc)
+# end

@@ -50,7 +50,11 @@ Other `run.sh` parameters are:
 ### Configuration Repository
 
 This is a Git repository that must contain a single file  -
-`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key). The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's docker-compose-fragment.yml will work correctly.
+`configuration.yml`. The configuration file has an `applications` key that contains a list of the applications that will be running in the dev-env, each specifying the URL of their Git repository (the `repo` key) plus which branch/tag/commit should be initially checked out (the `ref` key), and any optional Compose fragment variant name to use (the `variant` key) if appropriate.
+
+The name of the application should match the repository name so that things dependent on the directory structure like volume mappings in the app's compose-fragment.yml will work correctly.
+
+Any Compose fragment variant name, if defined, should also match with a variant Compose file in the repository, in the format `compose-fragment.xyz.yml` (where "xyz" is the variant name).
 
 The application repositories will be pulled and updated on each `up` or `reload`, _unless_ the current checked out branch does not match the one in the configuration. This allows you to create and work in feature branches while remaining in full control of updates and merges.
 
@@ -66,6 +70,8 @@ For an application repository to leverage the full power of the dev-env...
 
 Docker containers are used to run all apps. So some files are needed to support that.
 
+#### Fragments
+
 ##### `/fragments/compose-fragment.yml`
 
 This is used by the environment to construct an application container and then launch it. Standard [Compose Spec](https://github.com/compose-spec/compose-spec/blob/master/spec.md) structure applies - but some recommendations are:
@@ -80,6 +86,14 @@ Although generally an application should only have itself in its compose fragmen
 
 Note that when including directives such as a Dockerfile build location or host volume mapping for the source code, the Compose context root `.` is considered to be the dev-env's /apps/ folder, not the location of the fragment. Ensure relative paths are set accordingly.
 
+##### `/fragments/compose-fragment.<variant>.yml`
+
+Optional variants of `compose-fragment.yml` designed for specific use cases, such as offering slimmed-down or extended configurations. The syntax for a variant compose fragment is the same as that for a default unversioned compose fragment (see above).
+
+Replace `<variant>` with the specific name of the variant configuration required, such as `slim` or `full`.
+
+A default `compose-fragment.yml` is still required in addition to any optional variants.
+
 [Example](snippets/compose-fragment.yml)
 
 ##### `/fragments/docker-compose-fragment.yml` and `/fragments/docker-compose-fragment.3.7.yml`
@@ -88,9 +102,13 @@ Optional variants of `compose-fragment.yml` with a version of `2` and `3.7` resp
 
 If the environment cannot identify a universal compose file version, then provisioning will fail.
 
+Compose fragment variants are unsupported when used in conjunction with older compose fragment versions.
+
 [2 Example](snippets/docker-compose-fragment.yml)
 
 [3.7 Example](snippets/docker-compose-fragment.3.7.yml)
+
+#### Other
 
 ##### `/Dockerfile`
 
@@ -111,9 +129,9 @@ The list of allowable commodity values is:
 4. elasticsearch5
 5. nginx
 6. rabbitmq
-7.  redis
-8.  swagger
-9.  wiremock
+7. redis
+8. swagger
+9. wiremock
 10. squid
 11. auth
 12. cadence
@@ -122,14 +140,19 @@ The list of allowable commodity values is:
 15. ibmmq
 16. localstack
 
-* The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more. This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
-  * If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
+The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
+
+This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+
+If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
 
 #### Commodities
 
-Individual commodities may require further files in order to set them up correctly even after being specified in the application's `configuration.yml`, these are detailed below. Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
+Individual commodities may require further files in order to set them up correctly even after being specified in the application's `configuration.yml`, these are detailed below.
+
+Note that unless specified, any fragment files will only be run once. This is controlled by a generated `.commodities.yml` file in the root of the this repository, which you can change to allow the files to be read again - useful if you've had to delete and recreate a commodity container.
 
 ##### PostgreSQL
 
@@ -175,7 +198,9 @@ The ports 9300 and 9302 are exposed on the host.
 
 This file forms part of an NGINX configration file. It will be merged into the server directive of the main configuration file.
 
-Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name. Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
+Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
+
+Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
 
 [Example](snippets/nginx-fragment.conf)
 
@@ -262,18 +287,20 @@ No users are added to the LDAP database by default. To add users, groups, etc, a
 
 Keycloak is an identity and access management system supporting the OAuth and OpenID Connect protocols. This container is built containing a `development` realm configured to use the OpenLDAP service to perform user authentication.
 
-When running, Keycloak's admin console is available at http://localhost:8180/ with username `admin` and password `admin`.
+When running, Keycloak's admin console is available at <http://localhost:8180/> with username `admin` and password `admin`.
 
 Applications using OAuth flows or the OpenID Connect protocol can use Keycloak for this purpose with the following configuration parameters:
 
 * Client ID: `oauth-client`
-* Authentication URL: http://localhost:8180/auth/realms/development/protocol/openid-connect/auth  (must be resolvable by the user agent, hence we use `localhost` assuming that the user agent will be a web browser on the host system)
-* Token URL: http://keycloak:8080/auth/realms/development/protocol/openid-connect/token (use `localhost:8180` if connecting from the host system)
-* OpenID Connect configuration endpoint: http://keycloak:8080/auth/realms/development/.well-known/openid-configuration (use `localhost:8180` if connecting from the host system)
+* Authentication URL: <http://localhost:8180/auth/realms/development/protocol/openid-connect/auth>  (must be resolvable by the user agent, hence we use `localhost` assuming that the user agent will be a web browser on the host system)
+* Token URL: <http://keycloak:8080/auth/realms/development/protocol/openid-connect/token> (use `localhost:8180` if connecting from the host system)
+* OpenID Connect configuration endpoint: <http://keycloak:8080/auth/realms/development/.well-known/openid-configuration> (use `localhost:8180` if connecting from the host system)
 
 JWT tokens issued from the `development` realm have been configured to mimic those issued by Microsoft ADFS servers. In particular, the LDAP `cn` field is mapped to the `UserName` claim in JWT tokens along with the `Office` claim mapped from the `physicalDeliveryOfficeName` in the LDAP database and the `group` claim listing the user's group memberships.
 
-A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm). The exported JSON can then be merged back into this repository and reused.
+A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm).
+
+The exported JSON can then be merged back into this repository and reused.
 
 ###### Cadence
 
@@ -296,12 +323,15 @@ From the host system:
 cadence core services.
 
 *Running Cadence web locally*
-- In a web browser enter http://localhost:5004
+- In a web browser enter <http://localhost:5004>
 
 ###### Localstack
+
 [Localstack](https://localstack.cloud) is a cloud stack testing and mocking framework for developing against various AWS services.
 
-A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not *require* the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)). However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh). 
+A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not _require_ the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)).
+
+However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh).
 
 Localstack is available at <http://localstack:4566> within the Docker network, and <http://localhost:4566> on the host.
 

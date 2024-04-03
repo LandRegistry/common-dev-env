@@ -3,6 +3,7 @@ require 'json'
 require 'net/http'
 require 'rubygems'
 require 'uri'
+require 'date'
 
 def self_update(root_loc, this_version)
   latest_version = retrieve_version
@@ -57,7 +58,7 @@ def confirm_and_update(root_loc)
   confirm = ''
   until confirm.upcase.start_with?('Y', 'N')
     print colorize_yellow('Would you like to update now? (y/n) ')
-    confirm = STDIN.gets.chomp
+    confirm = $stdin.gets.chomp
   end
   if confirm.upcase.start_with?('Y')
     # (try to) run the update
@@ -74,7 +75,7 @@ def confirm_and_update(root_loc)
 end
 
 def run_update(root_loc)
-  if run_command('git -C ' + root_loc + ' pull') != 0
+  if run_command("git -C #{root_loc} pull") != 0
     puts colorize_yellow("There was an error retrieving the new dev-env. Sorry. I'll just get on with " \
                           'starting the machine.')
     puts colorize_yellow('Continuing in 5 seconds...')

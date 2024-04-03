@@ -1,0 +1,30 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+
+jobs:
+  build:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        # The only difference between full and slim is the latter excludes .NET and Rust linters
+      - uses: super-linter/super-linter/slim@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINTER_RULES_PATH: .
+          # Only run against ruby and markdown - we don't care about the others
+          RUBY_CONFIG_FILE: .rubocop.yml
+          VALIDATE_RUBY: true
+          VALIDATE_MARKDOWN: true

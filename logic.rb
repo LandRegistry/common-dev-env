@@ -23,19 +23,19 @@ require 'optparse'
 require 'rubygems'
 
 # Ensures stdout is never buffered
-STDOUT.sync = true
+$stdout.sync = true
 
 # Where is this file located? (From Ruby's perspective)
 root_loc = __dir__
 
 # Define the DEV_ENV_CONTEXT_FILE file name to store the users app_grouping choice
-DEV_ENV_CONTEXT_FILE = root_loc + '/.dev-env-context'
+DEV_ENV_CONTEXT_FILE = "#{root_loc}/.dev-env-context".freeze
 
 # Where we clone the dev env configuration repo into
-DEV_ENV_CONFIG_DIR = root_loc + '/dev-env-config'
+DEV_ENV_CONFIG_DIR = "#{root_loc}/dev-env-config".freeze
 
 # A list of all the docker compose fragments we find, so they can be loaded into an env var and used as one big file
-DOCKER_COMPOSE_FILE_LIST = root_loc + '/.docker-compose-file-list'
+DOCKER_COMPOSE_FILE_LIST = "#{root_loc}/.docker-compose-file-list".freeze
 
 options = {}
 OptionParser.new do |opts|
@@ -68,14 +68,14 @@ OptionParser.new do |opts|
   opts.on('-r', '--reset', 'Deletes all dev-env configuration files') do |v|
     options['reset'] = v
   end
-  opts.on('-n', '--nopull', 'Do not pull images FROMed in Dockerfiles when building if they already exist on system') do |v|
+  opts.on('-n', '--nopull', 'Do not pull images FROMed in Dockerfiles if they already exist on the system') do |v|
     options['nopull'] = v
   end
 end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '2.2.0'
+  this_version = '2.3.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -103,13 +103,11 @@ if options['self_update']
   end
 end
 
-if options['stop_apps']
-  if File.exist?(DOCKER_COMPOSE_FILE_LIST) && File.size(DOCKER_COMPOSE_FILE_LIST) != 0
-    # If this file exists it must have previously got to the point of creating the containers
-    # and if it has something in we know there are apps to stop and won't get an error
-    puts colorize_lightblue('Stopping apps:')
-    run_command("#{ENV['DC_CMD']} stop")
-  end
+if options['stop_apps'] && File.exist?(DOCKER_COMPOSE_FILE_LIST) && File.size(DOCKER_COMPOSE_FILE_LIST) != 0
+  # If this file exists it must have previously got to the point of creating the containers
+  # and if it has something in we know there are apps to stop and won't get an error
+  puts colorize_lightblue('Stopping apps:')
+  run_command("#{ENV['DC_CMD']} stop")
 end
 
 # Ask for/update the dev-env configuration.
@@ -122,7 +120,7 @@ if options['prepare_config']
     puts colorize_green("This dev env has been provisioned to run for the repo: #{File.read(DEV_ENV_CONTEXT_FILE)}")
   else
     print colorize_yellow('Please enter the (Git) url of your dev env configuration repository: ')
-    config_repo = STDIN.gets.chomp
+    config_repo = $stdin.gets.chomp
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
@@ -159,7 +157,7 @@ if options['reset']
   confirm = ''
   until confirm.upcase.start_with?('Y', 'N')
     print colorize_yellow('Would you like to KEEP your dev-env configuration files? (y/n) ')
-    confirm = STDIN.gets.chomp
+    confirm = $stdin.gets.chomp
   end
   if confirm.upcase.start_with?('N')
     FileUtils.rm_f DEV_ENV_CONTEXT_FILE
@@ -200,17 +198,14 @@ if options['build_images']
       puts colorize_red('Something went wrong when building your app images. Check the output above.')
       exit
     end
-  else
-    if run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_yellow('Build command failed. Trying without --parallel')
-      # Might not be running a version of compose that supports --parallel, try one more time
-      if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-        puts colorize_red('Something went wrong when building your app images. Check the output above.')
-        exit
-      end
+  elsif run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
+    puts colorize_yellow('Build command failed. Trying without --parallel')
+    # Might not be running a version of compose that supports --parallel, try one more time
+    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
+      puts colorize_red('Something went wrong when building your app images. Check the output above.')
+      exit
     end
   end
-
 end
 
 if options['provision_commodities']
@@ -222,7 +217,7 @@ if options['provision_commodities']
   else
     run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
       'docker-compose --compatibility ps --services --filter "status=running"',
-      existing_containers)
+                existing_containers)
   end
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
@@ -239,7 +234,7 @@ if options['provision_commodities']
   else
     run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
       'docker-compose --compatibility ps --services --filter "status=running"',
-      existing_containers2)
+                existing_containers2)
   end
   new_containers = existing_containers2 - existing_containers
 
@@ -309,7 +304,7 @@ if options['start_apps']
   end
 
   # Now we can start inexpensive apps, which should be quick and easy
-  if services_to_start.any?   
+  if services_to_start.any?
     puts colorize_lightblue('Starting inexpensive services...')
     up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d " + services_to_start.join(' '))
     if up != 0
@@ -443,6 +438,4 @@ if options['start_apps']
 end
 
 # Do this near the end so that messages are more obvious to the user.
-if options['provision_commodities']
-  show_commodity_messages(root_loc)
-end
+# show_commodity_messages(root_loc) if options['provision_commodities']

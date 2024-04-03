@@ -19,7 +19,7 @@ def provision_localstack(root_loc, new_containers)
 
   localstack_initialised = false
 
-  config['applications'].each do |appname, _appconfig|
+  config['applications'].each_key do |appname|
     # To help enforce the accuracy of the app's dependency file, only search for init script
     # if the app specifically specifies localstack in it's commodity list
     next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
