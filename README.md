@@ -322,8 +322,9 @@ From the host system:
 [Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
 cadence core services.
 
-*Running Cadence web locally*
-- In a web browser enter <http://localhost:5004>
+_Running Cadence web locally_
+
+* In a web browser enter <http://localhost:5004>
 
 ###### Localstack
 
