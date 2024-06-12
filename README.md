@@ -127,7 +127,7 @@ The list of allowable commodity values is:
 1. postgres-13
 2. db2_community
 4. elasticsearch5
-5. nginx
+5. NGINX
 6. rabbitmq
 7. redis
 8. swagger
@@ -192,15 +192,15 @@ The ports 9300 and 9302 are exposed on the host.
 
 [Example](snippets/elasticsearch5-fragment.sh)
 
-##### Nginx
+##### NGINX
 
 **`/fragments/nginx-fragment.conf`**
 
 This file forms part of an NGINX configration file. It will be merged into the server directive of the main configuration file.
 
-Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
+Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
 
-Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
+Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/compose-fragment.yml) for the exact code.
 
 [Example](snippets/nginx-fragment.conf)
 
