@@ -1,4 +1,4 @@
-FROM nginx:1.26
+FROM docker.io/nginx:1.26
 
 RUN rm /etc/nginx/conf.d/default.conf && \
   mkdir /etc/nginx/ssl && \
