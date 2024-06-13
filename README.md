@@ -127,7 +127,7 @@ The list of allowable commodity values is:
 1. postgres-13
 2. db2_community
 4. elasticsearch5
-5. NGINX
+5. nginx
 6. rabbitmq
 7. redis
 8. swagger
@@ -192,7 +192,7 @@ The ports 9300 and 9302 are exposed on the host.
 
 [Example](snippets/elasticsearch5-fragment.sh)
 
-##### NGINX
+##### nginx
 
 **`/fragments/nginx-fragment.conf`**
 
