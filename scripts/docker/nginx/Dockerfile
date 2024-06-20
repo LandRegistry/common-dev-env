@@ -1,13 +1,12 @@
-FROM docker.io/nginx:1.22
+FROM docker.io/nginx:1.26
 
-RUN apt-get update && apt-get install openssl && \
-  rm /etc/nginx/conf.d/default.conf && \
+RUN rm /etc/nginx/conf.d/default.conf && \
   mkdir /etc/nginx/ssl && \
   mkdir /etc/nginx/configs && \
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/ssl.key -out /etc/nginx/ssl/ssl.crt -subj "/C=GB/ST=devon/L=plymouth/O=land_registry/OU=seaton_court/CN=testsslkey/emailAddress=testsslkey@landregistry.gov.uk"
+  openssl req -x509 -noenc -newkey rsa:2048 -keyout /etc/nginx/ssl/key.pem -out /etc/nginx/ssl/req.pem -days 90 -subj "/C=GB/ST=Devon/L=Plymouth/O=HM Land Registry/OU=DDaT/CN=localhost"
 
 # The base server config, which sets up the SSL etc.
-COPY server.conf /etc/nginx/conf.d/server.conf
+COPY nginx.conf /etc/nginx/conf.d
 
 # To ensure our changes and config fragments we copy in are actually persisted in between container recreates.
 # This has to go at the end as the data is frozen once the volume is declared
