@@ -3,8 +3,8 @@ services:
     container_name: elasticsearch6
     build: ../scripts/docker/elasticsearch6
     ports:
-      - "9203:9201"
-      - "9303:9301"
+      - "9203:9200"
+      - "9303:9300"
     restart: on-failure
     platform: "linux/amd64"
     ulimits:

@@ -199,7 +199,7 @@ The ports 9300 and 9302 are exposed on the host.
 
 This file is a shell script that contains curl commands to do any setup the app needs in elasticsearch - creating indexes etc. It will be passed a single argument, the host and port, which can be accessed in the script using `$1`.
 
-The ports 9301 and 9303 are exposed on the host.
+The ports 9300 and 9303 are exposed on the host.
 
 If the ElasticSearch 6 container is returning the follow error log message:
 ```
