@@ -1,5 +1,5 @@
 ---
-commodities: ["postgres-13", "elasticsearch5", "rabbitmq", "db2_community"]
+commodities: ["postgres-17", "elasticsearch5", "rabbitmq", "db2_community"]
 # Optional
 expensive_startup:
   - compose_service: name-of-service-from-compose-fragment

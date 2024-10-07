@@ -1,0 +1,6 @@
+services:
+  postgres-17:
+    container_name: postgres-17
+    build: ../scripts/docker/postgres-17/
+    ports:
+      - "5435:5432"

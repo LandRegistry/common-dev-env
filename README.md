@@ -125,7 +125,8 @@ This file specifies which commodities the dev-env should create and launch for t
 The list of allowable commodity values is:
 
 1. postgres-13
-2. db2_community
+2. postgres-17
+3. db2_community
 4. elasticsearch5
 5. nginx
 6. rabbitmq
@@ -166,7 +167,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers. Port 5434 is exposed for external connections from the host.
+The default Postgres port 5432 will be available for connections from other containers, hostname `postgres-13` or `postgres-17`. Port `5434` (for PG13) or `5435` (for PG17) is exposed for external connections from the host.
 
 **`/manage.py`**
 
