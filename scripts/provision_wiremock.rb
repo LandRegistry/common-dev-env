@@ -57,11 +57,13 @@ def build_wiremock(root_loc, appname, already_started, new_container)
                     ' | docker cp - wiremock:/wiremock/mappings/')
       end
 
-      # Rename the file so it is unique and wont get overwritten by any others we copy up
-      # Also, GitBash needs the inner quotes to be doubles
-      run_command('docker exec wiremock bash -c "' \
-        "mv /wiremock/mappings/wiremock-fragment.json /wiremock/mappings/#{appname}-wiremock-fragment.json" \
-        '"')
+      if wiremock_file
+        # Rename the file so it is unique and wont get overwritten by any others we copy up
+        # Also, GitBash needs the inner quotes to be doubles
+        run_command('docker exec wiremock bash -c "' \
+            "mv /wiremock/mappings/wiremock-fragment.json /wiremock/mappings/#{appname}-wiremock-fragment.json" \
+            '"')
+      end
 
       # Update the .commodities.yml to indicate that Wiremock has now been provisioned
       set_commodity_provision_status(root_loc, appname, 'wiremock', true)

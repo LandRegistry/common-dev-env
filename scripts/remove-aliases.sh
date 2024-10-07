@@ -11,6 +11,7 @@ unalias ex
 unalias status
 unalias run
 unalias psql13
+unalias psql17
 unalias db2co
 unalias cadence-cli
 

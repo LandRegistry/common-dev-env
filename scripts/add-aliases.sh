@@ -16,6 +16,7 @@ alias ex="$DC_CMD exec"
 alias status="$DC_CMD ps"
 alias run="$DC_CMD run --rm"
 alias psql13="$DC_CMD exec postgres-13 psql -h postgres-13 -U root -d"
+alias psql17="$DC_CMD exec postgres-17 psql -h postgres-17 -U root -d"
 alias db2co="$DC_CMD exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
@@ -212,6 +213,7 @@ function devenv-help(){
                                                            if you add -f it will automatically fix issues where possible
                                                            (flags can be combined)
     psql13 <name of database>                        -     run psql in the postgres-13 container
+    psql17 <name of database>                        -     run psql in the postgres-17 container
     db2co                                            -     run db2 command line in the db2_community container
     manage <name of container> <command>             -     run manage.py commands in a container
     alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset

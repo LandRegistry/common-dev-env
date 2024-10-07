@@ -13,8 +13,15 @@ export COMPOSE_PROJECT_NAME=dv
 
 # Set environment variables for compose files to send to Dockerfiles as arguments,
 # should the Dockerfile wish to create a matching user to run the container as
-export OUTSIDE_UID=$(id -u)
-export OUTSIDE_GID=$(id -g)
+# However Git Bash does not care about file system permissions, and uses weirdly high UIDs, so
+# just use 1000 in that case
+if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
+  export OUTSIDE_UID=1000
+  export OUTSIDE_GID=1000
+else
+  export OUTSIDE_UID=$(id -u)
+  export OUTSIDE_GID=$(id -g)
+fi
 
 # Load all the docker compose file references that were saved earlier
 dockerfilelist=$(<./.docker-compose-file-list)

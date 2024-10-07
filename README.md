@@ -125,7 +125,8 @@ This file specifies which commodities the dev-env should create and launch for t
 The list of allowable commodity values is:
 
 1. postgres-13
-2. db2_community
+2. postgres-17
+3. db2_community
 4. elasticsearch5
 5. elasticsearch7
 6. nginx
@@ -167,7 +168,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers. Port 5434 is exposed for external connections from the host.
+The default Postgres port 5432 will be available for connections from other containers, hostname `postgres-13` or `postgres-17`. Port `5434` (for PG13) or `5435` (for PG17) is exposed for external connections from the host.
 
 **`/manage.py`**
 
@@ -212,9 +213,9 @@ sysctl -w vm.max_map_count=262144
 
 This file forms part of an NGINX configration file. It will be merged into the server directive of the main configuration file.
 
-Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
+Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
 
-Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
+Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/compose-fragment.yml) for the exact code.
 
 [Example](snippets/nginx-fragment.conf)
 
@@ -336,8 +337,9 @@ From the host system:
 [Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
 cadence core services.
 
-*Running Cadence web locally*
-- In a web browser enter <http://localhost:5004>
+_Running Cadence web locally_
+
+* In a web browser enter <http://localhost:5004>
 
 ###### Localstack
 
