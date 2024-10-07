@@ -199,11 +199,12 @@ The ports 9300 and 9302 are exposed on the host.
 The ports 9207 and 9307 are exposed on the host.
 
 If the ElasticSearch 7 container is returning the follow error log message:
-```
-max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
-```
+
+`max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]`
+
 Run the following command in a terminal to set the system's max map count.
-```
+
+```bash
 sysctl -w vm.max_map_count=262144
 ```
 
