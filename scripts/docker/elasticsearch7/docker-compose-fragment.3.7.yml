@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  elasticsearch7:
+    container_name: elasticsearch7
+    build: ../scripts/docker/elasticsearch7
+    ports:
+      - "9207:9200"
+      - "9307:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    restart: on-failure

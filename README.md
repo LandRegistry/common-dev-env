@@ -128,18 +128,19 @@ The list of allowable commodity values is:
 2. postgres-17
 3. db2_community
 4. elasticsearch5
-5. nginx
-6. rabbitmq
-7. redis
-8. swagger
-9. wiremock
-10. squid
-11. auth
-12. cadence
-13. cadence-web
-14. activemq
-15. ibmmq
-16. localstack
+5. elasticsearch7
+6. nginx
+7. rabbitmq
+8. redis
+9. swagger
+10. wiremock
+11. squid
+12. auth
+13. cadence
+14. cadence-web
+15. activemq
+16. ibmmq
+17. localstack
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -193,7 +194,20 @@ The ports 9300 and 9302 are exposed on the host.
 
 [Example](snippets/elasticsearch5-fragment.sh)
 
-##### nginx
+##### ElasticSearch 7
+
+The ports 9207 and 9307 are exposed on the host.
+
+If the ElasticSearch 7 container is returning the follow error log message:
+```
+max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+```
+Run the following command in a terminal to set the system's max map count.
+```
+sysctl -w vm.max_map_count=262144
+```
+
+##### Nginx
 
 **`/fragments/nginx-fragment.conf`**
 
