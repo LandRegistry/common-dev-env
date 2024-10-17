@@ -1,6 +1,6 @@
 FROM docker.io/eclipse-temurin:21-jre-ubi9-minimal
 
-ARG WM_VERSION=3.6.0
+ARG WM_VERSION=3.9.1
 
 RUN mkdir -p /wiremock/mappings && cd /wiremock && \
     curl -sSL -o wiremock.jar https://repo1.maven.org/maven2/org/wiremock/wiremock-standalone/$WM_VERSION/wiremock-standalone-$WM_VERSION.jar
