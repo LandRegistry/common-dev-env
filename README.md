@@ -125,20 +125,22 @@ This file specifies which commodities the dev-env should create and launch for t
 The list of allowable commodity values is:
 
 1. postgres-13
-2. db2_community
+2. postgres-17
+3. db2_community
 4. elasticsearch5
-5. nginx
-6. rabbitmq
-7. redis
-8. swagger
-9. wiremock
-10. squid
-11. auth
-12. cadence
-13. cadence-web
-14. activemq
-15. ibmmq
-16. localstack
+5. elasticsearch7
+6. nginx
+7. rabbitmq
+8. redis
+9. swagger
+10. wiremock
+11. squid
+12. auth
+13. cadence
+14. cadence-web
+15. activemq
+16. ibmmq
+17. localstack
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -166,7 +168,7 @@ If you want to spatially enable your database see the following example:
 
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
-The default Postgres port 5432 will be available for connections from other containers. Port 5434 is exposed for external connections from the host.
+The default Postgres port 5432 will be available for connections from other containers, hostname `postgres-13` or `postgres-17`. Port `5434` (for PG13) or `5435` (for PG17) is exposed for external connections from the host.
 
 **`/manage.py`**
 
@@ -192,15 +194,29 @@ The ports 9300 and 9302 are exposed on the host.
 
 [Example](snippets/elasticsearch5-fragment.sh)
 
+##### ElasticSearch 7
+
+The ports 9207 and 9307 are exposed on the host.
+
+If the ElasticSearch 7 container is returning the follow error log message:
+
+`max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]`
+
+Run the following command in a terminal to set the system's max map count.
+
+```bash
+sysctl -w vm.max_map_count=262144
+```
+
 ##### Nginx
 
 **`/fragments/nginx-fragment.conf`**
 
 This file forms part of an NGINX configration file. It will be merged into the server directive of the main configuration file.
 
-Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's docker-compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
+Important - if your app is adding itself as a proxied location{} behind NGINX, NGINX must start AFTER your app, otherwise it will error with a host not found. So your app's compose-fragment.yml must actually specify NGINX as a service and set the depends_on variable with your app's name.
 
-Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/docker-compose-fragment.yml) for the exact code.
+Compose will automatically merge this with the dev-env's own NGINX fragment. See the end of the [example Compose fragment](snippets/compose-fragment.yml) for the exact code.
 
 [Example](snippets/nginx-fragment.conf)
 
@@ -322,8 +338,9 @@ From the host system:
 [Cadence Web](https://github.com/uber/cadence-web) is a web-based user interface which is used to view workflows from Cadence, see what's running, and explore and debug workflow executions. This also comes with a RESTful API that allows us query
 cadence core services.
 
-*Running Cadence web locally*
-- In a web browser enter <http://localhost:5004>
+_Running Cadence web locally_
+
+* In a web browser enter <http://localhost:5004>
 
 ###### Localstack
 

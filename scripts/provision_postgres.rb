@@ -5,6 +5,8 @@ def postgres_container(postgres_version)
   case postgres_version
   when '13'
     'postgres-13'
+  when '17'
+    'postgres-17'
   else
     puts colorize_red("Unknown PostgreSQL version (#{postgres_version}) specified.")
     ''

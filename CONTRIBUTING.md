@@ -10,7 +10,7 @@ Working on your first Pull Request? You can learn how from this *free* series, [
 
 Please use the `develop` branch as starting point for your own branch, and the target for any pull requests.
 
-If you're adding a commodity, at the very minimum it will need a `docker-compose-fragment.yml` and a README entry. If there is support for extra functionality such as provisioning snippets, then a working example should be placed in the snippets directory and linked to from the README.
+If you're adding a commodity, at the very minimum it will need a `compose-fragment.yml` and a README entry. If there is support for extra functionality such as provisioning snippets, then a working example should be placed in the snippets directory and linked to from the README.
 
 ## Code of Conduct
 
