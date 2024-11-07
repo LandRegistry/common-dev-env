@@ -92,12 +92,10 @@ def choose_compose_version(root_loc)
       when 'compose-fragment.yml'
         compose_counts['unversioned'] += 1
       when /compose-fragment\..+\.yml/
-        variant_fragment_filename = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
-        if config['applications'][appname].key?('variant') && config['applications'][appname]['variant'] \
-            == variant_fragment_filename
-          # If it is selected, load it into compose_variants
+        variant_fragment_filename = get_variant_fragment_filename(config, appname, basename)
+        unless variant_fragment_filename.nil?
           compose_variants[appname] = variant_fragment_filename
-          puts colorize_lightblue("#{appname}: Selected compose variant #{compose_variants[appname]}")
+          puts colorize_lightblue("#{appname}: Selected compose variant \"#{compose_variants[appname]}\"")
         end
       else
         puts colorize_yellow("Unsupported fragment: #{basename}")
@@ -108,6 +106,16 @@ def choose_compose_version(root_loc)
   compose_version = get_consensus(compose_counts, apps_with_fragments, compose_variants)
   puts colorize_lightblue("Selecting compose version #{compose_version}")
   [compose_version, compose_variants]
+end
+
+def get_variant_fragment_filename(config, appname, basename)
+  variant_fragment_filename = basename.scan(/compose-fragment\.(.*?)\.yml/).flatten.first
+  if config['applications'][appname].key?('variant') && config['applications'][appname]['variant'] \
+    == variant_fragment_filename
+    return variant_fragment_filename
+  end
+
+  nil
 end
 
 def get_consensus(compose_counts, app_count, compose_variants)
