@@ -1,5 +1,4 @@
 applications:
-
   my-frontend:
     repo: https://github.com/my/frontend.git
     ref: develop

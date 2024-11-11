@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   db2_community:
     container_name: db2_community

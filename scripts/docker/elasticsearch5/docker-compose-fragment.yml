@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   elasticsearch5:
     container_name: elasticsearch5

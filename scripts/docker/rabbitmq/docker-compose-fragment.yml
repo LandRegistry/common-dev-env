@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   rabbitmq:
     container_name: rabbitmq

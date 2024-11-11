@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   cadence-web:
     container_name: cadence-web
