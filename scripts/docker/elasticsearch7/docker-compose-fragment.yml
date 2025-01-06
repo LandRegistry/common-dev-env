@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   elasticsearch7:
     container_name: elasticsearch7

@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   ibmmq:
     container_name: ibmmq

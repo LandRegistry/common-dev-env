@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   postgres-17:
     container_name: postgres-17

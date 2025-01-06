@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   wiremock:
     container_name: wiremock

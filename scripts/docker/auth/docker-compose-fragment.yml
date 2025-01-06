@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   openldap:
     container_name: openldap

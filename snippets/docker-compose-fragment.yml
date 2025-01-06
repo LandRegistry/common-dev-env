@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   # Notice how the service name, container name and repo directory (where the Dockerfile lives) all match.
   backend-api:
