@@ -192,33 +192,18 @@ if options['build_images']
   end
 
   puts colorize_lightblue('Building images...')
-  # v2 already builds in parallel
-  if ENV['DC_VERSION'] == '2'
-    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_red('Something went wrong when building your app images. Check the output above.')
-      exit
-    end
-  elsif run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
-    puts colorize_yellow('Build command failed. Trying without --parallel')
-    # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_red('Something went wrong when building your app images. Check the output above.')
-      exit
-    end
+  if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
+    puts colorize_red('Something went wrong when building your app images. Check the output above.')
+    exit
   end
+
 end
 
 if options['provision_commodities']
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
   # v2 --services seems to work differently. it already excludes deleted containers
-  if ENV['DC_VERSION'] == '2'
-    run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
-  else
-    run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
-      'docker-compose --compatibility ps --services --filter "status=running"',
-                existing_containers)
-  end
+  run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
   puts colorize_lightblue('Creating containers...')
@@ -229,13 +214,7 @@ if options['provision_commodities']
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
-  if ENV['DC_VERSION'] == '2'
-    run_command("#{ENV['DC_CMD']} ps --services", existing_containers2)
-  else
-    run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
-      'docker-compose --compatibility ps --services --filter "status=running"',
-                existing_containers2)
-  end
+  run_command("#{ENV['DC_CMD']} ps --services", existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
   # Provision all commodities (by executing fragments found in app repos)

@@ -159,7 +159,7 @@ function localstack(){
 function fullreset(){
     stop ${1}
     remove ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1}
     rebuild ${1}
 }
 
