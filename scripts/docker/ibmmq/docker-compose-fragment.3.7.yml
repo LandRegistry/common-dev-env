@@ -1,9 +1,0 @@
-version: "3.7"
-services:
-  ibmmq:
-    container_name: ibmmq
-    build: ../scripts/docker/ibmmq/
-    ports:
-      - "1414:1414"
-      - "9443:9443"
-      - "9157:9157"

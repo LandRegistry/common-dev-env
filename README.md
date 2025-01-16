@@ -96,18 +96,6 @@ A default `compose-fragment.yml` is still required in addition to any optional v
 
 [Example](snippets/compose-fragment.yml)
 
-##### `/fragments/docker-compose-fragment.yml` and `/fragments/docker-compose-fragment.3.7.yml`
-
-Optional variants of `compose-fragment.yml` with a version of `2` and `3.7` respectively. Support for these is still present for backwards compatibility with older apps.The development environment will select the highest compose file version supplied by _all_ applications in the environment (2 --> 3.7 --> unversioned).
-
-If the environment cannot identify a universal compose file version, then provisioning will fail.
-
-Compose fragment variants are unsupported when used in conjunction with older compose fragment versions.
-
-[2 Example](snippets/docker-compose-fragment.yml)
-
-[3.7 Example](snippets/docker-compose-fragment.3.7.yml)
-
 #### Other
 
 ##### `/Dockerfile`
@@ -120,7 +108,7 @@ This is a file that defines the application's Docker image. The Compose fragment
 
 ##### `/configuration.yml`
 
-This file specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
+This file specifies which commodities the dev-env should create and launch for the application to use. If the commodity must be started before your application, ensure that it is also present in the appropriate section of the `compose-fragment` file (e.g. `depends_on`).
 
 The list of allowable commodity values is:
 
@@ -144,7 +132,7 @@ The list of allowable commodity values is:
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
-This requires a healthcheck command specified here or in the Dockerfile/docker-compose-fragment (in which case just use 'docker' in this file).
+This requires a healthcheck command specified here or in the Dockerfile/compose-fragment (in which case just use 'docker' in this file).
 
 If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
@@ -378,7 +366,7 @@ Any messages that get forwarded to the logstash\* container on TCP port 25826 wi
 
 \* Note that it is not really logstash, but we kept the container name that for backwards compatibility purposes.
 
-If you want to make use of this functionality, ensure that `logstash` is also present in the appropriate section of the `docker-compose-fragment` file (e.g. `depends_on`).
+If you want to make use of this functionality, ensure that `logstash` is also present in the appropriate section of the `compose-fragment` file (e.g. `depends_on`).
 
 ## Hints and Tips
 
