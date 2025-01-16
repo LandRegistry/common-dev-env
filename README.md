@@ -5,7 +5,7 @@ This repository contains the code for a development environment that can be used
 It provides several hooks for applications to take advantage of, including:
 
 - Docker container creation and launching via docker-compose
-- Automatic creation of commodity systems such as Postgres or Elasticsearch (with further hooks to allow for initial provisoning such as running SQL, Alembic DB upgrades or Elasticsearch index creation)
+- Automatic creation of commodity systems such as Postgres or Elasticsearch (with further hooks to allow for initial provisoning such as running SQL)
 
 ## Getting started
 
@@ -157,10 +157,6 @@ If you want to spatially enable your database see the following example:
 [Example - Spatial](snippets/spatial_postgres-init-fragment.sql)
 
 The default Postgres port 5432 will be available for connections from other containers, hostname `postgres-13` or `postgres-17`. Port `5434` (for PG13) or `5435` (for PG17) is exposed for external connections from the host.
-
-**`/manage.py`**
-
-This is a standard Alembic management file - if it exists, then a database migration will be run on every `up` or `reload`. This functionality can be enabled by setting the key `perform_alembic_migration` to `true` in `configuration.yml`. It is recommended however that you do your own migration during app startup.
 
 ##### DB2 Community
 
