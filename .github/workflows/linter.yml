@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
         # The only difference between full and slim is the latter excludes .NET and Rust linters
-      - uses: super-linter/super-linter/slim@v6
+      - uses: super-linter/super-linter/slim@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
