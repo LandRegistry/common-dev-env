@@ -22,7 +22,7 @@ do
 			cd $item;
 			repo=$(basename `git rev-parse --show-toplevel`)
 			branch=$(git rev-parse --abbrev-ref HEAD)
-			if [ $branch == "master" ];
+			if [[ "$branch" =~ ^(master|main)$ ]];
 			then
 				branch_colour=$NORMAL
 			else
