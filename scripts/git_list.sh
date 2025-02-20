@@ -22,12 +22,14 @@ do
 			cd $item;
 			repo=$(basename `git rev-parse --show-toplevel`)
 			branch=$(git rev-parse --abbrev-ref HEAD)
-			if [[ "$branch" =~ ^(master|main)$ ]];
-			then
-				branch_colour=$NORMAL
-			else
-				branch_colour=$YELLOW
-			fi
+			case "$branch" in
+				master|main)
+					branch_colour=$NORMAL
+					;;
+				*)
+					branch_colour=$YELLOW
+					;;
+			esac
 			echo -e "${GREEN} ${repo} ${NORMAL} -> ${branch_colour} ${branch}"
 		);
 	fi
