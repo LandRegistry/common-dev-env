@@ -234,7 +234,7 @@ This is a directory that can contain multiple stub mappings files that Wiremock 
 
 ##### RabbitMQ
 
-There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> (guest/guest).
+There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> for RabbitMQ 3, or <http://localhost:15682> for RabbitMQ 4 (guest/guest).
 
 Rabbit is available over port 5672 and TLS on port 5671.
 
