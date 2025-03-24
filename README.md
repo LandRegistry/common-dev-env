@@ -131,16 +131,17 @@ The list of allowable commodity values is:
 5. elasticsearch7
 6. nginx
 7. rabbitmq
-8. redis
-9. swagger
-10. wiremock
-11. squid
-12. auth
-13. cadence
-14. cadence-web
-15. activemq
-16. ibmmq
-17. localstack
+8. rabbitmq-4
+9. redis
+10. swagger
+11. wiremock
+12. squid
+13. auth
+14. cadence
+15. cadence-web
+16. activemq
+17. ibmmq
+18. localstack
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -236,7 +237,7 @@ This is a directory that can contain multiple stub mappings files that Wiremock 
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> for RabbitMQ 3, or <http://localhost:15682> for RabbitMQ 4 (guest/guest).
 
-Rabbit is available over port 5672 and TLS on port 5671.
+RabbitMQ 3 is available over port 5672 and TLS on port 5671. RabbitMQ 4 is available over port 5682 and TLS on port 5681.
 
 TLS presents a self signed cert. If verification is needed a copy of the ca certificate is [here](scripts/docker/rabbitmq/certs/ca_certificate.crt). The host has been set to `rabbitmq` for host verification in most common libraries, although will only work within the docker network.
 
