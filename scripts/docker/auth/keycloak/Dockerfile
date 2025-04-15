@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:7.0.1
+FROM quay.io/keycloak/keycloak:9.0.3
 
 ADD development_realm.json /etc/keycloak/
 
