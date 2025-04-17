@@ -12,7 +12,8 @@ Please use the `develop` branch as starting point for your own branch, and the t
 
 If you're adding a commodity, at the very minimum it will need a `compose-fragment.yml` and a README entry. If there is support for extra functionality such as provisioning snippets, then a working example should be placed in the snippets directory and linked to from the README.
 
-It is preferred that base images come from container registries other than Docker Hub where possible to avoid users being adversely affected by pull limits (alternatives include [quay.io](https://quay.io) and [Amazon ECR](https://public.ecr.aws)), but only where an official image exists in those locations. If an official image only exists in Docker Hub, then use the Docker Hub image. Care should always be taken when referencing third-party base images from any container registry.
+It is preferred that base images come from container registries other than Docker Hub where possible to avoid users being adversely affected by pull limits (alternatives include [quay.io](https://quay.io) and [Amazon ECR](https://public.ecr.aws)), 
+but only where an official image exists in those locations. If an official image only exists in Docker Hub, then use the Docker Hub image. Care should always be taken when referencing third-party base images from any container registry.
 
 ## Code of Conduct
 
