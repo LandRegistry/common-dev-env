@@ -1,6 +1,6 @@
 FROM docker.elastic.co/elasticsearch/elasticsearch:5.6.16
 
-ENV ES_JAVA_OPTS -Xms1024m -Xmx1024m
+ENV ES_JAVA_OPTS="-Xms1024m -Xmx1024m"
 
 # Remove default heap size and add low-memory optimisations
 RUN echo "bootstrap.memory_lock: true" >> /usr/share/elasticsearch/config/elasticsearch.yml && \
