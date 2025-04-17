@@ -2,8 +2,8 @@ AllCops:
   TargetRubyVersion: 2.5
 
   Exclude:
-    - 'apps/**/*'
-    - 'scripts/docker/**/*'
+    - "apps/**/*"
+    - "scripts/docker/**/*"
 
 Layout/LineLength:
   Max: 125

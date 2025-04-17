@@ -159,7 +159,7 @@ function localstack(){
 function fullreset(){
     stop ${1}
     remove ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1}
     rebuild ${1}
 }
 
@@ -218,7 +218,7 @@ function devenv-help(){
     manage <name of container> <command>             -     run manage.py commands in a container
     alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
     add-to-docker-compose
-      <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
+      <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
     cadence-cli                                      -     runs the command line tool to interact with cadence orchestrator
     localstack                                       -     run localstack (aws) commands in the localstack container
 EOF

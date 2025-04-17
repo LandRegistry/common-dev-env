@@ -2,5 +2,5 @@ services: {}
 
 networks:
   default:
-    name: 'dv_default'
+    name: "dv_default"
     external: true

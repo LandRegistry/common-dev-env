@@ -1,6 +1,5 @@
 require_relative 'utilities'
 require_relative 'provision_postgres'
-require_relative 'provision_alembic'
 require_relative 'provision_auth'
 require_relative 'provision_hosts'
 require_relative 'provision_db2_community'
@@ -136,8 +135,6 @@ def provision_commodities(root_loc, new_containers)
   # Do a fullreset, or docker-compose rm -v -f postgres-13
   %w[13 17].each do |postgres_version|
     provision_postgres(root_loc, new_containers, postgres_version)
-    # Alembic, too
-    provision_alembic(root_loc, postgres_version)
   end
 
   # Run app DB2 SQL statements

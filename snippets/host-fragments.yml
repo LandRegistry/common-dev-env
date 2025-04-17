@@ -1,2 +1,2 @@
 hosts:
- - 127.0.0.1 my-local-hostname.com
+  - 127.0.0.1 my-local-hostname.com
