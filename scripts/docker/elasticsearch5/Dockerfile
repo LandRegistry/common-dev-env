@@ -1,4 +1,4 @@
-FROM docker.io/elasticsearch:5.6.16
+FROM docker.elastic.co/elasticsearch/elasticsearch:5.6.16
 
 ENV ES_JAVA_OPTS -Xms1024m -Xmx1024m
 

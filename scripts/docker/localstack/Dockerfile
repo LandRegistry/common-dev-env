@@ -1,1 +1,1 @@
-FROM docker.io/localstack/localstack:2.3
+FROM public.ecr.aws/localstack/localstack:2.3

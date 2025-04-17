@@ -1,4 +1,4 @@
-FROM docker.io/eclipse-temurin:21-jre-ubi9-minimal
+FROM quay.io/lib/eclipse-temurin:21-jre-ubi9-minimal
 
 ARG WM_VERSION=3.9.1
 
