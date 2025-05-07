@@ -129,6 +129,7 @@ The list of allowable commodity values is:
 15. activemq
 16. ibmmq
 17. localstack
+18. valkey
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -335,6 +336,19 @@ A default Localstack configuration is provided with a minimal number of enabled 
 However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh).
 
 Localstack is available at <http://localstack:4566> within the Docker network, and <http://localhost:4566> on the host.
+
+###### Valkey
+
+[Valkey](https://valkey.io/) is a key-value store forked from Redis.
+
+There are no fragments needed when using this. Valkey will be available at <http://localhost:6389> on the host and <http://valkey:6379> inside the Docker network.
+
+You can monitor Valkey activity using the CLI:
+
+```shell
+bashin redis
+redis-cli monitor
+```
 
 #### Other files
 
