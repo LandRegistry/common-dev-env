@@ -37,13 +37,13 @@ Other `run.sh` parameters are:
 
 - `halt` - stops all containers
 - `reload` - stops all containers then rebuilds and restarts them (including running any commodity fragments)
-- `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from Docker Hub) and resets all dev-env configuration files.
+- `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from external container registries) and resets all dev-env configuration files.
 - `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several or are in a different terminal window to the one you ran `up` in)
 - `quickup` and `quickreload` - as per `up` and `reload` except they do not update anything from git (apps or config), rebuild Docker images or provision any commodity fragments.
 
 #### Extra functionality
 
-- `--nopull` (or `-n`) can go after `up` or `reload` - e.g. `source run.sh up -n`. This will stop images FROMed in Dockerfiles being checked for updates if a copy already exists on the system. Use to avoid Docker Hub pull rate limits.
+- `--nopull` (or `-n`) can go after `up` or `reload` - e.g. `source run.sh up -n`. This will stop images FROMed in Dockerfiles being checked for updates if a copy already exists on the system. Use to avoid container registry pull rate limits.
 
 ## Usage guide
 

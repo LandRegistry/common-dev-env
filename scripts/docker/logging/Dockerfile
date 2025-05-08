@@ -1,6 +1,6 @@
-FROM docker.io/python:3.11.3-slim
+FROM quay.io/lib/python:3.11.12-slim
 
-ENV PYTHONUNBUFFERED yes
+ENV PYTHONUNBUFFERED=yes
 COPY tini server.py run.sh /
 RUN chmod 755 /tini /server.py /run.sh
 
