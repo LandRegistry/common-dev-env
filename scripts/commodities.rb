@@ -59,9 +59,8 @@ def which_app_needs_what(root_loc, config)
   if config['applications']
     config['applications'].each_key do |appname|
       # Load any commodities into the list
-      unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-        next
-      end
+      next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
+
       dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
 
       next if dependencies.nil?
@@ -79,7 +78,6 @@ end
 def get_commodity_file(root_loc)
   if File.exist?("#{root_loc}/.commodities.yml")
     commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
-    puts colorize_pink('Found an existing .commodities file.')
   else
     # Create the base file structure
     puts colorize_lightblue('Did not find any .commodities file. Creating a new one.')
