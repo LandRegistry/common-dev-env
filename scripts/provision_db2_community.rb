@@ -3,8 +3,6 @@ require_relative 'commodities'
 require 'yaml'
 
 def provision_db2_community(root_loc, new_containers)
-  puts colorize_lightblue('Searching for db2_community initialisation SQL in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
@@ -28,16 +26,13 @@ def provision_db2_community(root_loc, new_containers)
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/db2-community-init-fragment.sql")
       database_initialised = process_db2_community_fragment(root_loc, appname, database_initialised, new_db_container)
-    else
-      puts colorize_yellow("#{appname} says it uses DB2 Community but doesn't contain an init SQL file.
-          Oh well, onwards we go!")
     end
   end
 end
 
 def process_db2_community_fragment(root_loc, appname, database_initialised, new_db_container)
   result = database_initialised
-  puts colorize_pink("Found some in #{appname}")
+  puts colorize_pink("Found a DB2 Community init fragment in #{appname}")
   if commodity_provisioned?(root_loc, appname, 'db2_community') && !new_db_container
     puts colorize_yellow("DB2 Community has previously been provisioned for #{appname}, skipping")
   else

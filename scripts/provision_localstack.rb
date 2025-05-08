@@ -3,8 +3,6 @@ require_relative 'commodities'
 require 'yaml'
 
 def provision_localstack(root_loc, new_containers)
-  puts colorize_lightblue('Searching for Localstack initialisation script in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
@@ -28,16 +26,13 @@ def provision_localstack(root_loc, new_containers)
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/localstack-init-fragment.sh")
       process_localstack_fragment(root_loc, appname, localstack_initialised, new_db_container)
-    else
-      puts colorize_yellow("#{appname} says it uses Localstack but doesn't contain an init file.
-          Oh well, onwards we go!")
     end
   end
 end
 
 def process_localstack_fragment(root_loc, appname, localstack_initialised, new_db_container)
   result = localstack_initialised
-  puts colorize_pink("Found some in #{appname}")
+  puts colorize_pink("Found a Localstack init fragment in #{appname}")
   if commodity_provisioned?(root_loc, appname, 'localstack') && !new_db_container
     puts colorize_yellow("Localstack has previously been provisioned for #{appname}, skipping")
   else

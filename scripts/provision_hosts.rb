@@ -6,13 +6,12 @@ require 'yaml'
 # root_loc - The root location of the development environment.
 #
 def provision_hosts(root_loc)
-  puts colorize_lightblue('Searching for host file updates')
   host_additions = get_host_additions(root_loc)
 
   # Now modify the host's file according to OS
   return if host_additions.empty?
 
-  puts colorize_lightblue("Additions: #{host_additions}")
+  puts colorize_lightblue("Host file addition found: #{host_additions}")
 
   file = File.read(hosts_filename)
   host_additions.each do |s|
