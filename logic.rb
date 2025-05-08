@@ -125,7 +125,6 @@ if options['prepare_config']
   end
 
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
-  puts colorize_lightblue('Retrieving custom configuration repo files:')
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
     new_project = false
     command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
@@ -137,7 +136,6 @@ if options['prepare_config']
     parsed_repo = ref if delimiter.empty?
     command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
     if command_successful.zero? && !delimiter.empty?
-      puts colorize_lightblue("Checking out configuration repo ref: #{ref}")
       command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
     end
   end
@@ -181,7 +179,6 @@ if options['prepare_compose']
   create_commodities_list(root_loc)
 
   # Call the ruby function to create the docker compose file containing the apps and their commodities
-  puts colorize_lightblue('Creating docker-compose file list')
   prepare_compose(root_loc, DOCKER_COMPOSE_FILE_LIST)
 end
 
@@ -205,7 +202,6 @@ if options['provision_commodities']
   run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
-  puts colorize_lightblue('Creating containers...')
   if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start") != 0
     puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
     exit
@@ -273,7 +269,6 @@ if options['start_apps']
     end
   end
 
-  puts colorize_lightblue('Starting log receiver service...')
   up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash")
   sleep(3)
   if up != 0
