@@ -60,8 +60,6 @@ def which_app_needs_what(root_loc, config)
     config['applications'].each_key do |appname|
       # Load any commodities into the list
       unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-        puts colorize_yellow("No configuration.yml found for #{appname}, assume no commodities & inexpensive startup")
-        sleep(3)
         next
       end
       dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")

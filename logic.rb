@@ -175,7 +175,6 @@ end
 # TODO bash autocompletion of container names
 if options['prepare_compose']
   # Create a file called .commodities.yml with the list of commodities in it
-  puts colorize_lightblue('Creating list of commodities')
   create_commodities_list(root_loc)
 
   # Call the ruby function to create the docker compose file containing the apps and their commodities
