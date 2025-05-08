@@ -202,7 +202,6 @@ end
 if options['provision_commodities']
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
-  # v2 --services seems to work differently. it already excludes deleted containers
   run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
