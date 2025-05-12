@@ -68,23 +68,30 @@ def find_active_variants(root_loc)
   compose_variants = {}
 
   config['applications'].each_key do |appname|
+    found_valid_fragment = false
     compose_fragments = Dir["#{root_loc}/apps/#{appname}/fragments/*compose-fragment*.yml"]
 
     compose_fragments.each do |fragment|
       basename = File.basename(fragment)
       case basename
       when 'compose-fragment.yml'
-        nil
+        found_valid_fragment = true
       when /compose-fragment\..+\.yml/
         variant_fragment_filename = validate_variant_fragment_filename(config, appname, basename)
         unless variant_fragment_filename.nil?
           compose_variants[appname] = variant_fragment_filename
           puts colorize_lightblue("#{appname}: Selected compose variant \"#{compose_variants[appname]}\"")
+          found_valid_fragment = true
         end
       else
-        puts colorize_yellow("Unsupported fragment: #{basename}")
+        puts colorize_yellow("Unsupported fragment in #{appname}: #{basename}")
       end
     end
+    next if found_valid_fragment
+
+    puts colorize_red("Cannot find a valid compose fragment file in #{appname}; no container will be created")
+    puts colorize_yellow('Continuing in 3 seconds...')
+    sleep(3)
   end
 
   compose_variants
