@@ -12,11 +12,10 @@ It provides several hooks for applications to take advantage of, including:
 ### Prerequisites
 
 - **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
-  - [Docker For Mac](https://docs.docker.com/docker-for-mac/)
-  - [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
+  - [Docker Desktop](https://docs.docker.com/desktop/)
   - [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 - **Git**
-- **Ruby 2.5+**
+- **Ruby 3.0+**
 
 ### Git/SSH
 
