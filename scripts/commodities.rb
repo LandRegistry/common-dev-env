@@ -125,6 +125,7 @@ def commodity?(root_loc, commodity)
 end
 
 def provision_commodities(root_loc, new_containers)
+  puts colorize_lightblue('Provisioning commodities...')
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
@@ -149,6 +150,7 @@ def provision_commodities(root_loc, new_containers)
   provision_hosts(root_loc)
   # Localstack
   provision_localstack(root_loc, new_containers)
+  puts colorize_lightblue('...done')
 end
 
 def container_to_commodity(container_name)

@@ -187,12 +187,12 @@ if options['build_images']
     exit
   end
 
-  puts colorize_lightblue('Building images...')
-  if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-    puts colorize_red('Something went wrong when building your app images. Check the output above.')
+  puts colorize_lightblue('Building images... (logging to logfiles/imagebuild.log)')
+  if run_command("#{ENV['DC_CMD']} build #{options['nopull'] ? '' : '--pull'} > logfiles/imagebuild.log 2>&1") != 0
+    puts colorize_red('Something went wrong when building the images. Check the log file.')
     exit
   end
-
+  puts colorize_lightblue('...done')
 end
 
 if options['provision_commodities']
@@ -201,10 +201,12 @@ if options['provision_commodities']
   run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
-  if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start") != 0
-    puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
+  puts colorize_lightblue('Recreating containers... (logging to logfiles/containercreate.log)')
+  if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start > logfiles/containercreate.log 2>&1") != 0
+    puts colorize_red('Something went wrong when creating the containers. Check the log file.')
     exit
   end
+  puts colorize_lightblue('...done')
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
@@ -233,6 +235,7 @@ if options['start_apps']
   # The list of expensive services currently starting
   expensive_inprogress = []
 
+  puts colorize_lightblue('Checking application configurations...')
   config['applications'].each do |appname, appconfig|
     # First, special options check (in the dev-env-config)
     # for any settings that should override what the app wants to do
@@ -267,26 +270,29 @@ if options['start_apps']
       services_to_start.delete(service_name)
     end
   end
+  puts colorize_lightblue('...done')
 
-  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash")
+  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash > /dev/null 2>&1")
   sleep(3)
   if up != 0
-    puts colorize_red('Something went wrong when initialising logging. Check the output above.')
+    puts colorize_red('Something went wrong when initialising live container logging. Check the output above.')
     exit
   end
 
   # Now we can start inexpensive apps, which should be quick and easy
   if services_to_start.any?
-    puts colorize_lightblue('Starting inexpensive services...')
-    up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d " + services_to_start.join(' '))
+    puts colorize_lightblue('Starting inexpensive services... (logging to logfiles/containerstart.log)')
+    up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d #{services_to_start.join(' ')}")
     if up != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      puts colorize_red('Something went wrong when starting the containers. Check the output above.')
       exit
     end
   end
 
   # Until we have no more left to start AND we have no more in progress...
-  puts colorize_lightblue('Starting expensive services...') if expensive_todo.length.positive?
+  if expensive_todo.length.positive?
+    puts colorize_lightblue('Starting expensive services... (logging to logfiles/containerstart.log)')
+  end
   expensive_failed = []
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Wait for a bit before the next round of checks
