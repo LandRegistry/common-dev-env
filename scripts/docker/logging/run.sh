@@ -1,2 +1,2 @@
-# Run the app, copying all stdout to log.txt
-python ./server.py | tee /log-dir/log.txt
+# Run the app, copying all stdout to containerstart.log
+python ./server.py | tee /log-dir/containerstart.log
