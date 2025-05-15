@@ -189,10 +189,10 @@ if options['build_images']
 
   puts colorize_lightblue('Building images (might take a while)... (logging to logfiles/imagebuild.log)')
   if run_command("#{ENV['DC_CMD']} build #{options['nopull'] ? '' : '--pull'} > logfiles/imagebuild.log 2>&1") != 0
-    puts colorize_red('Something went wrong when building the images. Check the log file for the full output, here are the last 10 lines:')
+    puts colorize_red('Something went wrong when building the images, check the log file. Here are the last 10 lines:')
     lines = File.readlines("#{root_loc}/logfiles/imagebuild.log")
-    last_10 = lines.last(10)
-    last_10.each { |line| puts line }
+    last_ten = lines.last(10)
+    last_ten.each { |line| puts line }
     exit
   end
   puts colorize_lightblue('...done')
@@ -206,10 +206,10 @@ if options['provision_commodities']
   # Let's force a recreation of the containers here so we know they're using up-to-date images
   puts colorize_lightblue('Recreating containers... (logging to logfiles/containercreate.log)')
   if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start > logfiles/containercreate.log 2>&1") != 0
-    puts colorize_red('Something went wrong when creating the containers. Check the log file for the full output, here are the last 10 lines:')
+    puts colorize_red('Something went wrong when creating the containers, check the log file. Here are the last 10 lines:')
     lines = File.readlines("#{root_loc}/logfiles/containercreate.log")
-    last_10 = lines.last(10)
-    last_10.each { |line| puts line }
+    last_ten = lines.last(10)
+    last_ten.each { |line| puts line }
     exit
   end
   puts colorize_lightblue('...done')
@@ -290,10 +290,10 @@ if options['start_apps']
     puts colorize_lightblue('Starting inexpensive services... (logging to logfiles/containerstart.log)')
     up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d #{services_to_start.join(' ')}")
     if up != 0
-      puts colorize_red('Something went wrong when starting the containers. Check the log file for the full output, here are the last 10 lines:')
+      puts colorize_red('Something went wrong when starting the containers, check the log file. Here are the last 10 lines:')
       lines = File.readlines("#{root_loc}/logfiles/containerstart.log")
-      last_10 = lines.last(10)
-      last_10.each { |line| puts line }
+      last_ten = lines.last(10)
+      last_ten.each { |line| puts line }
       exit
     end
     puts colorize_lightblue('...done')
