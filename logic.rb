@@ -403,7 +403,6 @@ if options['start_apps']
       dependency_healthy
     end
   end
-  puts colorize_lightblue('...done')
 
   # Any custom scripts to run?
   provision_custom(root_loc)
