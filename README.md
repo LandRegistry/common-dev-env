@@ -351,10 +351,6 @@ This file contains details of hosts to be forwarded on the host; if it exists th
 
 [Example](snippets/host-fragments.yml)
 
-**`/fragments/docker-compose-<any value>-fragment.yml`**
-
-This file can be used to override the default settings for a docker container such as environment variables. It will not be loaded by default but can be applied using the add-to-docker-compose alias.
-
 ## Logging
 
 Any messages that get forwarded to the logstash\* container on TCP port 25826 will be output both in the logstash container's own stdout (so `livelogs logstash` can be used to monitor all apps) and in ./logs/log.txt.
