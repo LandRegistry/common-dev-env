@@ -124,7 +124,7 @@ if options['prepare_config']
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
-  config_repo = File.read(DEV_ENV_CONTEXT_FILE)
+  config_repo = File.read(DEV_ENV_CONTEXT_FILE).strip
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
     new_project = false
