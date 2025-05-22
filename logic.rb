@@ -123,20 +123,35 @@ if options['prepare_config']
     config_repo = $stdin.gets.chomp
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
-
+  
+  config_repo = File.read(DEV_ENV_CONTEXT_FILE)
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
     new_project = false
-    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
+    if config_repo == "local"
+      command_successful = 0
+    else
+      command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
+    end
   else
     new_project = true
-    config_repo = File.read(DEV_ENV_CONTEXT_FILE)
     parsed_repo, delimiter, ref = config_repo.rpartition('#')
     # If they didn't specify a #ref, rpartition returns "", "", wholestring
     parsed_repo = ref if delimiter.empty?
-    command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
-    if command_successful.zero? && !delimiter.empty?
-      command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
+    if config_repo == "local"
+      puts colorize_lightblue("Initializing local config repository.")
+      run_command("mkdir #{DEV_ENV_CONFIG_DIR}")
+      # Create a configuration.yml with an empty services array
+      File.open("#{DEV_ENV_CONFIG_DIR}/configuration.yml", 'w') do |file|
+        file.write("---\nservices: {}\n")
+      end
+      puts colorize_green("You can start adding apps to #{DEV_ENV_CONFIG_DIR}/configuration.yml")
+      exit 1
+    else
+      command_successful = run_command("git clone #{parsed_repo} #{DEV_ENV_CONFIG_DIR}")
+      if command_successful.zero? && !delimiter.empty?
+        command_successful = run_command("git -C #{DEV_ENV_CONFIG_DIR} checkout #{ref}")
+      end
     end
   end
 

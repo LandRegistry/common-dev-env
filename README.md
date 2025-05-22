@@ -32,6 +32,8 @@ To begin:
 
 **TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
+**TIP:** You can specify 'local' instead of a git URL to manage your application list locally without relying on an external Git repository. This is useful when you want complete control over your configuration or are working on a new service that does not have a remote config repo yet. The dev-env will create the `dev-env-config` directory and a default `configuration.yml` will be created with an empty services list. You can then manually add applications to that list, optionally utilising the `repo: none` functionality talked about in the next section.
+
 Other `run.sh` parameters are:
 
 - `halt` - stops all containers
