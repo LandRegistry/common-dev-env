@@ -123,23 +123,23 @@ if options['prepare_config']
     config_repo = $stdin.gets.chomp
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
-  
+
   config_repo = File.read(DEV_ENV_CONTEXT_FILE)
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
     new_project = false
-    if config_repo == "local"
-      command_successful = 0
-    else
-      command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
-    end
+    command_successful = if config_repo == 'local'
+                           0
+                         else
+                           run_command("git -C #{root_loc}/dev-env-config pull")
+                         end
   else
     new_project = true
     parsed_repo, delimiter, ref = config_repo.rpartition('#')
     # If they didn't specify a #ref, rpartition returns "", "", wholestring
     parsed_repo = ref if delimiter.empty?
-    if config_repo == "local"
-      puts colorize_lightblue("Initializing local config repository.")
+    if config_repo == 'local'
+      puts colorize_lightblue('Initializing local config repository.')
       run_command("mkdir #{DEV_ENV_CONFIG_DIR}")
       # Create a configuration.yml with an empty services array
       File.open("#{DEV_ENV_CONFIG_DIR}/configuration.yml", 'w') do |file|
