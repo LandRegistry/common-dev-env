@@ -150,7 +150,6 @@ def provision_commodities(root_loc, new_containers)
   provision_hosts(root_loc)
   # Localstack
   provision_localstack(root_loc, new_containers)
-  puts colorize_lightblue('...done')
 end
 
 def container_to_commodity(container_name)
