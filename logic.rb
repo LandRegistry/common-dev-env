@@ -210,7 +210,6 @@ if options['build_images']
     last_ten.each { |line| puts line }
     exit
   end
-  puts colorize_lightblue('...done')
 end
 
 if options['provision_commodities']
@@ -227,7 +226,6 @@ if options['provision_commodities']
     last_ten.each { |line| puts line }
     exit
   end
-  puts colorize_lightblue('...done')
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
@@ -291,7 +289,6 @@ if options['start_apps']
       services_to_start.delete(service_name)
     end
   end
-  puts colorize_lightblue('...done')
 
   up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash > /dev/null 2>&1")
   sleep(3)
@@ -311,7 +308,6 @@ if options['start_apps']
       last_ten.each { |line| puts line }
       exit
     end
-    puts colorize_lightblue('...done')
   end
 
   # Until we have no more left to start AND we have no more in progress...
