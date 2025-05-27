@@ -90,8 +90,8 @@ def find_active_variants(root_loc)
     next if found_valid_fragment
 
     puts colorize_red("Cannot find a valid compose fragment file in #{appname}; no container will be created")
-    puts colorize_yellow('Continuing in 3 seconds...')
-    sleep(3)
+    puts colorize_yellow('Continuing in 10 seconds...')
+    sleep(10)
   end
 
   compose_variants
