@@ -1,0 +1,8 @@
+services:
+  rabbitmq-4:
+    container_name: rabbitmq-4
+    build: ../scripts/docker/rabbitmq-4/
+    ports:
+      - 15682:15672
+      - 5682:5672
+      - 5681:5671

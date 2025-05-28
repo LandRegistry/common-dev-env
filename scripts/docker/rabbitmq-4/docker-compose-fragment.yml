@@ -1,0 +1,9 @@
+version: '2'
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    build: ../scripts/docker/rabbitmq/
+    ports:
+      - 15682:15672
+      - 5682:5672
+      - 5681:5671
