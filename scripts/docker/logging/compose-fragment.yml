@@ -4,7 +4,7 @@ services:
     container_name: logstash
     build: ../scripts/docker/logging
     volumes:
-     - ../logs:/log-dir
+      - ../logfiles:/log-dir
     ports:
       - "25826:25826"
     restart: on-failure

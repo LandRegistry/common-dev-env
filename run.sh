@@ -1,20 +1,4 @@
-export DC_VERSION=1
-
-# No docker-compose command means v2 is implied
-docker-compose > /dev/null 2>&1
-retVal=$?
-if [ $retVal -ne 0 ]; then
-  DC_VERSION=2
-else
-  docker-compose version 2>&1 | grep -q 'version 2\|version v2' && DC_VERSION=2
-fi
-
-if [ "$DC_VERSION" = "2" ] ; then
-  echo -e "\e[35mUsing Docker-Compose version 2 commands\e[0m"
-  export DC_CMD='docker compose'
-else
-  export DC_CMD='docker-compose --compatibility'
-fi
+export DC_CMD='docker compose'
 
 # Best effort check that the script has been sourced.
 # From https://stackoverflow.com/a/28776166

@@ -75,7 +75,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '2.4.1'
+  this_version = '3.0.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -124,21 +124,34 @@ if options['prepare_config']
     File.open(DEV_ENV_CONTEXT_FILE, 'w+') { |file| file.write(config_repo) }
   end
 
+  config_repo = File.read(DEV_ENV_CONTEXT_FILE).strip
   # Check if dev-env-config exists, and if so pull the dev-env configuration. Otherwise clone it.
-  puts colorize_lightblue('Retrieving custom configuration repo files:')
   if Dir.exist?(DEV_ENV_CONFIG_DIR)
     new_project = false
-    command_successful = run_command("git -C #{root_loc}/dev-env-config pull")
+    command_successful = if config_repo == 'local'
+                           0
+                         else
+                           run_command("git -C #{root_loc}/dev-env-config pull")
+                         end
   else
     new_project = true
-    config_repo = File.read(DEV_ENV_CONTEXT_FILE)
     parsed_repo, delimiter, ref = config_repo.rpartition('#')
     # If they didn't specify a #ref, rpartition returns "", "", wholestring
     parsed_repo = ref if delimiter.empty?
-    command_successful = run_command("git clone #{parsed_repo} #{root_loc}/dev-env-config")
-    if command_successful.zero? && !delimiter.empty?
-      puts colorize_lightblue("Checking out configuration repo ref: #{ref}")
-      command_successful = run_command("git -C #{root_loc}/dev-env-config checkout #{ref}")
+    if config_repo == 'local'
+      puts colorize_lightblue('Initializing local config repository.')
+      run_command("mkdir #{DEV_ENV_CONFIG_DIR}")
+      # Create a configuration.yml with an empty services array
+      File.open("#{DEV_ENV_CONFIG_DIR}/configuration.yml", 'w') do |file|
+        file.write("---\nservices: {}\n")
+      end
+      puts colorize_green("You can start adding apps to #{DEV_ENV_CONFIG_DIR}/configuration.yml")
+      exit 1
+    else
+      command_successful = run_command("git clone #{parsed_repo} #{DEV_ENV_CONFIG_DIR}")
+      if command_successful.zero? && !delimiter.empty?
+        command_successful = run_command("git -C #{DEV_ENV_CONFIG_DIR} checkout #{ref}")
+      end
     end
   end
 
@@ -177,11 +190,9 @@ end
 # TODO bash autocompletion of container names
 if options['prepare_compose']
   # Create a file called .commodities.yml with the list of commodities in it
-  puts colorize_lightblue('Creating list of commodities')
   create_commodities_list(root_loc)
 
   # Call the ruby function to create the docker compose file containing the apps and their commodities
-  puts colorize_lightblue('Creating docker-compose file list')
   prepare_compose(root_loc, DOCKER_COMPOSE_FILE_LIST)
 end
 
@@ -191,51 +202,34 @@ if options['build_images']
     exit
   end
 
-  puts colorize_lightblue('Building images...')
-  # v2 already builds in parallel
-  if ENV['DC_VERSION'] == '2'
-    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_red('Something went wrong when building your app images. Check the output above.')
-      exit
-    end
-  elsif run_command("#{ENV['DC_CMD']} build --parallel " + (options['nopull'] ? '' : '--pull')) != 0
-    puts colorize_yellow('Build command failed. Trying without --parallel')
-    # Might not be running a version of compose that supports --parallel, try one more time
-    if run_command("#{ENV['DC_CMD']} build " + (options['nopull'] ? '' : '--pull')) != 0
-      puts colorize_red('Something went wrong when building your app images. Check the output above.')
-      exit
-    end
+  puts colorize_lightblue('Building images (might take a while)... (logging to logfiles/imagebuild.log)')
+  if run_command("#{ENV['DC_CMD']} build #{options['nopull'] ? '' : '--pull'} > logfiles/imagebuild.log 2>&1") != 0
+    puts colorize_red('Something went wrong when building the images, check the log file. Here are the last 10 lines:')
+    lines = File.readlines("#{root_loc}/logfiles/imagebuild.log")
+    last_ten = lines.last(10)
+    last_ten.each { |line| puts line }
+    exit
   end
 end
 
 if options['provision_commodities']
   # Before creating any containers, let's see what already exists (in case we need to override provision status)
   existing_containers = []
-  # v2 --services seems to work differently. it already excludes deleted containers
-  if ENV['DC_VERSION'] == '2'
-    run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
-  else
-    run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
-      'docker-compose --compatibility ps --services --filter "status=running"',
-                existing_containers)
-  end
+  run_command("#{ENV['DC_CMD']} ps --services", existing_containers)
 
   # Let's force a recreation of the containers here so we know they're using up-to-date images
-  puts colorize_lightblue('Creating containers...')
-  if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start") != 0
-    puts colorize_red('Something went wrong when creating your app containers. Check the output above.')
+  puts colorize_lightblue('Recreating containers... (logging to logfiles/containercreate.log)')
+  if run_command("#{ENV['DC_CMD']} up --remove-orphans --force-recreate --no-start > logfiles/containercreate.log 2>&1") != 0
+    puts colorize_red('Something went wrong when creating the containers, check the log file. Here are the last 10 lines:')
+    lines = File.readlines("#{root_loc}/logfiles/containercreate.log")
+    last_ten = lines.last(10)
+    last_ten.each { |line| puts line }
     exit
   end
 
   # Now we identify exactly which containers we've created in the above command
   existing_containers2 = []
-  if ENV['DC_VERSION'] == '2'
-    run_command("#{ENV['DC_CMD']} ps --services", existing_containers2)
-  else
-    run_command('docker-compose --compatibility ps --services --filter "status=stopped" && '\
-      'docker-compose --compatibility ps --services --filter "status=running"',
-                existing_containers2)
-  end
+  run_command("#{ENV['DC_CMD']} ps --services", existing_containers2)
   new_containers = existing_containers2 - existing_containers
 
   # Provision all commodities (by executing fragments found in app repos)
@@ -260,6 +254,7 @@ if options['start_apps']
   # The list of expensive services currently starting
   expensive_inprogress = []
 
+  puts colorize_lightblue('Checking application configurations...')
   config['applications'].each do |appname, appconfig|
     # First, special options check (in the dev-env-config)
     # for any settings that should override what the app wants to do
@@ -295,26 +290,30 @@ if options['start_apps']
     end
   end
 
-  puts colorize_lightblue('Starting log receiver service...')
-  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash")
+  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash > /dev/null 2>&1")
   sleep(3)
   if up != 0
-    puts colorize_red('Something went wrong when initialising logging. Check the output above.')
+    puts colorize_red('Something went wrong when initialising live container logging. Check the output above.')
     exit
   end
 
   # Now we can start inexpensive apps, which should be quick and easy
   if services_to_start.any?
-    puts colorize_lightblue('Starting inexpensive services...')
-    up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d " + services_to_start.join(' '))
+    puts colorize_lightblue('Starting inexpensive services... (logging to logfiles/containerstart.log)')
+    up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d #{services_to_start.join(' ')}")
     if up != 0
-      puts colorize_red('Something went wrong when creating your app images or containers. Check the output above.')
+      puts colorize_red('Something went wrong when starting the containers, check the log file. Here are the last 10 lines:')
+      lines = File.readlines("#{root_loc}/logfiles/containerstart.log")
+      last_ten = lines.last(10)
+      last_ten.each { |line| puts line }
       exit
     end
   end
 
   # Until we have no more left to start AND we have no more in progress...
-  puts colorize_lightblue('Starting expensive services...') if expensive_todo.length.positive?
+  if expensive_todo.length.positive?
+    puts colorize_lightblue('Starting expensive services... (logging to logfiles/containerstart.log)')
+  end
   expensive_failed = []
   while expensive_todo.length.positive? || expensive_inprogress.length.positive?
     # Wait for a bit before the next round of checks
@@ -426,7 +425,7 @@ if options['start_apps']
       puts colorize_yellow("  #{service['compose_service']}")
     end
   else
-    puts colorize_green('All done, environment is ready for use')
+    puts colorize_green('Environment is ready for use')
   end
 
   post_up_message = config.fetch('post-up-message', nil)

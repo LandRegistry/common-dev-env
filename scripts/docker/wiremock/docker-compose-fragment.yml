@@ -1,7 +1,0 @@
-version: '2'
-services:
-  wiremock:
-    container_name: wiremock
-    build: ../scripts/docker/wiremock/
-    ports:
-      - "5017:8080"

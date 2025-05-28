@@ -17,8 +17,6 @@ def provision_postgres(root_loc, new_containers, postgres_version)
   container = postgres_container(postgres_version)
   return if container == ''
 
-  puts colorize_lightblue("Searching for Postgres #{postgres_version} initialisation SQL in the apps")
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
@@ -40,9 +38,6 @@ def provision_postgres(root_loc, new_containers, postgres_version)
     # Load any SQL contained in the apps into the docker commands list
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/postgres-init-fragment.sql")
       started = start_postgres_maybe(root_loc, appname, started, new_db_container, postgres_version)
-    else
-      puts colorize_yellow("#{appname} says it uses Postgres #{postgres_version} but doesn't contain an init SQL " \
-                           'file. Oh well, onwards we go!')
     end
   end
 end
@@ -56,7 +51,7 @@ def start_postgres_maybe(root_loc, appname, started, new_db_container, postgres_
   container = postgres_container(postgres_version)
   return if container == ''
 
-  puts colorize_pink("Found some in #{appname}")
+  puts colorize_pink("Found Postgres init fragment SQL in #{appname}")
   if commodity_provisioned?(root_loc, appname, container_to_commodity(container)) && !new_db_container
     puts colorize_yellow("Postgres #{postgres_version} has previously been provisioned for #{appname}, skipping")
   else

@@ -33,7 +33,6 @@ def set_custom_provisioned(root_loc, app_name)
 end
 
 def provision_custom(root_loc)
-  puts colorize_lightblue('Searching for custom provisioning scripts in the apps')
   require 'yaml'
 
   # Load configuration.yml into a Hash
@@ -52,7 +51,7 @@ end
 def run_onetime_custom_provision(root_loc, appname)
   return unless File.exist?("#{root_loc}/apps/#{appname}/fragments/custom-provision.sh")
 
-  puts colorize_pink("Found one (once-only) in #{appname}")
+  puts colorize_pink("Found a custom provision script (once-only) in #{appname}")
   if custom_provisioned?(root_loc, appname)
     puts colorize_yellow("Custom provision script has already been run for #{appname}, skipping")
   else
@@ -65,6 +64,6 @@ end
 def run_always_custom_provision(root_loc, appname)
   return unless File.exist?("#{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 
-  puts colorize_pink("Found one (always) in #{appname}")
+  puts colorize_pink("Found a custom provision script (always) in #{appname}")
   run_command("sh #{root_loc}/apps/#{appname}/fragments/custom-provision-always.sh")
 end

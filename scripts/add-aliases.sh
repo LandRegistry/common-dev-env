@@ -159,27 +159,13 @@ function localstack(){
 function fullreset(){
     stop ${1}
     remove ${1}
-    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1} $DC_VERSION
+    ruby $DEV_ENV_ROOT_DIR/scripts/commodities_standalone.rb ${1}
     rebuild ${1}
 }
 
 function alembic(){
     ex -e SQL_USE_ALEMBIC_USER=yes -e SQL_PASSWORD=superroot -e SQLALCHEMY_POOL_RECYCLE=3600 ${1} \
         bash -c 'cd /src && python3 manage.py db '"${@:2}"''
-}
-
-function add-to-docker-compose(){
-  COMPOSE_FILE_LIST=$(printenv COMPOSE_FILE)
-  IFS=':' read -r -a array <<< "$COMPOSE_FILE_LIST"
-  for element in "${array[@]}"
-    do
-      if [ -f ${element%/*}/docker-compose-${1}-fragment.yml ]; then
-        COMPOSE_FILE_LIST="$COMPOSE_FILE_LIST:${element%/*}/docker-compose-${1}-fragment.yml"
-      fi
-    done
-  export COMPOSE_FILE=$COMPOSE_FILE_LIST
-  alias test="$DC_CMD up -d"
-  test
 }
 
 function devenv-help(){
@@ -218,7 +204,7 @@ function devenv-help(){
     manage <name of container> <command>             -     run manage.py commands in a container
     alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
     add-to-docker-compose
-      <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new docker-compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
+      <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
     cadence-cli                                      -     runs the command line tool to interact with cadence orchestrator
     localstack                                       -     run localstack (aws) commands in the localstack container
 EOF

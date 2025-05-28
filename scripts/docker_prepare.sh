@@ -31,7 +31,7 @@ export COMPOSE_FILE=$dockerfilelist
 if ! [ -z "$COMPOSE_FILE" ]; then
   # Only "up" creates network so lets create it here first in case someone does a "start"
   if docker network ls | grep -q "dv_default"; then
-    echo "Docker network already exists, skipping creation"
+    echo ""
   else
     docker network create dv_default
   fi

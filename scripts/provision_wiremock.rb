@@ -2,8 +2,6 @@ require_relative 'utilities'
 require 'yaml'
 
 def provision_wiremock(root_loc, new_containers)
-  puts colorize_lightblue('Searching for Wiremock json files in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
@@ -36,7 +34,7 @@ def build_wiremock(root_loc, appname, already_started, new_container)
   wiremock_dir = Dir.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock")
   wiremock_file = File.exist?("#{root_loc}/apps/#{appname}/fragments/wiremock-fragment.json")
   if wiremock_dir || wiremock_file
-    puts colorize_pink("Found some in #{appname}")
+    puts colorize_pink("Found a Wiremock fragment in #{appname}")
     if commodity_provisioned?(root_loc, appname, 'wiremock') && !new_container
       puts colorize_yellow("Wiremock has previously been provisioned for #{appname}, skipping")
     else

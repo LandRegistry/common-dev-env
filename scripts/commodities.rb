@@ -1,6 +1,5 @@
 require_relative 'utilities'
 require_relative 'provision_postgres'
-require_relative 'provision_alembic'
 require_relative 'provision_auth'
 require_relative 'provision_hosts'
 require_relative 'provision_db2_community'
@@ -60,11 +59,8 @@ def which_app_needs_what(root_loc, config)
   if config['applications']
     config['applications'].each_key do |appname|
       # Load any commodities into the list
-      unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
-        puts colorize_yellow("No configuration.yml found for #{appname}, assume no commodities & inexpensive startup")
-        sleep(3)
-        next
-      end
+      next unless File.exist?("#{root_loc}/apps/#{appname}/configuration.yml")
+
       dependencies = YAML.load_file("#{root_loc}/apps/#{appname}/configuration.yml")
 
       next if dependencies.nil?
@@ -82,7 +78,6 @@ end
 def get_commodity_file(root_loc)
   if File.exist?("#{root_loc}/.commodities.yml")
     commodity_file = YAML.load_file("#{root_loc}/.commodities.yml")
-    puts colorize_pink('Found an existing .commodities file.')
   else
     # Create the base file structure
     puts colorize_lightblue('Did not find any .commodities file. Creating a new one.')
@@ -130,14 +125,13 @@ def commodity?(root_loc, commodity)
 end
 
 def provision_commodities(root_loc, new_containers)
+  puts colorize_lightblue('Provisioning commodities...')
   # Check the apps for a postgres SQL snippet to add to the SQL that then gets run.
   # If you later modify .commodities to allow this to run again (e.g. if you've added new apps to your group),
   # you'll need to delete the postgres container and it's volume else you'll get errors.
   # Do a fullreset, or docker-compose rm -v -f postgres-13
   %w[13 17].each do |postgres_version|
     provision_postgres(root_loc, new_containers, postgres_version)
-    # Alembic, too
-    provision_alembic(root_loc, postgres_version)
   end
 
   # Run app DB2 SQL statements

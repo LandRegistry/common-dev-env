@@ -55,17 +55,13 @@ def required_ref(appconfig)
 end
 
 def update_or_clone(appconfig, root_loc, appname)
-  return [colorize_lightblue('This app is local-only, so I won\'t try to update it')] if appconfig['repo'] == 'none'
+  return [colorize_lightblue('This app is local-only; skipping')] if appconfig['repo'] == 'none'
 
-  output = if Dir.exist?("#{root_loc}/apps/#{appname}")
-             update_app(appconfig, root_loc, appname)
-           else
-             clone_app(appconfig, root_loc, appname)
-           end
-
-  # Attempt to merge our remote branch into our local branch, if it's straightforward
-  output += merge(root_loc, appname, required_ref(appconfig))
-  output
+  if Dir.exist?("#{root_loc}/apps/#{appname}")
+    update_app(appconfig, root_loc, appname)
+  else
+    clone_app(appconfig, root_loc, appname)
+  end
 end
 
 def current_branch(root_loc, appname)
@@ -76,28 +72,25 @@ def current_branch(root_loc, appname)
   current_branch
 end
 
-def merge(root_loc, appname, required_branch)
+def merge(root_loc, appname)
   return [] if current_branch(root_loc, appname) == 'detached'
 
-  output_lines = [colorize_lightblue("Bringing #{required_branch} up to date")]
+  output_lines = []
   if run_command("git -C #{root_loc}/apps/#{appname} merge --ff-only", output_lines) != 0
     output_lines << colorize_yellow("The local branch couldn't be fast forwarded (a merge is probably " \
-                                    "required), so to be safe I didn't update anything")
+                                    'required); skipping update')
   end
   output_lines
 end
 
 def update_app(appconfig, root_loc, appname)
   output_lines = []
-  output_lines << colorize_lightblue(
-    'The repo directory for this app already exists, so I will try to update it'
-  )
 
   current_branch = current_branch(root_loc, appname)
 
   # If the configuration specifies a fixed commit leave them be
   if current_branch == 'detached'
-    output_lines << colorize_yellow('Detached head detected, nothing to update')
+    output_lines << colorize_yellow('Detached head detected; skipping update')
     return output_lines
   end
 
@@ -105,15 +98,22 @@ def update_app(appconfig, root_loc, appname)
   required_reference = required_ref(appconfig)
   unless current_branch.eql? required_reference
     output_lines << colorize_yellow("The current branch (#{current_branch}) differs from the devenv " \
-                                    "configuration (#{required_reference}) so I'm not going to update anything")
+                                    "configuration (#{required_reference}); skipping update")
     return output_lines
   end
 
   # Update all the remote branches (this will not change the local branch, we'll do that further down')
-  output_lines << colorize_lightblue('Fetching from remote...')
-  return output_lines unless run_command("git -C #{root_loc}/apps/#{appname} fetch origin", output_lines) != 0
+  if run_command(
+    "git -C #{root_loc}/apps/#{appname} fetch origin",
+    output_lines
+  ).zero?
+    return (
+        # Attempt to merge our remote branch into our local branch, if it's straightforward
+        output_lines += merge(root_loc, appname)
+      )
+  end
 
-  # If there is a git error we shouldn't continue
+  # If there is a git error we should let them know but carry on
   output_lines << colorize_red("Error while updating #{appname}")
   output_lines << colorize_yellow('Continuing in 3 seconds...')
   sleep(3)
@@ -122,10 +122,10 @@ end
 
 def clone_app(appconfig, root_loc, appname)
   output_lines = []
-  output_lines << colorize_lightblue("#{appname} does not yet exist, so I will clone it")
+  output_lines << colorize_lightblue("#{appname} does not yet exist; cloning")
   repo = appconfig['repo']
   if run_command("git clone #{repo} #{root_loc}/apps/#{appname}", output_lines) != 0
-    # If there is a git error we shouldn't continue
+    # If there is a git error we should let them know but carry on
     output_lines << colorize_red("Error while cloning #{appname}")
     output_lines << colorize_yellow('Continuing in 3 seconds...')
     sleep(3)
@@ -135,11 +135,8 @@ def clone_app(appconfig, root_loc, appname)
 
   # If we have to, check out the branch/tag/commit that the config wants us to use
   required_reference = required_ref(appconfig)
-  if !current_branch.eql? required_reference
-    output_lines << colorize_lightblue("Switching to #{required_reference}")
+  unless current_branch.eql? required_reference
     run_command("git -C #{root_loc}/apps/#{appname} checkout #{required_reference}", output_lines)
-  else
-    output_lines << colorize_lightblue("Current branch is already #{current_branch}")
   end
   output_lines
 end
