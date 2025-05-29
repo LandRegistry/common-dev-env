@@ -290,7 +290,7 @@ if options['start_apps']
     end
   end
 
-  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash > /dev/null 2>&1")
+  up = run_command("#{ENV['DC_CMD']} up --no-deps --remove-orphans -d logstash", [])
   sleep(3)
   if up != 0
     puts colorize_red('Something went wrong when initialising live container logging. Check the output above.')
