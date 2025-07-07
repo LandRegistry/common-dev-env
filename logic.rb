@@ -143,7 +143,7 @@ if options['prepare_config']
       run_command("mkdir #{DEV_ENV_CONFIG_DIR}")
       # Create a configuration.yml with an empty services array
       File.open("#{DEV_ENV_CONFIG_DIR}/configuration.yml", 'w') do |file|
-        file.write("---\nservices: {}\n")
+        file.write("---\napplications: {}\n")
       end
       puts colorize_green("You can start adding apps to #{DEV_ENV_CONFIG_DIR}/configuration.yml")
       exit 1
