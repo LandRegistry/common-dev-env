@@ -168,20 +168,6 @@ function alembic(){
         bash -c 'cd /src && python3 manage.py db '"${@:2}"''
 }
 
-function add-to-docker-compose(){
-  COMPOSE_FILE_LIST=$(printenv COMPOSE_FILE)
-  IFS=':' read -r -a array <<< "$COMPOSE_FILE_LIST"
-  for element in "${array[@]}"
-    do
-      if [ -f ${element%/*}/docker-compose-${1}-fragment.yml ]; then
-        COMPOSE_FILE_LIST="$COMPOSE_FILE_LIST:${element%/*}/docker-compose-${1}-fragment.yml"
-      fi
-    done
-  export COMPOSE_FILE=$COMPOSE_FILE_LIST
-  alias test="$DC_CMD up -d"
-  test
-}
-
 function devenv-help(){
   cat <<EOF
     If typing a docker-compose command you can use the alias dc instead. For example "dc ps" rather than "docker-compose ps".

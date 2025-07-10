@@ -2,8 +2,6 @@ require_relative 'utilities'
 require 'yaml'
 
 def provision_auth(root_loc, new_containers)
-  puts colorize_lightblue('Searching for LDIF files in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']

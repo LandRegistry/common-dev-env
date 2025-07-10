@@ -3,8 +3,6 @@ require_relative 'commodities'
 require 'yaml'
 
 def provision_elasticsearch5(root_loc)
-  puts colorize_lightblue('Searching for elasticsearch5 initialisation scripts in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   started = false
@@ -19,15 +17,12 @@ def provision_elasticsearch5(root_loc)
     # Run any script contained in the app
     if File.exist?("#{root_loc}/apps/#{appname}/fragments/elasticsearch5-fragment.sh")
       started = start_elasticsearch5(root_loc, appname, started)
-    else
-      puts colorize_yellow("#{appname} says it uses Elasticsearch 5 but doesn't contain an init script. Oh well, " \
-                            'onwards we go!')
     end
   end
 end
 
 def start_elasticsearch5(root_loc, appname, started)
-  puts colorize_pink("Found some in #{appname}")
+  puts colorize_pink("Found an Elasticsearch5 fragment in #{appname}")
   if commodity_provisioned?(root_loc, appname, 'elasticsearch5')
     puts colorize_yellow("Elasticsearch5 has previously been provisioned for #{appname}, skipping")
   else

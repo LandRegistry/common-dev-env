@@ -12,11 +12,10 @@ It provides several hooks for applications to take advantage of, including:
 ### Prerequisites
 
 - **Docker and Docker Compose**. Exactly what toolset you use depends on your OS and personal preferences, but recommended are:
-  - [Docker For Mac](https://docs.docker.com/docker-for-mac/)
-  - [Docker for Windows 10](https://docs.docker.com/docker-for-windows/) (See [the wiki](https://github.com/LandRegistry/common-dev-env/wiki/Windows-setup) for more information on getting a working Windows environment set up)
+  - [Docker Desktop](https://docs.docker.com/desktop/)
   - [Docker CE for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 - **Git**
-- **Ruby 2.5+**
+- **Ruby 3.0+**
 
 ### Git/SSH
 
@@ -33,17 +32,19 @@ To begin:
 
 **TIP:** You can add a # onto the end of the configuration repository location followed by a branch, tag or commit you want to check out, if the default branch is not good enough.
 
+**TIP:** You can specify 'local' to manage your application list without relying on an external Git repository. This is useful when you want complete control over your configuration or are working on a new service that does not have a remote config repo yet. A default `dev-env-config/configuration.yml` will be created for you. You can then manually add applications to that list.
+
 Other `run.sh` parameters are:
 
 - `halt` - stops all containers
 - `reload` - stops all containers then rebuilds and restarts them (including running any commodity fragments)
-- `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from Docker Hub) and resets all dev-env configuration files.
+- `destroy` - stops/removes all containers, removes all built images (i.e. leaving any pulled from external container registries) and resets all dev-env configuration files.
 - `repair` - sets the Docker-compose configuration to use the fragments from applications in _this_ dev-env instance (in case you are switching between several or are in a different terminal window to the one you ran `up` in)
 - `quickup` and `quickreload` - as per `up` and `reload` except they do not update anything from git (apps or config), rebuild Docker images or provision any commodity fragments.
 
 #### Extra functionality
 
-- `--nopull` (or `-n`) can go after `up` or `reload` - e.g. `source run.sh up -n`. This will stop images FROMed in Dockerfiles being checked for updates if a copy already exists on the system. Use to avoid Docker Hub pull rate limits.
+- `--nopull` (or `-n`) can go after `up` or `reload` - e.g. `source run.sh up -n`. This will stop images FROMed in Dockerfiles being checked for updates if a copy already exists on the system. Use to avoid container registry pull rate limits.
 
 ## Usage guide
 
@@ -365,10 +366,6 @@ This works the same way as `custom-provision.sh` except it is executed on every 
 This file contains details of hosts to be forwarded on the host; if it exists then requests to the second address shall be forwarded to the first address.
 
 [Example](snippets/host-fragments.yml)
-
-**`/fragments/docker-compose-<any value>-fragment.yml`**
-
-This file can be used to override the default settings for a docker container such as environment variables. It will not be loaded by default but can be applied using the add-to-docker-compose alias.
 
 ## Logging
 

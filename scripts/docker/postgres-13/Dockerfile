@@ -1,4 +1,4 @@
-FROM docker.io/postgres:13
+FROM quay.io/lib/postgres:13
 
 # For some reason some people get hash mismatch issues. This tries to resolve that.
 # See https://askubuntu.com/questions/1121093/hash-sum-mismatches-in-18-04-on-laptop-and-in-docker

@@ -2,8 +2,6 @@ require_relative 'utilities'
 require 'yaml'
 
 def provision_nginx(root_loc, new_containers)
-  puts colorize_lightblue('Searching for NGINX conf files in the apps')
-
   # Load configuration.yml into a Hash
   config = YAML.load_file("#{root_loc}/dev-env-config/configuration.yml")
   return unless config['applications']
@@ -34,7 +32,7 @@ def build_nginx(root_loc, appname, already_started, new_nginx_container)
   # Load any conf files contained in the apps into the docker commands list
   started = already_started
   if File.exist?("#{root_loc}/apps/#{appname}/fragments/nginx-fragment.conf")
-    puts colorize_pink("Found some in #{appname}")
+    puts colorize_pink("Found an Nginx conf fragment in #{appname}")
     if commodity_provisioned?(root_loc, appname, 'nginx') && !new_nginx_container
       puts colorize_yellow("NGINX has previously been provisioned for #{appname}, skipping")
     else
@@ -57,8 +55,6 @@ def build_nginx(root_loc, appname, already_started, new_nginx_container)
       # Update the .commodities.yml to indicate that NGINX has now been provisioned
       set_commodity_provision_status(root_loc, appname, 'nginx', true)
     end
-  else
-    puts colorize_yellow("#{appname} says it uses NGINX but doesn't contain a conf file. Oh well, onwards we go!")
   end
   started
 end

@@ -28,7 +28,6 @@ unset -f manage
 unset -f fullreset
 unset -f alembic
 unset -f localstack
-unset -f add-to-docker-compose
 unset -f devenv-help
 
 unset DEV_ENV_ROOT_DIR
