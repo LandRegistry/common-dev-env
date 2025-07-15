@@ -75,7 +75,7 @@ end.parse!
 
 # Does a version check and self-update if required
 if options['self_update']
-  this_version = '3.0.0'
+  this_version = '3.1.0'
   puts colorize_lightblue("This is a universal dev env (version #{this_version})")
   # Skip version check if not on master (prevents infinite loops if you're in a branch that isn't up to date with the
   # latest release code yet)
@@ -143,7 +143,7 @@ if options['prepare_config']
       run_command("mkdir #{DEV_ENV_CONFIG_DIR}")
       # Create a configuration.yml with an empty services array
       File.open("#{DEV_ENV_CONFIG_DIR}/configuration.yml", 'w') do |file|
-        file.write("---\nservices: {}\n")
+        file.write("---\napplications: {}\n")
       end
       puts colorize_green("You can start adding apps to #{DEV_ENV_CONFIG_DIR}/configuration.yml")
       exit 1
