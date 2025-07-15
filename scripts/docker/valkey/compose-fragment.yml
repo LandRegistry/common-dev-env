@@ -1,0 +1,6 @@
+services:
+  valkey:
+    container_name: valkey
+    build: ../scripts/docker/valkey/
+    ports:
+      - 6389:6379
