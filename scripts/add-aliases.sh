@@ -165,7 +165,8 @@ function fullreset(){
 
 function alembic(){
     ex -e SQL_USE_ALEMBIC_USER=yes -e SQL_PASSWORD=superroot -e SQLALCHEMY_POOL_RECYCLE=3600 ${1} \
-        bash -c 'cd /src && python3 manage.py db '"${@:2}"''
+        bash -c '( cd /src 2>/dev/null && python3 manage.py db '"${@:2}"' ) || \
+        ( cd /opt/app-root/src && /opt/app-root/venv/bin/flask db '"${@:2}"' )'
 }
 
 function devenv-help(){
