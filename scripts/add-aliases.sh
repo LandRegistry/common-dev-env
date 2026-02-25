@@ -164,8 +164,11 @@ function fullreset(){
 }
 
 function alembic(){
+    # If Python 3.13, use flask command. Otherwise, use manage.py
     ex -e SQL_USE_ALEMBIC_USER=yes -e SQL_PASSWORD=superroot -e SQLALCHEMY_POOL_RECYCLE=3600 ${1} \
-        bash -c 'cd /src && python3 manage.py db '"${@:2}"''
+      bash -c 'cd /opt/app-root/src && if [[ "$PYTHON_VERSION" == "3.13" ]];
+      then /opt/app-root/venv/bin/flask db '"${@:2}"'
+      else python3 manage.py db '"${@:2}"'; fi'
 }
 
 function devenv-help(){
