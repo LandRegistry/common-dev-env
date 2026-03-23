@@ -3,7 +3,6 @@ import re
 import socketserver
 import threading
 
-
 HOST, PORT = "0.0.0.0", 25826
 
 syslog_pattern = re.compile(r"\S* (\S*) \S* (\S*) \d+ \S* (?:- )?(.*)")
@@ -23,7 +22,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
     """
 
     def handle(self):
-        while(True):
+        while True:
             data = bytes.decode(self.rfile.readline().strip())
             if data == "":
                 print("Connection closed", flush=True)
@@ -34,8 +33,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
             if m is None:
                 # Not syslog format for some reason, just send raw message to console and file
                 print(data, flush=True)
-                #with open("/log-dir/log.txt", 'a') as file_:
-                    #file_.write(data + '\n')
+                # with open("/log-dir/log.txt", 'a') as file_:
+                # file_.write(data + '\n')
             else:
                 # Now, is the message valid JSON?
                 try:
@@ -48,14 +47,14 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
                     # Send nicely structured message to console and file
                     data = "{0} {1} {2} {3} {4} {5}".format(m.group(1), m.group(2), level, message, exception, traceid)
                     print(data, flush=True)
-                    #with open("/log-dir/log.txt", 'a') as file_:
-                        #file_.write(data + '\n')
+                    # with open("/log-dir/log.txt", 'a') as file_:
+                    # file_.write(data + '\n')
                 except ValueError:
                     # Nope. Send half-structured message to console and file
                     data = "{0} {1} {2}".format(m.group(1), m.group(2), m.group(3))
                     print(data, flush=True)
-                    #with open("/log-dir/log.txt", 'a') as file_:
-                        #file_.write(data + '\n')
+                    # with open("/log-dir/log.txt", 'a') as file_:
+                    # file_.write(data + '\n')
 
 
 if __name__ == "__main__":
