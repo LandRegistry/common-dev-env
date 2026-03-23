@@ -1,0 +1,6 @@
+services:
+  prometheus:
+    container_name: prometheus
+    build: ../scripts/docker/prometheus/
+    ports:
+      - 9090:9090

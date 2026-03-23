@@ -4,5 +4,12 @@ services:
     build: ../scripts/docker/rabbitmq/
     ports:
       - 15672:15672
+      - 15692:15692
       - 5672:5672
       - 5671:5671
+    # Lightweight TCP check on AMQP port (RabbitMQ recommend this over rabbitmq-diagnostics ping).
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/5672' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

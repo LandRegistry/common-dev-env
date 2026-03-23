@@ -120,18 +120,21 @@ The list of allowable commodity values is:
 5. elasticsearch7
 6. nginx
 7. rabbitmq
-8. redis
-9. swagger
-10. wiremock
-11. squid
-12. auth
-13. cadence
-14. cadence-web
-15. activemq
-16. ibmmq
-17. localstack
-18. valkey
-19. govuk-one-login
+8. rabbitmq-4
+9. redis
+10. swagger
+11. wiremock
+12. squid
+13. auth
+14. cadence
+15. cadence-web
+16. activemq
+17. ibmmq
+18. localstack
+19. valkey
+20. prometheus
+21. grafana
+22. govuk-one-login
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -219,17 +222,33 @@ This is a file that contains stub mappings that Wiremock will pick up and use, a
 
 This is a directory that can contain multiple stub mappings files that Wiremock will pick up and use. The files should all be in the same format as the example above. If such a wiremock directory exists, it will take precedence over any `wiremock-fragment.json` file.
 
-##### RabbitMQ
+##### RabbitMQ 3
 
 There are no fragments needed when using this. The Management Console will be available on <http://localhost:15672> (guest/guest).
 
-Rabbit is available over port 5672 and TLS on port 5671.
+RabbitMQ 3 is available over port 5672 and TLS on port 5671.
 
-TLS presents a self signed cert. If verification is needed a copy of the ca certificate is [here](scripts/docker/rabbitmq/certs/ca_certificate.crt). The host has been set to `rabbitmq` for host verification in most common libraries, although will only work within the docker network.
+TLS presents a self signed cert. If verification is needed then use the provided [ca certificate](scripts/docker/rabbitmq/certs/ca_certificate.crt). The host has been set to `rabbitmq` for host verification in most common libraries, although will only work within the docker network.
 
 MTLS is not enabled, although a [client certificate pem](scripts/docker/rabbitmq/certs/client_certificate.pem) and [client key pem](scripts/docker/rabbitmq/certs/client_key.pem) have been generated as part of the certificate set for potential future use.
 
-Currently, only the `rabbitmq_management`, `rabbitmq_consistent_hash_exchange`, `rabbitmq_shovel`, `rabbitmq_shovel_management` and `rabbitmq_stream` plugins are enabled.
+Currently, only the `rabbitmq_management`, `rabbitmq_consistent_hash_exchange`, `rabbitmq_shovel`, `rabbitmq_shovel_management`, `rabbitmq_stream` and `rabbitmq_prometheus` plugins are enabled.
+
+The default queue type for queues in RabbitMQ 3 is `classic`.
+
+##### RabbitMQ 4
+
+There are no fragments needed when using this. The Management Console will be available on <http://localhost:15682> (guest/guest).
+
+RabbitMQ 4 is available over port 5682 and TLS on port 5681.
+
+TLS presents a self signed cert. If verification is needed then use the provided [ca certificate](scripts/docker/rabbitmq/certs/ca_certificate.crt). The host has been set to `rabbitmq` for host verification in most common libraries, although will only work within the docker network.
+
+MTLS is not enabled, although a [client certificate pem](scripts/docker/rabbitmq/certs/client_certificate.pem) and [client key pem](scripts/docker/rabbitmq/certs/client_key.pem) have been generated as part of the certificate set for potential future use.
+
+Currently, only the `rabbitmq_management`, `rabbitmq_consistent_hash_exchange`, `rabbitmq_shovel`, `rabbitmq_shovel_management`, `rabbitmq_stream` and `rabbitmq_prometheus` plugins are enabled.
+
+The default queue type for queues in RabbitMQ 4 is `quorum`.
 
 ##### ActiveMQ
 
@@ -249,6 +268,15 @@ You can monitor Redis activity using the CLI:
 bashin redis
 redis-cli monitor
 ```
+
+##### Prometheus
+
+Prometheus will be available at <http://localhost:9090>. The scrape config lives in `dev-env-config/prometheus/prometheus.yml` and is mounted by any app that needs Prometheus.
+For production, avoid high-cardinality RabbitMQ metrics unless needed. Prefer to keep only specific queues with `metric_relabel_configs`, or disable per-queue metrics at the broker if you only need aggregate health.
+
+##### Grafana
+
+Grafana will be available at <http://localhost:3000> (admin/admin). Provisioning is defined in `dev-env-config/grafana/provisioning/`. Dashboards live inside each app at `apps/<app>/fragments/grafana/dashboards/` and are mounted into Grafana by the app’s compose fragment.
 
 ##### Squid
 
@@ -301,7 +329,7 @@ Applications using OAuth flows or the OpenID Connect protocol can use Keycloak f
 
 JWT tokens issued from the `development` realm have been configured to mimic those issued by Microsoft ADFS servers. In particular, the LDAP `cn` field is mapped to the `UserName` claim in JWT tokens along with the `Office` claim mapped from the `physicalDeliveryOfficeName` in the LDAP database and the `group` claim listing the user's group memberships.
 
-A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" [here](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm).
+A [JSON export](scripts/docker/auth/keycloak/development_realm.json) of the `development` realm is used to configure the realm. If further configuration of the realm is required, you can make changes in the admin console and re-export the realm using the procedure described in "Exporting a realm" section of the [documentation](https://hub.docker.com/r/jboss/keycloak/#exporting-a-realm).
 
 The exported JSON can then be merged back into this repository and reused.
 
@@ -335,7 +363,7 @@ _Running Cadence web locally_
 
 A default Localstack configuration is provided with a minimal number of enabled services available (S3 only at present). Localstack does not _require_ the use of any other external configuration file (as applications can manage buckets programatically through methods such as the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/examples-s3-buckets.html)).
 
-However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; an example of which is provided [here](snippets/localstack-init-fragment.sh).
+However, if additional configuration (such as new buckets) are necessary before application startup, you can use a `localstack-init-fragment.sh` to perform this provisioning; like [this example](snippets/localstack-init-fragment.sh).
 
 Localstack is available at <http://localstack:4566> within the Docker network, and <http://localhost:4566> on the host.
 
