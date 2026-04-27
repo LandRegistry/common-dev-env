@@ -20,7 +20,7 @@ alias psql17="$DC_CMD exec postgres-17 psql -h postgres-17 -U root -d"
 alias db2co="$DC_CMD exec --user db2inst1 db2_community bash -c '~/sqllib/bin/db2'"
 alias gitlist="bash $DEV_ENV_ROOT_DIR/scripts/git_list.sh"
 alias gitpull="bash $DEV_ENV_ROOT_DIR/scripts/git_pull.sh"
-alias cadence-cli="docker run --rm ubercadence/cli:0.7.0 --address host.docker.internal:7933"
+alias cadence-cli="docker run --rm docker.io/ubercadence/cli:v1.4.0@sha256:e89601a5d035f49a778a0505733082e3dfecc8629450d8dceaafc4de22b23cf2 --address host.docker.internal:7933"
 
 function bashin(){
   app_name=${@:1}
