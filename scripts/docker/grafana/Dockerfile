@@ -1,1 +1,1 @@
-FROM grafana/grafana-oss:12.3.3
+FROM docker.io/grafana/grafana-oss:12.3.3@sha256:9e1e77ade304069aee3196e9a4f210830e96e80ce9a2640891eccc324b152faf

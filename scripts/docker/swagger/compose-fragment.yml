@@ -1,7 +1,7 @@
 services:
   swagger:
     container_name: swagger
-    image: docker.swagger.io/swaggerapi/swagger-ui
+    build: ../scripts/docker/swagger/
     ports:
       - 5101:8080
     platform: "linux/amd64"

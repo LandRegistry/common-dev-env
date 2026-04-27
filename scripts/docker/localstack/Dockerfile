@@ -1,1 +1,1 @@
-FROM public.ecr.aws/localstack/localstack:2.3
+FROM public.ecr.aws/localstack/localstack:2.3@sha256:c396d899a3cdc038ba6bb82d54a40f12c037004b93c3e1efc4c821db60306f79

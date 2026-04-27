@@ -1,2 +1,2 @@
 # This is so a reset (dc down) won't remove the base AMQ image, only the one created from this dockerfile
-FROM docker.io/apache/activemq-classic:5.18.7
+FROM docker.io/apache/activemq-classic:5.19.2@sha256:887f680f015bb73ef4f8c4f1c4a14bdc0a260e5d755760f0d8a28826ffe433fb

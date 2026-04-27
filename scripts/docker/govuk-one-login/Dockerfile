@@ -1,1 +1,1 @@
-FROM ghcr.io/govuk-one-login/simulator:latest
+FROM ghcr.io/govuk-one-login/simulator:26.04.1@sha256:9d5e4c332973e31e11c8f6d6e5b1bb907e9f20f1f38817c6f6ec65a31edb70b4

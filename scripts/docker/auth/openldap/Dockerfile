@@ -1,4 +1,4 @@
-FROM quay.io/lib/debian:11
+FROM docker.io/debian:11@sha256:19d6c1c4e66453a5d729cf13c3dcdb4708aeff1b2ed9886805afcda191f064b7
 
 # For some reason some people get hash mismatch issues. This tries to resolve that.
 # See https://askubuntu.com/questions/1121093/hash-sum-mismatches-in-18-04-on-laptop-and-in-docker
