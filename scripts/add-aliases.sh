@@ -134,10 +134,10 @@ function format(){
 }
 
 function acceptance-test(){
-    run ${1} sh run_tests.sh ${@:2}
+    run ${1} sh run_tests.sh "${@:2}"
 }
 function acctest(){
-    run ${1} sh run_tests.sh ${@:2}
+    run ${1} sh run_tests.sh "${@:2}"
 }
 
 function acceptance-lint(){
