@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.17.28
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.17.29@sha256:3f55a7f6f29b95345dc33808d6e914f81d125d4ca90a414e26c81a3521400980
 
 ENV ES_JAVA_OPTS="-Xms1024m -Xmx1024m"
 ENV discovery.type=single-node

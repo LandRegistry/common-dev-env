@@ -1,4 +1,4 @@
-FROM quay.io/lib/postgres:17
+FROM docker.io/postgres:17.9@sha256:5b96f1a16bd9768b060dd2ffe55cb6225c4d9ef4d214a8b21eb08134869a97e4
 
 # Install the PostGIS extension
 RUN apt-get update && \

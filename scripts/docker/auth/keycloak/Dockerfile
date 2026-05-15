@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:9.0.3
+FROM quay.io/keycloak/keycloak:9.0.3@sha256:828e92baa29aee2fdf30cca0e0aeefdf77ca458d6818ebbd08bf26f1c5c6a7cf
 
 ADD development_realm.json /etc/keycloak/
 

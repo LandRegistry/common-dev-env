@@ -1,2 +1,2 @@
 
-FROM docker.io/ubercadence/web:v3.35.6
+FROM docker.io/ubercadence/web:v3.35.6@sha256:875759010e1de59f90489ddedfc8dcbb24290391512703e0d82e93657a031155

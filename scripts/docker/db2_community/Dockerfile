@@ -1,4 +1,4 @@
-FROM docker.io/hmlandregistry/db2-cgroupaware:11.5.9.0
+FROM docker.io/hmlandregistry/db2-cgroupaware:11.5.9.0@sha256:b505db3567ca183260f3d946c2c2d86f5c5ee1def45148fbe15eb0d85b41539e
 
 EXPOSE 50000 55000
 
