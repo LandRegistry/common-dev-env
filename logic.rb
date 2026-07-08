@@ -340,7 +340,7 @@ if options['start_apps']
         puts colorize_lightblue("Checking if #{service['compose_service']} has completed successfully " \
                                 "(exited with code 0) - Attempt #{service['check_count']}")
         output_lines = []
-        outcode = run_command("docker inspect --format=\"{{.State.Status}}:{{.State.ExitCode}}\" " \
+        outcode = run_command('docker inspect --format="{{.State.Status}}:{{.State.ExitCode}}" ' \
                               "#{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && output_lines.any? { |ln| ln.strip == 'exited:0' }
