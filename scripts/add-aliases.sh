@@ -12,7 +12,6 @@ alias rebuild="$DC_CMD up --build -d"
 alias remove="$DC_CMD rm -v -f"
 alias logs="$DC_CMD logs"
 alias livelogs="docker attach --no-stdin --sig-proxy=false"
-alias ex="$DC_CMD exec"
 alias status="$DC_CMD ps"
 alias run="$DC_CMD run --rm"
 alias psql13="$DC_CMD exec postgres-13 psql -h postgres-13 -U root -d"
@@ -29,6 +28,14 @@ function bashin(){
     winpty docker exec -it $app_name bash
   else
     docker exec -it $app_name bash
+  fi
+}
+
+function ex(){
+  if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
+    winpty $DC_CMD exec "$@"
+  else
+    $DC_CMD exec "$@"
   fi
 }
 
