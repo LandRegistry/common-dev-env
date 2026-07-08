@@ -333,6 +333,17 @@ if options['start_apps']
         outcode = run_command("docker inspect --format=\"{{json .State.Health.Status}}\" #{service['compose_service']}",
                               output_lines)
         service_healthy = outcode.zero? && check_healthy_output(output_lines)
+      elsif service['healthcheck_cmd'] == 'exit-zero'
+        # For one-off jobs that are expected to run to completion and exit cleanly,
+        # rather than stay running - there's no "healthy" state to poll for, so
+        # success means "exited with code 0" instead.
+        puts colorize_lightblue("Checking if #{service['compose_service']} has completed successfully " \
+                                "(exited with code 0) - Attempt #{service['check_count']}")
+        output_lines = []
+        outcode = run_command("docker inspect --format=\"{{.State.Status}}:{{.State.ExitCode}}\" " \
+                              "#{service['compose_service']}",
+                              output_lines)
+        service_healthy = outcode.zero? && output_lines.any? { |ln| ln.strip == 'exited:0' }
       else
         puts colorize_lightblue("Checking if #{service['compose_service']} is healthy (using configuration.yml CMD)" \
                                 " - Attempt #{service['check_count']}")

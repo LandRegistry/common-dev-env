@@ -3,7 +3,7 @@ commodities: ["postgres-17", "elasticsearch5", "rabbitmq-4", "db2_community"]
 # Optional
 expensive_startup:
   - compose_service: name-of-service-from-compose-fragment
-    healthcheck_cmd: docker-or-a-shell-command-that-returns-0-exit-code-if-healthy
+    healthcheck_cmd: docker-or-a-shell-command-that-returns-0-exit-code-if-healthy-or-exit-zero-for-a-one-off-job
     # Optional
     wait_until_healthy:
       - compose_service: db2_community
