@@ -148,15 +148,19 @@ function acctest(){
 }
 
 function acceptance-lint(){
-    run ${1} sh run_linting.sh
+    run ${1} sh run_linting.sh "${@:2}"
 }
 
 function acclint(){
-    run ${1} sh run_linting.sh
+    run ${1} sh run_linting.sh "${@:2}"
 }
 
 function manage(){
     ex ${1} python3 manage.py ${@:2}
+}
+
+function bundlelock(){
+    ex ${1} bundle lock "${@:2}"
 }
 
 function localstack(){
@@ -199,8 +203,8 @@ function devenv-help(){
     integration-test <name of container>             -     run the integration tests for an application (this expects there to be a Makefile with a integrationtest command)
     acceptance-test | acctest                        -     run the acceptance tests run_tests.sh script inside the given container. If using the skeleton, any further parameters will be passed to cucumber.
                 <name of container> <cucumber args>
-    acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container.
-                <name of container>
+    acceptance-lint | acclint                        -     run the acceptance tests run_linting.sh script inside the given container. Any further parameters are passed through to the linting script.
+                <name of container> [linting args]
     format <name of container>                       -     run the formatter for an application (this expects there to be a Makefile with a format command)
     lint <name of container> [-r] [-f]               -     run the linter for an application (this expects there to be a Makefile with a lint command)
                                                            if you add -r it will output reports to the test-output folder
@@ -210,6 +214,7 @@ function devenv-help(){
     psql17 <name of database>                        -     run psql in the postgres-17 container
     db2co                                            -     run db2 command line in the db2_community container
     manage <name of container> <command>             -     run manage.py commands in a container
+    bundlelock <name of container> [gem names]       -     run bundle lock in a container, updating the Gemfile.lock; pass gem names to update only those gems
     alembic <name of container> <command>            -     run an alembic db command in a container, with the appropriate environment variables preset
     add-to-docker-compose
       <name of new compose fragment>                 -     looks in fragments folder of loaded apps to search for a new compose-fragment including the provided parameter eg docker-compose-syt2-fragment then runs docker-compose up
