@@ -140,6 +140,8 @@ The file may optionally also indicate that one or more services are resource int
 
 This requires a healthcheck command specified here or in the Dockerfile/compose-fragment (in which case just use 'docker' in this file).
 
+For a one-off job that is expected to run to completion and exit cleanly, rather than stay running (so there's no "healthy" state to poll for), use `exit-zero` instead - the dev env will wait for the container to exit with code 0 and treat that as success.
+
 If one of these expensive services prefers another one to be considered "healthy" before a startup attempt is made (such as a database, to ensure immediate connectivity and no expensive restarts) then the dependent service can be specified here, with a healthcheck command following the same rules as above.
 
 [Example](snippets/app_configuration.yml)
