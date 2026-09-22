@@ -1,8 +1,4 @@
-FROM docker.io/debian:11@sha256:19d6c1c4e66453a5d729cf13c3dcdb4708aeff1b2ed9886805afcda191f064b7
-
-# For some reason some people get hash mismatch issues. This tries to resolve that.
-# See https://askubuntu.com/questions/1121093/hash-sum-mismatches-in-18-04-on-laptop-and-in-docker
-RUN printf "Acquire::http::Pipeline-Depth 0;\nAcquire::http::No-Cache true;\nAcquire::BrokenProxy true;" > /etc/apt/apt.conf.d/99fixbadproxy
+FROM docker.io/debian:13@sha256:9cc080028c43b27d2074d63a5f9caf7166d731494965616c1a6d2827a004585c
 
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y slapd ldap-utils ldapscripts && \
