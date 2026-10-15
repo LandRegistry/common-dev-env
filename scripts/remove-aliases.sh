@@ -7,7 +7,6 @@ unalias rebuild
 unalias remove
 unalias logs
 unalias livelogs
-unalias ex
 unalias status
 unalias run
 unalias psql13
@@ -16,6 +15,7 @@ unalias db2co
 unalias cadence-cli
 
 unset -f bashin
+unset -f ex
 unset -f unit-test
 unset -f integration-test
 unset -f acceptance-test

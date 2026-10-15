@@ -8,6 +8,7 @@ require_relative 'provision_elasticsearch5'
 require_relative 'provision_elasticsearch7'
 require_relative 'provision_wiremock'
 require_relative 'provision_localstack'
+require_relative 'provision_floci'
 
 require 'fileutils'
 require 'open3'
@@ -150,6 +151,8 @@ def provision_commodities(root_loc, new_containers)
   provision_hosts(root_loc)
   # Localstack
   provision_localstack(root_loc, new_containers)
+  # floci
+  provision_floci(root_loc, new_containers)
 end
 
 def container_to_commodity(container_name)
