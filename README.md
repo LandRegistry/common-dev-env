@@ -135,6 +135,7 @@ The list of allowable commodity values is:
 20. prometheus
 21. grafana
 22. govuk-one-login
+23. floci
 
 The file may optionally also indicate that one or more services are resource intensive ("expensive") when starting up. The dev env will start those containers seperately - 3 at a time - and wait until each are declared healthy (or crash and get restarted 10 times) before starting any more.
 
@@ -391,6 +392,16 @@ The GOV.UK One Login simulator is a development tool that lets you run end-to-en
 - test integrations with GOV.UK One Login without going through account creation
 
 See [documentation](https://github.com/govuk-one-login/simulator).
+
+###### floci
+
+**`/fragments/floci-init-fragment.sh`**
+
+[Floci](https://floci.io/) is a cloud stack testing and mocking framework for developing against various AWS services.
+
+For any configuration (such as new buckets) necessary before application startup, you can use a `floci-init-fragment.sh` to perform this provisioning; like [this example](snippets/floci-init-fragment.sh). Floci provisioning is performed using the aws cli.
+
+Floci is available at <http://floci:4566> within the Docker network, and <http://localhost:4566> on the host.
 
 #### Other files
 

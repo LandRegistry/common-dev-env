@@ -108,9 +108,9 @@ def update_app(appconfig, root_loc, appname)
     output_lines
   ).zero?
     return (
-        # Attempt to merge our remote branch into our local branch, if it's straightforward
-        output_lines += merge(root_loc, appname)
-      )
+      # Attempt to merge our remote branch into our local branch, if it's straightforward
+      output_lines += merge(root_loc, appname)
+    )
   end
 
   # If there is a git error we should let them know but carry on
