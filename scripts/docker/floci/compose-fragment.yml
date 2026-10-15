@@ -1,0 +1,7 @@
+services:
+  # Notice how the service name, container name and repo directory (where the Dockerfile lives) all match.
+  floci:
+    container_name: floci
+    build: ../scripts/docker/floci/
+    ports:
+    - 4566:4566
