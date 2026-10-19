@@ -33,9 +33,9 @@ function bashin(){
 
 function ex(){
   if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* || "$OSTYPE" == "cygwin"* ]] ; then
-    winpty $DC_CMD exec "$@"
+    winpty dc exec "$@"
   else
-    $DC_CMD exec "$@"
+    dc exec "$@"
   fi
 }
 
