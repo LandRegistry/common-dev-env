@@ -1,4 +1,4 @@
-FROM docker.io/postgres:17@sha256:b60e90042aa6b8dbecd58e224b3e36114dbf8ad754465264c2476ad58a86e45c
+FROM docker.io/postgres:17.12@sha256:b60e90042aa6b8dbecd58e224b3e36114dbf8ad754465264c2476ad58a86e45c
 
 # Install the PostGIS extension
 RUN apt-get update && \
